@@ -24,6 +24,11 @@
             "quoteStyle": "single"
         }
     },
+    "css": {
+        "formatter": {
+            "quoteStyle": "single"
+        }
+    },
     "html": {
         "experimentalFullSupportEnabled": true,
         "formatter": {
