@@ -1,16 +1,13 @@
 ---
 import '../styles/global.css';
 
+import { navigation } from '../lib/navigation';
+
 interface Props {
     title: string;
 }
 
 const { title } = Astro.props;
-
-const navItems = new Map([
-    ['Home Page', '/'],
-    ['About Me', '/about'],
-]);
 ---
 
 <html lang="en">
@@ -32,7 +29,7 @@ const navItems = new Map([
 
         <nav class="mb-4">
             <ol class="flex gap-4 underline">
-                {navItems.entries().map(([name, href]) => <li><a href={href} data-astro-prefetch data-link-swap>{name}</a></li>)}
+                {navigation.map(({title, href}) => <li><a href={href} data-astro-prefetch data-link-swap>{title}</a></li>)}
             </ol>
         </nav>
 
