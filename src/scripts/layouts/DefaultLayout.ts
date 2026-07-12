@@ -9,7 +9,7 @@ const pageManager = new PageManager({
 document
     .querySelectorAll<HTMLAnchorElement>('a[data-link-swap]')
     .forEach((link) => {
-        link.addEventListener('click', async (event) => {
+        link.addEventListener('click', (event) => {
             if (isSpecialClick(event)) return;
 
             event.preventDefault();
