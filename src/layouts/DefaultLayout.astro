@@ -1,16 +1,22 @@
 ---
 import '../styles/global.css';
 
-import { navigation } from '../lib/navigation';
+import { Font } from 'astro:assets';
+import { defaultTheme, pages, socials, type Theme } from '../lib/config';
 
 interface Props {
     title: string;
+    theme?: Theme;
 }
 
-const { title } = Astro.props;
+const { title, theme = defaultTheme } = Astro.props;
 ---
 
-<html lang="en">
+<html
+    lang="en"
+    style={`--theme-primary: ${theme.primary}; --theme-primary-contrast: ${theme.primaryContrast}; background-color: var(--theme-primary);`}
+    class="scrollbar-gutter-stable transition-colors-default"
+>
     <head>
         <meta charset="utf-8">
 
@@ -19,22 +25,93 @@ const { title } = Astro.props;
 
         <meta name="viewport" content="width=device-width">
         <meta name="generator" content={Astro.generator}>
+        <meta name="theme-color" content={theme.primary}>
 
         <title>{title}</title>
 
+        <Font cssVariable="--font-stack-sans-text" preload />
+
+        <style>
+            :root {
+                --inset: 100px;
+                /*--inset-top: 100%;*/
+                --inset-top: 100px;
+                --stretch: 0px;
+
+                /* Computed */
+
+                --top: calc(var(--inset-top) - var(--stretch));
+                --right: calc(100% - var(--inset));
+                --inset-half: calc(var(--inset) / 2);
+
+                --foreground-mask: shape(
+                    from var(--inset) var(--top),
+                    curve to var(--right) var(--top) with 50%
+                        calc(var(--inset-top) - (var(--stretch) * 2)),
+                    curve to var(--right) 100% with
+                        calc(100% - var(--inset) - var(--stretch)),
+                    line to var(--inset) 100%,
+                    curve to var(--inset) var(--top) with
+                        calc(var(--inset) + var(--stretch)),
+                    close
+                );
+            }
+        </style>
+
+        <script
+            type="application/json"
+            id="theme"
+            set:html={JSON.stringify(theme)}
+            is:inline
+        />
+
         <script src="../scripts/layouts/DefaultLayout.ts"></script>
     </head>
-    <body>
-        <p class="mb-4">[Default Layout]</p>
 
-        <nav class="mb-4">
-            <ol class="flex gap-4 underline">
-                {navigation.map(({title, href}) => <li><a href={href} data-astro-prefetch data-link-swap>{title}</a></li>)}
+    <body>
+        <nav
+            class="fixed z-20 inset-x-0 top-(--inset-half) translate-y-[-50%] flex justify-center"
+        >
+            <ol
+                class="flex items-center gap-8 px-8 p-4 bg-primary-translucent backdrop-blur-xl transition-colors-default rounded-full lowercase text-3xl"
+            >
+                {pages.map(({ name, href }) => 
+                    <li>
+                        <a href={href} class="text-primary-contrast hover:underline decoration-wavy underline-offset-4 decoration-from-font" data-astro-prefetch data-link-swap>
+                            {name}
+                        </a>
+                    </li>
+                )}
+
+                {socials.map(({ component: Icon, name, href }) => 
+                    <li>
+                        <a href={href} target="_blank" rel="noopener" aria-label={name}>
+                            <Icon width={24} height={24} fill="currentColor" class="text-primary-contrast" />
+                        </a>
+                    </li>
+                )}
             </ol>
         </nav>
 
-        <div data-swap="app">
-            <slot />
+        <div class="relative z-10 grid min-h-dvh">
+            <!-- Background -->
+            <div
+                class="[grid-area:1/1] p-(--inset) select-none pointer-events-none"
+                aria-hidden="true"
+            >
+                <div class="scene"></div>
+            </div>
+
+            <!-- Foreground -->
+            <div
+                class="[clip-path:var(--foreground-mask)] [grid-area:1/1] p-(--inset) [.-hydrated]:mb-(--inset) [:not(.-hydrated)]:max-h-dvh bg-[#eee] text-black overflow-hidden"
+            >
+                <div class="scene"></div>
+
+                <main data-swap="content">
+                    <slot />
+                </main>
+            </div>
         </div>
     </body>
 </html>

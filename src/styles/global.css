@@ -1,1 +1,15 @@
 @import 'tailwindcss';
+
+@theme inline {
+    --font-sans: var(--font-stack-sans-text);
+
+    --color-primary: var(--theme-primary);
+    --color-primary-contrast: var(--theme-primary-contrast);
+    --color-primary-translucent: oklab(from var(--theme-primary) l a b / 75%);
+}
+
+@layer utilities {
+    .transition-colors-default {
+        @apply transition-colors ease-in-out duration-500;
+    }
+}

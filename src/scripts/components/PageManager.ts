@@ -1,3 +1,5 @@
+import type { Theme } from '../../lib/config';
+
 class PageManager {
     #isBusy = false;
 
@@ -18,18 +20,20 @@ class PageManager {
     ): Promise<void> {
         const { push = true } = options;
 
-        if (this.#isBusy) {
-            throw new Error('Already loading.');
-        }
+        if (this.#isBusy) return;
 
         this.#isBusy = true;
-
-        const [html] = await Promise.all([
-            await fetch(url).then((response) => response.text()),
+        
+        const [html] = await Promise.allSettled([
+            fetch(url).then((response) => response.text()),
             this.#transitionOut(),
         ]);
 
-        swapPage(new DOMParser().parseFromString(html, 'text/html'));
+        if (html.status === 'rejected') {
+            throw new Error(html.reason);
+        }
+
+        swapPage(new DOMParser().parseFromString(html.value, 'text/html'));
 
         if (push) {
             history.pushState({}, '', url);
@@ -58,8 +62,33 @@ class PageManager {
     }
 }
 
+function getTheme(page: Document): Theme {
+    const text = page.querySelector('#theme')?.textContent;
+
+    if (!text) {
+        throw new Error('Theme data not found.');
+    }
+
+    return JSON.parse(text);
+}
+
 function swapPage(page: Document): void {
+    const theme = getTheme(page);
+
     document.title = page.title;
+
+    (
+        [
+            ['--theme-primary', theme.primary],
+            ['--theme-primary-contrast', theme.primaryContrast],
+        ] as const
+    ).forEach(([prop, value]) => {
+        document.documentElement.style.setProperty(prop, value);
+    });
+
+    document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute('content', theme.primary);
 
     document.querySelectorAll<HTMLElement>('[data-swap]').forEach((element) => {
         const id = element.dataset.swap;

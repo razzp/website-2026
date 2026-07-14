@@ -1,10 +1,17 @@
 ---
 import DefaultLayout from '../layouts/DefaultLayout.astro';
 
+import type { Theme } from '../lib/config';
+
+const theme: Theme = {
+    primary: 'oklch(0.65 0.2541 0)',
+    primaryContrast: 'oklch(0.65 0.2023 254.12)',
+};
+
 const title = 'About Me';
 ---
 
-<DefaultLayout title={title}>
-    <h1 class="text-5xl">{title}</h1>
+<DefaultLayout title={title} theme={theme}>
+    <h1 class="text-5xl mb-4">{title}</h1>
     <p>Lorem ipsum dolor sit amet.</p>
 </DefaultLayout>
