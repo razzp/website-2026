@@ -23,7 +23,7 @@ class PageManager {
         if (this.#isBusy) return;
 
         this.#isBusy = true;
-        
+
         const [html] = await Promise.allSettled([
             fetch(url).then((response) => response.text()),
             this.#transitionOut(),
