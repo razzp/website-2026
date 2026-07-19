@@ -29,22 +29,44 @@ const { title, theme = defaultTheme } = Astro.props;
 
         <title>{title}</title>
 
+        <link
+            rel="preload"
+            href="data/Nunito_Regular.json"
+            as="fetch"
+            type="application/json"
+            crossorigin="anonymous"
+        >
         <Font cssVariable="--font-stack-sans-text" preload />
 
         <style>
             :root {
                 --inset: 100px;
-                /*--inset-top: 100%;*/
-                --inset-top: 100px;
-                --stretch: 0px;
 
                 /* Computed */
 
-                --top: calc(var(--inset-top) - var(--stretch));
-                --right: calc(100% - var(--inset));
                 --inset-half: calc(var(--inset) / 2);
 
-                --foreground-mask: shape(
+                --xforeground-mask: shape(
+                    from var(--inset) var(--top),
+                    curve to var(--right) var(--top) with 50%
+                        calc(var(--inset-top) - (var(--stretch) * 2)),
+                    curve to var(--right) 100% with
+                        calc(100% - var(--inset) - var(--stretch)),
+                    line to var(--inset) 100%,
+                    curve to var(--inset) var(--top) with
+                        calc(var(--inset) + var(--stretch)),
+                    close
+                );
+            }
+
+            main {
+                --inset-top: 100%;
+                --xinset-top: 100px;
+                --stretch: 0px;
+                --top: calc(var(--inset-top) - var(--stretch));
+                --right: calc(100% - var(--inset));
+
+                clip-path: shape(
                     from var(--inset) var(--top),
                     curve to var(--right) var(--top) with 50%
                         calc(var(--inset-top) - (var(--stretch) * 2)),
@@ -69,8 +91,12 @@ const { title, theme = defaultTheme } = Astro.props;
     </head>
 
     <body>
+        <button id="foo" type="button" class="z-30 fixed bg-white p-2">
+            switch
+        </button>
+
         <nav
-            class="fixed z-20 inset-x-0 top-(--inset-half) translate-y-[-50%] flex justify-center"
+            class="fixed z-20 inset-x-0 top-(--inset-half) flex justify-center in-[.-show-nav]:opacity-100 in-[.-show-nav]:translate-y-[-50%] not-in-[.-show-nav]:-translate-y-full not-in-[.-show-nav]:opacity-0 transition-all duration-700 ease-in-out-expo"
         >
             <ol
                 class="flex items-center gap-8 px-8 p-4 bg-primary-translucent backdrop-blur-xl transition-colors-default rounded-full lowercase text-3xl"
@@ -96,22 +122,41 @@ const { title, theme = defaultTheme } = Astro.props;
         <div class="relative z-10 grid min-h-dvh">
             <!-- Background -->
             <div
-                class="[grid-area:1/1] p-(--inset) select-none pointer-events-none"
+                class="[grid-area:1/1] p-(--inset) pb-0 select-none pointer-events-none"
                 aria-hidden="true"
             >
-                <div class="scene"></div>
+                <div id="hero-background" class="h-full"></div>
             </div>
 
             <!-- Foreground -->
-            <div
-                class="[clip-path:var(--foreground-mask)] [grid-area:1/1] p-(--inset) [.-hydrated]:mb-(--inset) [:not(.-hydrated)]:max-h-dvh bg-[#eee] text-black overflow-hidden"
+            <main
+                class="[clip-path:var(--foreground-mask)] [grid-area:1/1] p-(--inset) pb-0 bg-[#ddd] text-black overflow-hidden"
             >
-                <div class="scene"></div>
+                <header
+                    class="h-[calc(100dvh-var(--inset))] grid grid-rows-[1fr_280px_auto_1fr] gap-12"
+                >
+                    <div id="hero-placeholder" class="row-2 col-1"></div>
 
-                <main data-swap="content">
+                    <div
+                        id="hero-foreground"
+                        class="row-[1/5] col-1"
+                        aria-hidden="true"
+                    ></div>
+
+                    <div class="row-3 col-1">
+                        <h2
+                            id="hero-strapline"
+                            class="text-center text-7xl leading-tight text-balance"
+                        >
+                            I'm an experienced Web Developer from Devon, England
+                        </h2>
+                    </div>
+                </header>
+
+                <div class="not-in-[.-show-content]:hidden" data-swap="content">
                     <slot />
-                </main>
-            </div>
+                </div>
+            </main>
         </div>
     </body>
 </html>

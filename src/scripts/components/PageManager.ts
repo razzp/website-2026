@@ -3,30 +3,30 @@ import type { Theme } from '../../lib/config';
 class PageManager {
     #isBusy = false;
 
-    readonly #transitionIn: () => Promise<void>;
-    readonly #transitionOut: () => Promise<void>;
+    private readonly transitionIn: () => Promise<void>;
+    private readonly transitionOut: () => Promise<void>;
 
     constructor(options: {
         transitionIn: () => Promise<void>;
         transitionOut: () => Promise<void>;
     }) {
-        this.#transitionIn = options.transitionIn;
-        this.#transitionOut = options.transitionOut;
+        this.transitionIn = options.transitionIn;
+        this.transitionOut = options.transitionOut;
     }
 
-    async #loadPage(
+    private async _loadPage(
         url: string,
         options: { push?: boolean } = {},
     ): Promise<void> {
         const { push = true } = options;
 
-        if (this.#isBusy) return;
+        if (this.isBusy) return;
 
         this.#isBusy = true;
 
         const [html] = await Promise.allSettled([
             fetch(url).then((response) => response.text()),
-            this.#transitionOut(),
+            this.transitionOut(),
         ]);
 
         if (html.status === 'rejected') {
@@ -39,7 +39,7 @@ class PageManager {
             history.pushState({}, '', url);
         }
 
-        await this.#transitionIn();
+        await this.transitionIn();
 
         this.#isBusy = false;
     }
@@ -50,7 +50,7 @@ class PageManager {
     ): Promise<void> {
         try {
             // Try loading the page.
-            await this.#loadPage(url, options);
+            await this._loadPage(url, options);
         } catch {
             // If something goes wrong, simply redirect normally.
             location.href = url;

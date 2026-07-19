@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 
+@theme {
+    --ease-in-out-expo: cubic-bezier(0.87, 0, 0.13, 1);
+}
+
 @theme inline {
     --font-sans: var(--font-stack-sans-text);
 
