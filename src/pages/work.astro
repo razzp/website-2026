@@ -1,12 +1,20 @@
 ---
 import DefaultLayout from '../layouts/DefaultLayout.astro';
-import { defaultTheme, type Page } from '../lib/config';
 
+import type { Page, Theme } from '../lib/config';
+
+const theme: Theme = {
+    primary: '#ff008b',
+    primaryContrast: '#003cff',
+    contentBackground: '#003cff',
+    contentText: '#ff008b',
+    meshFace: '#ff008b',
+};
 const page: Page = {
-    title: 'Home Page',
-    heading: 'Hello',
-    strapline: "I'm an experienced Web Developer from Devon, England.",
-    theme: defaultTheme,
+    title: 'My Work',
+    heading: 'Work',
+    strapline: "I've done quite a bit, and for some cool brands too!",
+    theme,
 };
 ---
 

@@ -1,17 +1,47 @@
 ---
 import DefaultLayout from '../layouts/DefaultLayout.astro';
 
-import type { Theme } from '../lib/config';
+import type { Page, Theme } from '../lib/config';
 
 const theme: Theme = {
-    primary: 'oklch(0.65 0.2541 0)',
-    primaryContrast: 'oklch(0.65 0.2023 254.12)',
+    primary: '#ffb600',
+    primaryContrast: '#8800ff',
+    contentBackground: '#8800ff',
+    contentText: '#ffb600',
+    meshFace: '#ffb600',
 };
 
-const title = 'About Me';
+const page: Page = {
+    title: 'About Me',
+    heading: 'About',
+    strapline:
+        "I was born in 1988, and the world hasn't really been the same since.",
+    theme,
+};
 ---
 
-<DefaultLayout title={title} theme={theme}>
-    <h1 class="text-5xl mb-4">{title}</h1>
-    <p>Lorem ipsum dolor sit amet.</p>
+<DefaultLayout page={page}>
+    <div class="flex flex-col gap-10 p-10 text-lg">
+        <p>Lorem ipsum dolor sit amet.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
+        <p>Lorem ipsum dolor sit amet.</p>
+    </div>
 </DefaultLayout>

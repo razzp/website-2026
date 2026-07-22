@@ -2,6 +2,17 @@
 
 @theme {
     --ease-in-out-expo: cubic-bezier(0.87, 0, 0.13, 1);
+    --animate-float: float 2s ease-in-out infinite;
+
+    @keyframes float {
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+        20% {
+            transform: translateY(-10px);
+        }
+    }
 }
 
 @theme inline {
@@ -9,11 +20,14 @@
 
     --color-primary: var(--theme-primary);
     --color-primary-contrast: var(--theme-primary-contrast);
-    --color-primary-translucent: oklab(from var(--theme-primary) l a b / 75%);
+    --color-primary-translucent: rgb(
+        from var(--theme-primary) r g b /
+        var(--alpha, 50%)
+    );
 }
 
 @layer utilities {
     .transition-colors-default {
-        @apply transition-colors ease-in-out duration-500;
+        @apply transition-colors ease-in-out duration-300;
     }
 }

@@ -1,98 +1,53 @@
-import type { Theme } from '../../lib/config';
+import { findOrThrow } from 'spank-my-dom';
+import type { Page } from '../../lib/config';
 
-class PageManager {
-    #isBusy = false;
-
-    private readonly transitionIn: () => Promise<void>;
-    private readonly transitionOut: () => Promise<void>;
-
-    constructor(options: {
-        transitionIn: () => Promise<void>;
-        transitionOut: () => Promise<void>;
-    }) {
-        this.transitionIn = options.transitionIn;
-        this.transitionOut = options.transitionOut;
-    }
-
-    private async _loadPage(
-        url: string,
-        options: { push?: boolean } = {},
-    ): Promise<void> {
-        const { push = true } = options;
-
-        if (this.isBusy) return;
-
-        this.#isBusy = true;
-
-        const [html] = await Promise.allSettled([
-            fetch(url).then((response) => response.text()),
-            this.transitionOut(),
-        ]);
-
-        if (html.status === 'rejected') {
-            throw new Error(html.reason);
-        }
-
-        swapPage(new DOMParser().parseFromString(html.value, 'text/html'));
-
-        if (push) {
-            history.pushState({}, '', url);
-        }
-
-        await this.transitionIn();
-
-        this.#isBusy = false;
-    }
-
-    public async loadPage(
-        url: string,
-        options: { push?: boolean } = {},
-    ): Promise<void> {
-        try {
-            // Try loading the page.
-            await this._loadPage(url, options);
-        } catch {
-            // If something goes wrong, simply redirect normally.
-            location.href = url;
-        }
-    }
-
-    public get isBusy(): boolean {
-        return this.#isBusy;
-    }
+interface Options {
+    pushState?: boolean;
+    whileLoading?: () => Promise<void>;
 }
 
-function getTheme(page: Document): Theme {
-    const text = page.querySelector('#theme')?.textContent;
+function getPageConfig(doc: Document): Page {
+    const config = findOrThrow('#config', doc);
 
-    if (!text) {
-        throw new Error('Theme data not found.');
-    }
-
-    return JSON.parse(text);
+    return JSON.parse(config.textContent);
 }
 
-function swapPage(page: Document): void {
-    const theme = getTheme(page);
+async function loadPage(url: string, options?: Options): Promise<Page> {
+    const { pushState = true, whileLoading } = { ...options };
 
-    document.title = page.title;
+    const [html] = await Promise.allSettled([
+        fetch(url).then((response) => response.text()),
+        whileLoading?.() ?? Promise.resolve(),
+    ]);
 
-    (
-        [
-            ['--theme-primary', theme.primary],
-            ['--theme-primary-contrast', theme.primaryContrast],
-        ] as const
-    ).forEach(([prop, value]) => {
-        document.documentElement.style.setProperty(prop, value);
-    });
+    if (html.status === 'rejected') {
+        throw new Error(html.reason);
+    }
+
+    const doc = new DOMParser().parseFromString(html.value, 'text/html');
+    const config = getPageConfig(doc);
+
+    swapPage(doc, config);
+
+    if (pushState) {
+        history.pushState({}, '', url);
+    }
+
+    return config;
+}
+
+function swapPage(doc: Document, config: Page): void {
+    document.title = config.title;
+
+    findOrThrow('#hero-strapline').innerHTML = config.strapline;
 
     document
         .querySelector('meta[name="theme-color"]')
-        ?.setAttribute('content', theme.primary);
+        ?.setAttribute('content', config.theme.primary);
 
     document.querySelectorAll<HTMLElement>('[data-swap]').forEach((element) => {
         const id = element.dataset.swap;
-        const newElement = page.querySelector(`[data-swap="${id}"]`);
+        const newElement = doc.querySelector(`[data-swap="${id}"]`);
 
         if (newElement) {
             element.replaceWith(newElement);
@@ -100,4 +55,4 @@ function swapPage(page: Document): void {
     });
 }
 
-export { PageManager };
+export { getPageConfig, loadPage };

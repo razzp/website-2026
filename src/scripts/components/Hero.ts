@@ -1,26 +1,16 @@
-import {
-    type ColorRepresentation,
-    DirectionalLight,
-    Fog,
-    MathUtils,
-    Mesh,
-    MeshBasicMaterial,
-    MeshStandardMaterial,
-    PerspectiveCamera,
-    Scene,
-    WebGLRenderer,
-} from 'three';
+import * as THREE from 'three';
 import {
     TextGeometry,
     type TextGeometryParameters,
 } from 'three/addons/geometries/TextGeometry.js';
-import { Font, type FontData } from 'three/addons/loaders/FontLoader.js';
+import type { Font } from 'three/addons/loaders/FontLoader.js';
 
 interface Options {
     container: HTMLElement;
-    fontData: FontData;
+    font: Font;
     placeholder: HTMLElement;
     text: string;
+    colour: string;
 }
 
 interface ElementProps {
@@ -39,32 +29,34 @@ interface FogProps {
 }
 
 abstract class Hero {
-    private readonly renderer: WebGLRenderer;
+    private readonly renderer: THREE.WebGLRenderer;
     private readonly container: HTMLElement;
     private readonly placeholder: HTMLElement;
     private readonly font: Font;
-    private readonly text: string;
+    private text: string;
     private readonly textGeometryParams: Partial<TextGeometryParameters>;
     private elementProps: ElementProps;
-
-    public readonly mesh: Mesh;
 
     protected meshDistanceFromCamera = 0;
     protected meshTotalDepth = 0;
 
-    public readonly scene: Scene;
-    public readonly camera: PerspectiveCamera;
+    public readonly scene: THREE.Scene;
+    public readonly camera: THREE.PerspectiveCamera;
+    public readonly mesh: THREE.Mesh;
 
     constructor(
         options: Options,
         textGeometryParams?: Partial<TextGeometryParameters>,
     ) {
-        const { container, fontData, placeholder, text } = options;
+        const { container, font, placeholder, text } = options;
 
-        const scene = new Scene();
-        const renderer = new WebGLRenderer({ antialias: true, alpha: true });
-        const camera = new PerspectiveCamera(75, undefined, 0.1, 1000);
-        const mesh = new Mesh();
+        const scene = new THREE.Scene();
+        const renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            alpha: true,
+        });
+        const camera = new THREE.PerspectiveCamera(75, undefined, 0.1, 1000);
+        const mesh = new THREE.Mesh();
 
         camera.position.z = 100;
 
@@ -77,7 +69,7 @@ abstract class Hero {
         this.mesh = mesh;
         this.renderer = renderer;
 
-        this.font = new Font(fontData);
+        this.font = font;
         this.text = text;
         this.textGeometryParams = { ...textGeometryParams };
 
@@ -95,7 +87,7 @@ abstract class Hero {
         const visibleHeight =
             2 *
             this.meshDistanceFromCamera *
-            Math.tan(MathUtils.degToRad(this.camera.fov * 0.5));
+            Math.tan(THREE.MathUtils.degToRad(this.camera.fov * 0.5));
 
         const worldUnitsPerPixel =
             visibleHeight / this.renderer.domElement.height;
@@ -158,6 +150,7 @@ abstract class Hero {
 
         this.mesh.geometry = geometry;
         this.meshTotalDepth = depth + bevelThickness;
+        this.text = value;
     }
 
     private getElementProps(): ElementProps {
@@ -172,18 +165,25 @@ abstract class Hero {
             placeholderTop: placeholderRect.top,
         };
     }
+
+    abstract setColour(colour: THREE.ColorRepresentation): void;
 }
 
 class HeroForeground extends Hero {
-    private faceMaterial: MeshStandardMaterial;
+    private faceMaterial: THREE.MeshStandardMaterial;
+    private light: THREE.DirectionalLight;
 
     constructor(options: Options) {
         super(options, {
             depth: 20,
         });
 
-        const faceMaterial = new MeshStandardMaterial({ color: 0xffffff });
-        const light = new DirectionalLight(0xffffff, 10);
+        const { colour } = options;
+
+        const faceMaterial = new THREE.MeshStandardMaterial({
+            color: colour,
+        });
+        const light = new THREE.DirectionalLight(colour, 10);
 
         light.position.set(0, 10, 20);
         light.target.position.set(0, 0, 0);
@@ -192,18 +192,22 @@ class HeroForeground extends Hero {
 
         this.mesh.material = [
             faceMaterial,
-            new MeshStandardMaterial({ color: 0x000000 }),
+            new THREE.MeshStandardMaterial({ color: 0x000000 }),
         ];
 
         this.faceMaterial = faceMaterial;
+        this.light = light;
     }
 
-    public setTextColour(colour: ColorRepresentation): void {
+    public override setColour(colour: THREE.ColorRepresentation): void {
         this.faceMaterial.color.set(colour);
+        this.light.color.set(colour);
     }
 }
 
 class HeroBackground extends Hero {
+    private material: THREE.MeshBasicMaterial;
+
     constructor(options: Options) {
         super(options, {
             depth: 100,
@@ -211,8 +215,10 @@ class HeroBackground extends Hero {
             bevelSegments: 2,
         });
 
-        const material = new MeshBasicMaterial({
-            color: 0xffffff,
+        const { colour } = options;
+
+        const material = new THREE.MeshBasicMaterial({
+            color: colour,
             wireframe: true,
             fog: true,
             transparent: true,
@@ -232,10 +238,16 @@ class HeroBackground extends Hero {
         };
 
         const fogProps = this.getFogProps();
-        const fog = new Fog(0x000000, fogProps.nearHidden, fogProps.farHidden);
+
+        const fog = new THREE.Fog(
+            0x000000,
+            fogProps.nearHidden,
+            fogProps.farHidden,
+        );
 
         this.scene.fog = fog;
         this.mesh.material = material;
+        this.material = material;
     }
 
     public getFogProps(): FogProps {
@@ -245,6 +257,10 @@ class HeroBackground extends Hero {
             farHidden: this.meshDistanceFromCamera - 1,
             farVisible: this.meshDistanceFromCamera + this.meshTotalDepth,
         };
+    }
+
+    public override setColour(colour: THREE.ColorRepresentation): void {
+        this.material.color.set(colour);
     }
 }
 

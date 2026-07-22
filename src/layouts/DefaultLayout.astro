@@ -2,20 +2,27 @@
 import '../styles/global.css';
 
 import { Font } from 'astro:assets';
-import { defaultTheme, pages, socials, type Theme } from '../lib/config';
+import MouseIcon from 'bootstrap-icons/icons/mouse.svg';
+import { navigation, type Page, socials } from '../lib/config';
 
 interface Props {
-    title: string;
-    theme?: Theme;
+    page: Page;
 }
 
-const { title, theme = defaultTheme } = Astro.props;
+const { page } = Astro.props;
+
+const themeVars = Object.entries(page.theme)
+    .map(
+        ([key, value]) =>
+            `--theme-${key.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}: ${value}`,
+    )
+    .join('; ');
 ---
 
 <html
     lang="en"
-    style={`--theme-primary: ${theme.primary}; --theme-primary-contrast: ${theme.primaryContrast}; background-color: var(--theme-primary);`}
-    class="scrollbar-gutter-stable transition-colors-default"
+    style={themeVars}
+    class="scrollbar-gutter-stable xtransition-colors-default"
 >
     <head>
         <meta charset="utf-8">
@@ -25,43 +32,26 @@ const { title, theme = defaultTheme } = Astro.props;
 
         <meta name="viewport" content="width=device-width">
         <meta name="generator" content={Astro.generator}>
-        <meta name="theme-color" content={theme.primary}>
+        <meta name="theme-color" content={page.theme.primary}>
 
-        <title>{title}</title>
+        <title>{page.title}</title>
 
-        <link
-            rel="preload"
-            href="data/Nunito_Regular.json"
-            as="fetch"
-            type="application/json"
-            crossorigin="anonymous"
-        >
         <Font cssVariable="--font-stack-sans-text" preload />
 
         <style>
+            @property --theme-primary {
+                syntax: '<color>';
+                inherits: true;
+                initial-value: transparent;
+            }
+
             :root {
                 --inset: 100px;
-
-                /* Computed */
-
                 --inset-half: calc(var(--inset) / 2);
-
-                --xforeground-mask: shape(
-                    from var(--inset) var(--top),
-                    curve to var(--right) var(--top) with 50%
-                        calc(var(--inset-top) - (var(--stretch) * 2)),
-                    curve to var(--right) 100% with
-                        calc(100% - var(--inset) - var(--stretch)),
-                    line to var(--inset) 100%,
-                    curve to var(--inset) var(--top) with
-                        calc(var(--inset) + var(--stretch)),
-                    close
-                );
             }
 
             main {
                 --inset-top: 100%;
-                --xinset-top: 100px;
                 --stretch: 0px;
                 --top: calc(var(--inset-top) - var(--stretch));
                 --right: calc(100% - var(--inset));
@@ -82,26 +72,31 @@ const { title, theme = defaultTheme } = Astro.props;
 
         <script
             type="application/json"
-            id="theme"
-            set:html={JSON.stringify(theme)}
+            id="config"
+            set:html={JSON.stringify(page)}
             is:inline
         />
 
-        <script src="../scripts/layouts/DefaultLayout.ts"></script>
+        <!--<script src="../scripts/layouts/DefaultLayout.ts"></script> -->
+
+        <script>
+            const [{ init }] = await Promise.all([
+                import('../scripts/layouts/DefaultLayout'),
+                document.fonts.ready,
+            ]);
+
+            await init();
+        </script>
     </head>
 
-    <body>
-        <button id="foo" type="button" class="z-30 fixed bg-white p-2">
-            switch
-        </button>
-
+    <body class="bg-primary">
         <nav
-            class="fixed z-20 inset-x-0 top-(--inset-half) flex justify-center in-[.-show-nav]:opacity-100 in-[.-show-nav]:translate-y-[-50%] not-in-[.-show-nav]:-translate-y-full not-in-[.-show-nav]:opacity-0 transition-all duration-700 ease-in-out-expo"
+            class="fixed z-20 inset-x-0 top-(--inset-half) flex justify-center in-[.-show-nav]:opacity-100 in-[.-show-nav]:translate-y-[-50%] not-in-[.-show-nav]:-translate-y-full not-in-[.-show-nav]:opacity-0 not-in-[.-show-nav]:pointer-events-none transition-all duration-700 ease-in-out-expo"
         >
             <ol
-                class="flex items-center gap-8 px-8 p-4 bg-primary-translucent backdrop-blur-xl transition-colors-default rounded-full lowercase text-3xl"
+                class="flex items-center gap-8 px-8 p-4 bg-primary-translucent hover:[--alpha:100%] backdrop-blur-xl transition-colors-default rounded-full lowercase text-3xl"
             >
-                {pages.map(({ name, href }) => 
+                {navigation.map(({ name, href }) => 
                     <li>
                         <a href={href} class="text-primary-contrast hover:underline decoration-wavy underline-offset-4 decoration-from-font" data-astro-prefetch data-link-swap>
                             {name}
@@ -109,7 +104,7 @@ const { title, theme = defaultTheme } = Astro.props;
                     </li>
                 )}
 
-                {socials.map(({ component: Icon, name, href }) => 
+                {socials.map(({ icon: Icon, name, href }) => 
                     <li>
                         <a href={href} target="_blank" rel="noopener" aria-label={name}>
                             <Icon width={24} height={24} fill="currentColor" class="text-primary-contrast" />
@@ -119,7 +114,9 @@ const { title, theme = defaultTheme } = Astro.props;
             </ol>
         </nav>
 
-        <div class="relative z-10 grid min-h-dvh">
+        <div
+            class="relative z-10 grid min-h-dvh in-[.-show-content]:mb-(--inset)"
+        >
             <!-- Background -->
             <div
                 class="[grid-area:1/1] p-(--inset) pb-0 select-none pointer-events-none"
@@ -130,7 +127,7 @@ const { title, theme = defaultTheme } = Astro.props;
 
             <!-- Foreground -->
             <main
-                class="[clip-path:var(--foreground-mask)] [grid-area:1/1] p-(--inset) pb-0 bg-[#ddd] text-black overflow-hidden"
+                class="[clip-path:var(--foreground-mask)] [grid-area:1/1] p-(--inset) pb-0 bg-(--theme-content-background) text-(--theme-content-text) overflow-hidden"
             >
                 <header
                     class="h-[calc(100dvh-var(--inset))] grid grid-rows-[1fr_280px_auto_1fr] gap-12"
@@ -144,13 +141,22 @@ const { title, theme = defaultTheme } = Astro.props;
                     ></div>
 
                     <div class="row-3 col-1">
+                        <h1 class="sr-only">{page.heading}</h1>
+
                         <h2
                             id="hero-strapline"
                             class="text-center text-7xl leading-tight text-balance"
                         >
-                            I'm an experienced Web Developer from Devon, England
+                            {page.strapline}
                         </h2>
                     </div>
+
+                    <MouseIcon
+                        width={46}
+                        height={46}
+                        fill="currentColor"
+                        class="row-4 col-1 self-center justify-self-center text-current animate-float not-in-[.-show-nav.-show-mouse-hint]:opacity-0 transition-opacity duration-1000"
+                    />
                 </header>
 
                 <div class="not-in-[.-show-content]:hidden" data-swap="content">

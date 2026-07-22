@@ -1,16 +1,16 @@
 import type { ImageMetadata } from 'astro';
 import type { SvgComponent } from 'astro/types';
 
-import GitHubLogo from 'bootstrap-icons/icons/github.svg';
-import LinkedInLogo from 'bootstrap-icons/icons/linkedin.svg';
+import GitHubIcon from 'bootstrap-icons/icons/github.svg';
+import LinkedInIcon from 'bootstrap-icons/icons/linkedin.svg';
 
 interface Social {
     name: string;
     href: string;
-    component: SvgComponent & ImageMetadata;
+    icon: SvgComponent & ImageMetadata;
 }
 
-interface Page {
+interface NavItem {
     name: string;
     href: string;
 }
@@ -18,18 +18,31 @@ interface Page {
 interface Theme {
     primary: string;
     primaryContrast: string;
+    contentBackground: string;
+    contentText: string;
+    meshFace: string;
+}
+
+interface Page {
+    title: string;
+    heading: string;
+    strapline: string;
+    theme: Theme;
 }
 
 const defaultTheme: Theme = {
-    primary: 'oklch(0.252 0 0)',
-    primaryContrast: 'oklch(0.9491 0 0)',
+    primary: '#eee',
+    primaryContrast: '#111',
+    contentBackground: '#111',
+    contentText: '#eee',
+    meshFace: '#fff',
 };
 
-const pages: Page[] = [
+const navigation: NavItem[] = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
-    { name: 'Work', href: '/' },
-    { name: 'Contact', href: '/' },
+    { name: 'Work', href: '/work' },
+    { name: 'Contact', href: '/contact' },
     { name: 'Blog', href: '/' },
 ];
 
@@ -37,13 +50,13 @@ const socials: Social[] = [
     {
         name: 'GitHub',
         href: 'http://www.github.com/razzp',
-        component: GitHubLogo,
+        icon: GitHubIcon,
     },
     {
         name: 'LinkedIn',
         href: 'http://www.linkedin.com',
-        component: LinkedInLogo,
+        icon: LinkedInIcon,
     },
 ];
 
-export { defaultTheme, pages, socials, type Theme };
+export { defaultTheme, navigation, type Page, socials, type Theme };
