@@ -26,6 +26,7 @@ const strapline = findOrThrow('#hero-strapline');
 const maxRotation = 0.1;
 const heading = findOrThrow('h1').textContent.toLowerCase();
 const { theme } = getPageConfig(document);
+const enableTransitions = false;
 
 const heroForeground = new HeroForeground({
     container: findOrThrow('#hero-foreground'),
@@ -81,7 +82,21 @@ async function init(): Promise<void> {
         ScrollTrigger.update;
     });
 
-    transitionIn();
+    transitionIn().then(() => {
+        const nav = performance.getEntriesByType('navigation')[0] as
+            | PerformanceNavigationTiming
+            | undefined;
+        const scrollY = sessionStorage.getItem('scrollY');
+
+        if (scrollY && nav?.type === 'reload') {
+            sessionStorage.removeItem('scrollY');
+            //lenis.scrollTo(Number(scrollY), { duration: 1});
+            window.scrollTo(0, Number(scrollY));
+            console.log(`RELOAD DETECTED, SCROLLING TO: ${Number(scrollY)}`);
+        }
+
+        document.dispatchEvent(new CustomEvent('foo'));
+    });
 
     document
         .querySelectorAll<HTMLAnchorElement>('a[data-link-swap]')
@@ -104,10 +119,12 @@ async function init(): Promise<void> {
                 heroForeground.setColour(page.theme.meshFace);
                 heroBackground.setColour(page.theme.primaryContrast);
 
-                await new Promise((resolve) => setTimeout(resolve, 100));
+                if (enableTransitions) {
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+                }
 
                 for (const [key, value] of Object.entries(page.theme)) {
-                    if (key === 'primary') continue;
+                    if (enableTransitions && key === 'primary') continue;
 
                     document.documentElement.style.setProperty(
                         `--theme-${key.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}`,
@@ -115,24 +132,35 @@ async function init(): Promise<void> {
                     );
                 }
 
-                const colourTween = document.documentElement.animate(
-                    {
-                        '--theme-primary': page.theme.primary,
-                    },
-                    {
-                        duration: 600,
-                        fill: 'forwards',
-                        easing: 'ease',
-                    },
-                );
+                if (enableTransitions) {
+                    const colourTween = document.documentElement.animate(
+                        {
+                            '--theme-primary': page.theme.primary,
+                        },
+                        {
+                            duration: 600,
+                            fill: 'forwards',
+                            easing: 'ease',
+                        },
+                    );
 
-                await colourTween.finished;
+                    await colourTween.finished;
+                }
+
                 await transitionIn();
             });
         });
 
     /*window.addEventListener('popstate', () => {
         pageManager.loadPage(location.href, { push: false });
+    });*/
+
+    window.addEventListener('beforeunload', () => {
+        sessionStorage.setItem('scrollY', String(window.scrollY));
+    });
+
+    /*window.addEventListener("load", () => {
+        
     });*/
 }
 
@@ -209,7 +237,8 @@ function transitionIn(): Promise<void> {
                         onComplete: () => splitText.revert(),
                     },
                     '<',
-                );
+                )
+                .progress(enableTransitions ? 0 : 1);
 
             document.documentElement.classList.add('-show-nav');
             document.documentElement.classList.add('-show-content');
@@ -262,7 +291,8 @@ function transitionOut(): Promise<void> {
                             near: fogProps.nearHidden,
                         },
                         '>-0.6',
-                    );
+                    )
+                    .progress(enableTransitions ? 0 : 1);
 
                 resolve();
             },

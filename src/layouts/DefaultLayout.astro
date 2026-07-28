@@ -3,6 +3,7 @@ import '../styles/global.css';
 
 import { Font } from 'astro:assets';
 import MouseIcon from 'bootstrap-icons/icons/mouse.svg';
+import DuotoneFilter from '../components/DuotoneFilter.astro';
 import { navigation, type Page, socials } from '../lib/config';
 
 interface Props {
@@ -30,7 +31,7 @@ const themeVars = Object.entries(page.theme)
         <link rel="icon" type="image/svg+xml" href="/favicon.svg">
         <link rel="icon" href="/favicon.ico">
 
-        <meta name="viewport" content="width=device-width">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
         <meta name="generator" content={Astro.generator}>
         <meta name="theme-color" content={page.theme.primary}>
 
@@ -160,6 +161,10 @@ const themeVars = Object.entries(page.theme)
                 </header>
 
                 <div class="not-in-[.-show-content]:hidden" data-swap="content">
+                    <DuotoneFilter
+                        colourStart={page.theme.primaryContrast}
+                        colourEnd={page.theme.primary}
+                    />
                     <slot />
                 </div>
             </main>

@@ -1,6 +1,7 @@
 ---
+import { Picture } from 'astro:assets';
+import testImage from '../images/test.jpg';
 import DefaultLayout from '../layouts/DefaultLayout.astro';
-
 import type { Page, Theme } from '../lib/config';
 
 const theme: Theme = {
@@ -10,6 +11,7 @@ const theme: Theme = {
     contentText: '#ff008b',
     meshFace: '#ff008b',
 };
+
 const page: Page = {
     title: 'My Work',
     heading: 'Work',
@@ -20,6 +22,13 @@ const page: Page = {
 
 <DefaultLayout page={page}>
     <div class="flex flex-col gap-10 p-10 text-lg">
+        <Picture
+            class="filter-duotone"
+            src={testImage}
+            formats={['avif', 'webp']}
+            alt="lorem ipsum"
+        />
+
         <p>Lorem ipsum dolor sit amet.</p>
         <p>Lorem ipsum dolor sit amet.</p>
         <p>Lorem ipsum dolor sit amet.</p>

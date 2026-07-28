@@ -1,0 +1,242 @@
+---
+import '../styles/global.css';
+---
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+
+        <meta name="viewport" content="width=device-width">
+
+        <title></title>
+
+        <style>
+            @property --angle {
+                syntax: '<angle>';
+                inherits: false;
+                initial-value: 0deg;
+            }
+
+            @keyframes rotateGradient {
+                to {
+                    --angle: 1turn; /* 90 + 360 */
+                }
+            }
+
+            body {
+                background-color: #222;
+            }
+
+            .anchor {
+                background-color: rgba(255, 0, 0, 0);
+                position: absolute;
+                z-index: 9999999;
+                pointer-events: none;
+
+                top: calc(var(--y) - 15px);
+                left: calc(var(--x) - 15px);
+
+                width: 30px;
+                height: 30px;
+            }
+
+            :root:has(.test-1:hover) .anchor {
+                --o: 10px;
+
+                position-anchor: --test-1;
+                top: calc(anchor(top) - var(--o, 0px));
+                left: calc(anchor(left) - var(--o, 0px));
+                width: calc(anchor-size(width) + (var(--o, 0px) * 2));
+                height: calc(anchor-size(height) + (var(--o, 0px) * 2));
+            }
+
+            :root:has(.test-2:hover) .anchor {
+                --o: 10px;
+
+                position-anchor: --test-2;
+                top: calc(anchor(top) - var(--o, 0px));
+                left: calc(anchor(left) - var(--o, 0px));
+                width: calc(anchor-size(width) + (var(--o, 0px) * 2));
+                height: calc(anchor-size(height) + (var(--o, 0px) * 2));
+            }
+
+            :root:has(.element:hover) .anchor {
+                --o: 20px;
+
+                position-anchor: --element;
+                top: calc(anchor(top) - var(--o, 0px));
+                left: calc(anchor(left) - var(--o, 0px));
+                width: calc(anchor-size(width) + (var(--o, 0px) * 2));
+                height: calc(anchor-size(height) + (var(--o, 0px) * 2));
+            }
+
+            .follower {
+                --angle: 0deg;
+                --border: 2px;
+
+                position: fixed;
+                border: var(--border) solid transparent;
+                pointer-events: none;
+                border-radius: 20px;
+                transition: border-radius 0.4s ease;
+                will-change: transform;
+                contain: strict;
+
+                background: #fff border-box;
+
+                mask:
+                    linear-gradient(#fff 0 0) content-box,
+                    linear-gradient(#fff 0 0);
+                mask-composite: exclude;
+
+                mix-blend-mode: exclusion;
+            }
+
+            :root:has(.test-1:hover) .follower {
+                --border: 4px;
+                border-radius: 10px;
+
+                background: conic-gradient(
+                        from var(--angle),
+                        oklab(64.057% 0.25402 0.03594),
+                        oklab(54.577% 0.10823 -0.22307),
+                        oklab(63.714999999999996% -0.03552 -0.19209),
+                        oklab(77.751% -0.15518 0.03696),
+                        oklab(64.057% 0.25402 0.03594)
+                    )
+                    border-box;
+                animation: rotateGradient 5s linear infinite;
+            }
+
+            :root:has(.check:checked) .follower {
+                /*background: conic-gradient(from var(--angle), #ffffff 0%, rgba(255,255,255,1) 75%, rgba(217,233,242,0) 75%, rgba(129,183,211,0) 100%) border-box;*/
+                background: conic-gradient(
+                        from var(--angle),
+                        oklab(100% 0 -0.00011),
+                        oklab(99.703% 0 -0.00011 / 0),
+                        oklab(100% 0 -0.00011),
+                        oklab(99.703% 0 -0.00011 / 0),
+                        oklab(100% 0 -0.00011),
+                        oklab(99.703% 0 -0.00011 / 0),
+                        oklab(100% 0 -0.00011)
+                    )
+                    border-box;
+                animation: rotateGradient 1s linear infinite;
+            }
+
+            .test-1 {
+                anchor-name: --test-1;
+            }
+
+            .test-2 {
+                anchor-name: --test-2;
+            }
+
+            .element {
+                anchor-name: --element;
+            }
+        </style>
+
+        <script>
+            const follower = document.querySelector<HTMLElement>('.follower')!;
+            const anchor = document.querySelector<HTMLElement>('.anchor')!;
+
+            let mouseX = 0;
+            let mouseY = 0;
+            let scrollY = 0;
+
+            let x = 0;
+            let y = 0;
+            let w = 0;
+            let h = 0;
+
+            const rootStyle = document.documentElement.style;
+
+            window.addEventListener(
+                'mousemove',
+                ({ clientX, clientY }) => {
+                    mouseX = clientX;
+                    mouseY = clientY;
+                },
+                { passive: true },
+            );
+
+            window.addEventListener(
+                'scroll',
+                () => {
+                    scrollY = window.scrollY;
+                },
+                { passive: true },
+            );
+
+            function lerp(
+                current: number,
+                target: number,
+                speed: number,
+                epsilon = 0.1,
+            ) {
+                const delta = target - current;
+
+                if (Math.abs(delta) < epsilon) {
+                    return target;
+                }
+
+                return current + delta * speed;
+            }
+
+            let lastTime = performance.now();
+            const speed = 20;
+
+            function animate(time: number) {
+                const dt = (time - lastTime) / 1000;
+                lastTime = time;
+
+                const t = 1 - Math.exp(-speed * dt);
+
+                //////////
+
+                rootStyle.setProperty('--x', `${mouseX}px`);
+
+                rootStyle.setProperty('--y', `${mouseY + scrollY}px`);
+
+                const rect = anchor.getBoundingClientRect();
+
+                x = lerp(x, rect.x, t);
+                y = lerp(y, rect.y, t);
+                w = lerp(w, rect.width, t);
+                h = lerp(h, rect.height, t);
+
+                //follower.style.cssText = `transform:translate3d(${x}px,${y}px,0);width:${w}px;height:${h}px;`;
+
+                follower.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+                follower.style.width = `${w}px`;
+                follower.style.height = `${h}px`;
+
+                requestAnimationFrame(animate);
+            }
+
+            requestAnimationFrame(animate);
+        </script>
+    </head>
+
+    <body>
+        <div class="anchor"></div>
+        <div class="follower"></div>
+        <div
+            class="grid grid-cols-2 h-[200dvh] items-center justify-items-center"
+        >
+            <div class="grid gap-4">
+                <a href="/" class="test-1 text-6xl text-white">test 1</a>
+                <div>
+                    <input type="checkbox" class="check">
+                </div>
+            </div>
+            <div>
+                <div
+                    class="element bg-amber-500"
+                    style="width: 500px; height: 300px;"
+                ></div>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,4 +1,6 @@
 ---
+import { Picture } from 'astro:assets';
+import testImage from '../images/test.jpg';
 import DefaultLayout from '../layouts/DefaultLayout.astro';
 import { defaultTheme, type Page } from '../lib/config';
 
@@ -10,8 +12,289 @@ const page: Page = {
 };
 ---
 
+<style>
+    .bar {
+        mask-image: linear-gradient(
+            to right,
+            transparent 0%,
+            black 20%,
+            black 80%,
+            transparent 100%
+        );
+    }
+
+    .foo {
+        position: relative;
+    }
+
+    .foo span {
+        position: absolute;
+        white-space: nowrap;
+        color: transparent;
+        -webkit-text-stroke: thin rgba(255, 255, 255, 0.5);
+        user-select: none;
+    }
+
+    .foo span:first-child {
+        right: 100%;
+    }
+
+    .foo span:last-child {
+        left: 100%;
+    }
+
+    .svgoutline {
+        filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 0.5));
+    }
+
+    .draw {
+        fill: transparent;
+        stroke: #fff;
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        stroke-linecap: round;
+    }
+</style>
+
+<script>
+    import { gsap } from 'gsap';
+    import { ScrollTrigger } from 'gsap/all';
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener('foo', () => {
+        ScrollTrigger.refresh();
+
+        const state = { progress: 0 };
+        const paths =
+            document.querySelectorAll<HTMLElement>('.svgoutline path');
+
+        // const length = path.getTotalLength();
+
+        const t = gsap.timeline({
+            scrollTrigger: {
+                trigger: '.svgoutline',
+                scrub: true,
+                start: 'top bottom-=20%', // Element's top reaches the bottom of the viewport
+                end: 'top top+=20%', // Element's top reaches the center of the viewport
+                markers: true,
+            },
+            onUpdate: () => {
+                paths.forEach((path) => {
+                    path.style.strokeDashoffset = String(state.progress);
+                });
+            },
+        });
+
+        t.fromTo(
+            state,
+            {
+                progress: 1,
+            },
+            {
+                progress: 0,
+            },
+        );
+
+        /*const t2 = gsap.timeline({
+            scrollTrigger: {
+                trigger: '.filter-duotone',
+                scrub: true,
+                start: 'top bottom', // Element's top reaches the bottom of the viewport
+                end: 'bottom top', // Element's top reaches the center of the viewport
+                markers: true,
+            },
+            onUpdate: () => {
+                paths.forEach((path) => {
+                    path.style.strokeDashoffset = String(state.progress);
+                });
+            },
+        });
+
+        t2.fromTo(
+            '.filter-duotone',
+            {
+                //rotation: -10,
+                x: -100
+            },
+            {
+                //rotation: 10,
+                x: 100
+            },
+        );*/
+
+        /*t.fromTo(document.documentElement, {
+                '--dash-offset': 1,
+            },
+            {
+                '--dash-offset': 0,
+            });*/
+    });
+</script>
+
 <DefaultLayout page={page}>
+    <div class="svgoutline p-10 flex items-center justify-center">
+        <svg
+            width="144.3"
+            height="67.125"
+            viewBox="0 0 144.3 67.125"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            class="w-full max-w-prose h-auto"
+        >
+            <g
+                stroke-linecap="round"
+                fill-rule="nonzero"
+            >
+                <path
+                    pathLength="1"
+                    class="draw"
+                    d="M 5.025 39 L 5.025 24 L 0 24 L 0 15.825 L 5.7 15.375 L 6.975 3.975 L 16.125 3.975 L 16.125 15.375 L 25.05 15.375 L 25.05 24 L 16.125 24 L 16.125 38.85 Q 16.125 42 17.438 43.387 Q 18.75 44.775 20.925 44.775 Q 21.825 44.775 22.725 44.625 Q 23.625 44.475 24.45 44.175 L 26.25 51.9 Q 24.825 52.5 22.688 52.95 Q 20.55 53.4 17.925 53.4 A 13.768 13.768 0 0 1 10.281 51.503 A 8.823 8.823 0 0 1 8.025 49.388 A 16.675 16.675 0 0 1 5.028 39.396 A 26.629 26.629 0 0 1 5.025 39 Z"
+                    id="0"
+                    xvector-effect="non-scaling-stroke"
+                />
+                <path
+                    pathLength="1"
+                    class="draw"
+                    d="M 32.325 40.95 L 32.325 0.075 L 43.35 0.075 L 43.35 41.4 Q 43.35 43.2 43.988 43.838 Q 44.625 44.475 45.375 44.475 Q 45.675 44.475 45.938 44.438 Q 46.2 44.4 46.65 44.325 L 48 52.5 Q 47.1 52.875 45.713 53.137 Q 44.325 53.4 42.45 53.4 Q 38.7 53.4 36.488 51.863 Q 34.275 50.325 33.3 47.512 Q 32.325 44.7 32.325 40.95 Z"
+                    id="1"
+                    xvector-effect="non-scaling-stroke"
+                />
+                <path
+                    pathLength="1"
+                    class="draw"
+                    d="M 54.6 67.125 L 52.35 61.275 Q 56.55 59.775 58.725 57.3 A 7.655 7.655 0 0 0 60.828 52.165 A 7.206 7.206 0 0 0 60.825 51.975 L 60.6 44.625 L 64.2 50.775 Q 63.375 51.45 62.363 51.787 Q 61.35 52.125 60.225 52.125 Q 57.6 52.125 55.575 50.512 Q 53.55 48.9 53.55 45.9 Q 53.55 43.05 55.575 41.325 Q 57.6 39.6 60.45 39.6 Q 64.2 39.6 66.15 42.338 A 12.342 12.342 0 0 1 68.083 49.116 A 23.596 23.596 0 0 1 68.1 50.025 Q 68.1 56.175 64.65 60.675 Q 61.2 65.175 54.6 67.125 Z M 60.15 29.175 Q 57.3 29.175 55.387 27.15 Q 53.475 25.125 53.475 22.275 Q 53.475 19.275 55.387 17.287 Q 57.3 15.3 60.15 15.3 Q 63.075 15.3 64.95 17.287 Q 66.825 19.275 66.825 22.275 Q 66.825 25.125 64.95 27.15 Q 63.075 29.175 60.15 29.175 Z"
+                    id="2"
+                    xvector-effect="non-scaling-stroke"
+                />
+                <path
+                    pathLength="1"
+                    class="draw"
+                    d="M 98.925 18.375 L 98.475 12.675 L 98.475 0 L 109.5 0 L 109.5 52.575 L 100.5 52.575 L 99.75 48.9 L 99.45 48.9 Q 97.5 50.85 94.875 52.162 Q 92.25 53.475 89.55 53.475 Q 82.65 53.475 78.487 48.262 A 19.967 19.967 0 0 1 74.524 37.76 A 34.448 34.448 0 0 1 74.325 33.975 Q 74.325 27.9 76.538 23.55 Q 78.75 19.2 82.312 16.838 Q 85.875 14.475 89.775 14.475 Q 92.85 14.475 94.95 15.525 Q 97.05 16.575 98.925 18.375 Z M 98.475 41.1 L 98.475 25.875 Q 97.05 24.525 95.475 24 Q 93.9 23.475 92.325 23.475 Q 90.525 23.475 89.025 24.6 Q 87.525 25.725 86.587 28.012 Q 85.65 30.3 85.65 33.825 A 18.308 18.308 0 0 0 86.57 40.177 A 7.807 7.807 0 0 0 87.45 41.887 Q 89.25 44.475 92.4 44.475 Q 94.2 44.475 95.7 43.725 Q 97.2 42.975 98.475 41.1 Z"
+                    id="3"
+                    xvector-effect="non-scaling-stroke"
+                />
+                <path
+                    pathLength="1"
+                    class="draw"
+                    d="M 130.275 52.575 L 119.25 52.575 L 119.25 15.375 L 128.25 15.375 L 129 21.9 L 129.3 21.9 Q 131.325 18.15 134.138 16.313 Q 136.95 14.475 139.875 14.475 Q 141.45 14.475 142.5 14.662 Q 143.55 14.85 144.3 15.225 L 142.2 24.6 Q 141.3 24.375 140.475 24.262 Q 139.65 24.15 138.45 24.15 Q 136.35 24.15 134.063 25.65 A 10.636 10.636 0 0 0 130.37 30.738 A 20.887 20.887 0 0 0 130.275 30.975 L 130.275 52.575 Z"
+                    id="4"
+                    xvector-effect="non-scaling-stroke"
+                />
+            </g>
+        </svg>
+    </div>
+
     <div class="flex flex-col gap-10 p-10 text-lg">
+        <div
+            class="border-2 border-white/10 p-10"
+            style="border-radius: 20px; xclip-path: inset(0 round 20px);"
+        >
+            <!--<div class="fixed inset-0 grid place-items-center">
+                hello?
+            </div> -->
+
+            <div class="flex flex-col gap-10 items-center">
+                <h3
+                    class="text-7xl text-balance text-center"
+                    style="color: transparent; -webkit-text-stroke: 1px white;"
+                >
+                    My name is Rob, and I've been up to no good since 1988.
+                </h3>
+
+                <Picture
+                    class="filter-duotone xaspect-square object-cover w-[400px]"
+                    src={testImage}
+                    formats={['avif', 'webp']}
+                    alt="lorem ipsum"
+                    style="xclip-path: inset(0 round 50%)"
+                />
+            </div>
+        </div>
+    </div>
+
+    <div class="bar flex flex-col items-center p-10 text-8xl">
+        <div class="foo">
+            <span
+                >lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat</span
+            >
+            &nbsp;foo&nbsp;
+            <span
+                >lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat</span
+            >
+        </div>
+        <div class="foo">
+            <span
+                >lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat</span
+            >
+            &nbsp;bar&nbsp;
+            <span
+                >lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat</span
+            >
+        </div>
+        <div class="foo">
+            <span
+                >lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat</span
+            >
+            &nbsp;baz&nbsp;
+            <span
+                >lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat</span
+            >
+        </div>
+    </div>
+
+    <div class="flex flex-col gap-10 p-10 text-lg">
+        <div
+            class="border border-white/10 p-5 relative"
+            style="border-radius: 20px;"
+        >
+            <span
+                class="absolute top-[-20px] left-[-20px] w-[20px] h-[20px] border-b border-r border-dotted border-white/50"
+            ></span>
+            <span
+                class="absolute top-[-20px] right-[-20px] w-[20px] h-[20px] border-b border-l border-dotted border-white/50"
+            ></span>
+            <span
+                class="absolute bottom-[-20px] left-[-20px] w-[20px] h-[20px] border-t border-r border-dotted border-white/50"
+            ></span>
+            <span
+                class="absolute bottom-[-20px] right-[-20px] w-[20px] h-[20px] border-t border-l border-dotted border-white/50"
+            ></span>
+
+            <div class="grid grid-cols-2 gap-5">
+                <Picture
+                    class="filter-duotone"
+                    src={testImage}
+                    formats={['avif', 'webp']}
+                    alt="lorem ipsum"
+                    style="clip-path: inset(0 round 16px)"
+                />
+                <h3
+                    class="text-8xl"
+                    style="color: transparent; -webkit-text-stroke: thin white;"
+                >
+                    some blurb
+                </h3>
+            </div>
+        </div>
         <p>Lorem ipsum dolor sit amet.</p>
         <p>Lorem ipsum dolor sit amet.</p>
         <p>Lorem ipsum dolor sit amet.</p>

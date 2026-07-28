@@ -1,0 +1,64 @@
+---
+import Color from 'colorjs.io';
+
+interface Props {
+    colourStart: string;
+    colourEnd: string;
+}
+
+const colourStart = new Color(Astro.props.colourStart);
+const colourEnd = new Color(Astro.props.colourEnd);
+
+const [startRed, startGreen, startBlue] = colourStart.srgb;
+const [endRed, endGreen, endBlue] = colourEnd.srgb;
+
+const colourTable = {
+    red: `${startRed} ${endRed}`,
+    green: `${startGreen} ${endGreen}`,
+    blue: `${startBlue} ${endBlue}`,
+};
+---
+
+<svg class="hidden" aria-hidden="true">
+    <defs>
+        <filter
+            id="duotone-filter"
+            x="0"
+            y="0"
+            width="100%"
+            height="100%"
+            filterUnits="objectBoundingBox"
+            primitiveUnits="objectBoundingBox"
+        >
+            <feColorMatrix
+                type="matrix"
+                values="
+                    .33 .33 .33 0 0
+                    .33 .33 .33 0 0
+                    .33 .33 .33 0 0
+                    0   0   0   1 0"
+                result="grayscale"
+            />
+
+            <feComponentTransfer
+                in="grayscale"
+                result="duotone"
+                color-interpolation-filters="sRGB"
+            >
+                <feFuncR type="table" tableValues={colourTable.red} />
+                <feFuncG type="table" tableValues={colourTable.green} />
+                <feFuncB type="table" tableValues={colourTable.blue} />
+            </feComponentTransfer>
+
+            <feTurbulence
+                type="fractalNoise"
+                baseFrequency="0.65"
+                numOctaves="3"
+                stitchTiles="stitch"
+                result="noise"
+            />
+
+            <feBlend in="duotone" in2="noise" mode="multiply" />
+        </filter>
+    </defs>
+</svg>

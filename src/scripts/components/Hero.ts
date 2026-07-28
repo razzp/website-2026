@@ -60,6 +60,8 @@ abstract class Hero {
 
         camera.position.z = 100;
 
+        renderer.domElement.className = 'w-full h-auto';
+
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1));
         scene.add(mesh);
         container.appendChild(renderer.domElement);
@@ -115,7 +117,7 @@ abstract class Hero {
 
         this.camera.aspect = containerWidth / containerHeight;
 
-        this.renderer.setSize(containerWidth, containerHeight);
+        this.renderer.setSize(containerWidth, containerHeight, false);
 
         this.camera.setViewOffset(
             containerWidth,
