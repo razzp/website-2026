@@ -79,7 +79,7 @@ async function init(): Promise<void> {
 
     lenis.on('scroll', ({ scroll }) => {
         triggerMouseHint(scroll);
-        ScrollTrigger.update;
+        ScrollTrigger.update();
     });
 
     transitionIn().then(() => {
