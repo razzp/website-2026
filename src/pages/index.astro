@@ -47,6 +47,16 @@ const page: Page = {
         filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 0.5));
     }
 
+    /*picture {
+        --angle: 0deg;
+
+        mask: conic-gradient(
+            from 0deg,
+            #000 0deg var(--angle),
+            transparent var(--angle)
+        );
+    }*/
+
     .draw {
         fill: transparent;
         stroke: #fff;
@@ -59,6 +69,41 @@ const page: Page = {
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 32 32'%3E%3Cg stroke='%23999' stroke-width='1' stroke-linecap='round' opacity='0.18'%3E%3Cline x1='14' y1='16' x2='18' y2='16'/%3E%3Cline x1='16' y1='14' x2='16' y2='18'/%3E%3C/g%3E%3C/svg%3E");
         background-repeat: repeat;
     }
+
+    .pattern-b {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 32 32'%3E%3Cg stroke='%23999' stroke-width='1' stroke-linecap='round' opacity='0.18'%3E%3Cline x1='14' y1='16' x2='18' y2='16'/%3E%3Cline x1='16' y1='14' x2='16' y2='18'/%3E%3C/g%3E%3C/svg%3E");
+        background-repeat: repeat;
+    }
+
+    .pattern-2 {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Ccircle cx='200' cy='200' r='200' fill='transparent' stroke='%23999' stroke-alignment='inner'/%3E%3C/svg%3E");
+background-repeat: repeat-x;
+background-size: 400px auto;
+background-position: 50% top;
+    }
+
+    .plus-bg {
+  --size: 32px;
+  --line: rgba(0, 0, 0, 0.15);
+
+  background:
+    linear-gradient(var(--line), var(--line)) center/6px 1px no-repeat,
+    linear-gradient(90deg, var(--line), var(--line)) center/1px 6px no-repeat;
+  background-size: var(--size) var(--size);
+  background-repeat: repeat;
+}
+
+/*.card {
+  --angle: 8deg;
+  --offset: calc(100cqh * tan(var(--angle)));
+
+  clip-path: polygon(
+    var(--offset) 0,
+    100% 0,
+    calc(100% - var(--offset)) 100%,
+    0 100%
+  );
+}*/
 </style>
 
 <script>
@@ -82,7 +127,10 @@ const page: Page = {
                 scrub: true,
                 start: 'top bottom-=20%', // Element's top reaches the bottom of the viewport
                 end: 'top top+=20%', // Element's top reaches the center of the viewport
-                markers: true,
+                //markers: true,
+            },
+            defaults: {
+                //ease: 'expo.inOut'
             },
             onUpdate: () => {
                 paths.forEach((path) => {
@@ -103,25 +151,48 @@ const page: Page = {
 
         const t2 = gsap.timeline({
             scrollTrigger: {
-                trigger: '.pattern',
+                trigger: 'picture',
+                scrub: true,
+                start: 'bottom bottom', // Element's top reaches the bottom of the viewport
+                end: 'bottom center', // Element's top reaches the center of the viewport
+                markers: true,
+            },
+            defaults: {
+                //ease: 'none'
+            }
+        });
+
+        t2.to(
+            'picture',
+            {
+                '--angle': 360
+            },
+        );
+
+        /*const t2 = gsap.timeline({
+            scrollTrigger: {
+                trigger: '.outer',
                 scrub: true,
                 start: 'top bottom', // Element's top reaches the bottom of the viewport
                 end: 'bottom top', // Element's top reaches the center of the viewport
-                markers: true,
+                //markers: true,
             },
+            defaults: {
+                ease: 'none'
+            }
         });
 
         t2.fromTo(
             '.pattern',
             {
                 //x: -100,
-                y: 200
+                y: 100
             },
             {
                 //x: 100,
-                y: -200
+                y: -100,
             },
-        );
+        );*/
 
         /*t.fromTo(document.documentElement, {
                 '--dash-offset': 1,
@@ -129,6 +200,37 @@ const page: Page = {
             {
                 '--dash-offset': 0,
             });*/
+
+            const items = gsap.utils.toArray(".bar .foo");
+
+const even = items.filter((_, i) => i % 2 === 0);
+const odd = items.filter((_, i) => i % 2 === 1);
+
+
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: ".bar",
+                start: "top bottom",
+                end: "bottom top",
+                scrub: true,
+                //markers: true
+            },
+            defaults: {
+                ease: 'none'
+            }
+        });
+
+        tl.fromTo(even, {
+            x: -500,
+        }, {
+            x: 500,
+        }, 0);
+
+        tl.fromTo(odd, {
+            x: 500,
+        }, {
+            x: -500,
+        }, 0);
     });
 </script>
 
@@ -186,9 +288,11 @@ const page: Page = {
     </div>
 
     <div class="xflex xflex-col xgap-10 m-10 xtext-lg">
+        <p class="text-center text-xl mb-10">If you're in a rush...</p>
+
         <div
-            class="border-2 border-white/10 p-10"
-            style="border-radius: 20px; relative; clip-path: inset(0 round 20px);"
+            class="border-2 border-white/10 p-10 outer"
+            style="border-radius: 20px; position: relative; clip-path: inset(0 round 20px);"
         >
             <!--<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="hidden">
                 <g stroke="#999" stroke-width="1.5" stroke-linecap="round">
@@ -197,11 +301,11 @@ const page: Page = {
                 </g>
             </svg>-->
 
-            <div class="fixed inset-0 grid place-items-center pattern">
+            <div class="fixed inset-0 pattern">
                 
             </div>
 
-            <div class="flex flex-col gap-10 items-center">
+            <div class="flex flex-col gap-10 items-center pattern-2">
                 <Picture
                     class="filter-duotone aspect-square object-cover w-[400px]"
                     src={testImage}
@@ -220,108 +324,56 @@ const page: Page = {
         </div>
     </div>
 
-    <div class="bar flex flex-col items-center p-10 text-8xl">
+    <div class="bar flex flex-col items-center p-10 gap-5 text-7xl lowercase">
         <div class="foo">
             <span
-                >lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat</span
+                >Focus Spacing Perceivable Operable Understandable VoiceOver W3C JAWS NVDA</span
             >
-            &nbsp;foo&nbsp;
+            &nbsp;accessibility&nbsp;
             <span
-                >lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat</span
+                >WCAG AAA ARIA Dark Mode High Contrast Keyboard Navigation Captions Consistency</span
             >
         </div>
         <div class="foo">
             <span
-                >lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat</span
+                >Syntax Structure Relationships Context Headings Roles</span
             >
-            &nbsp;bar&nbsp;
+            &nbsp;semantics&nbsp;
             <span
-                >lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat</span
+                >Metadata Architecture Elements Sections Hierarchy Articles</span
             >
         </div>
         <div class="foo">
             <span
-                >lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat</span
+                >Wireframes Animation Composition Creativity Photoshop Aesthetics Figma UX</span
             >
-            &nbsp;baz&nbsp;
+            &nbsp;design&nbsp;
             <span
-                >lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat</span
+                >Branding XD Illustrator Proportion Typography Balance Colour UI Legibility</span
+            >
+        </div>
+        <div class="foo">
+            <span
+                >Astro Automation Logic Integration GitHub Frameworks CSS3 TypeScript Vue</span
+            >
+            &nbsp;development&nbsp;
+            <span
+                >HTML5 Tailwind PWA Libraries Code APIs C# Debugging State Bootstrap</span
             >
         </div>
     </div>
 
-    <div class="flex flex-col gap-10 p-10 text-lg">
-        <div
-            class="border border-white/10 p-5 relative"
-            style="border-radius: 20px;"
-        >
-            <span
-                class="absolute top-[-20px] left-[-20px] w-[20px] h-[20px] border-b border-r border-dotted border-white/50"
-            ></span>
-            <span
-                class="absolute top-[-20px] right-[-20px] w-[20px] h-[20px] border-b border-l border-dotted border-white/50"
-            ></span>
-            <span
-                class="absolute bottom-[-20px] left-[-20px] w-[20px] h-[20px] border-t border-r border-dotted border-white/50"
-            ></span>
-            <span
-                class="absolute bottom-[-20px] right-[-20px] w-[20px] h-[20px] border-t border-l border-dotted border-white/50"
-            ></span>
-
-            <div class="grid grid-cols-2 gap-5">
-                <Picture
-                    class="filter-duotone"
-                    src={testImage}
-                    formats={['avif', 'webp']}
-                    alt="lorem ipsum"
-                    style="clip-path: inset(0 round 16px)"
-                />
-                <h3
-                    class="text-8xl"
-                    style="color: transparent; -webkit-text-stroke: thin white;"
-                >
-                    some blurb
-                </h3>
+    <div class="p-10 text-lg">
+        <div class="bg-primary text-primary-contrast flex flex-col items-center gap-10 p-10" style="border-radius: 20px; position: relative; clip-path: inset(0 round 20px);">
+            <div class="fixed inset-0 pattern-b">               
             </div>
+
+            <p class=" card xp-10 max-w-prose text-2xl text-pretty text-center xtext-white  ">
+                As part of Nice Group SW and Webselect Ltd, I have completed projects for brands such as Virgin Media, Samsung, the NHS and Coca-Cola. I've had long-standing relationships with some awesome organisations, such as the Exeter Chiefs, and I've developed and maintained large scale e-commerce websites for brands such as Weird Fish and The Refined Brands Group. I've also helped build and maintain proprietary CMS software that has given clients enormous year-on-year growth.
+            </p>
+            <p class="card xp-10 max-w-prose text-2xl text-pretty text-center xtext-white    ">
+                In a nutshell, I specialise in shaping client-side experiences, combining strong work ethic with historical perspective, and a deep understanding of usability, accessibility and modern web standards.
+            </p>
         </div>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
     </div>
 </DefaultLayout>
