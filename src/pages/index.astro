@@ -54,6 +54,11 @@ const page: Page = {
         stroke-dashoffset: 1;
         stroke-linecap: round;
     }
+
+    .pattern {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 32 32'%3E%3Cg stroke='%23999' stroke-width='1' stroke-linecap='round' opacity='0.18'%3E%3Cline x1='14' y1='16' x2='18' y2='16'/%3E%3Cline x1='16' y1='14' x2='16' y2='18'/%3E%3C/g%3E%3C/svg%3E");
+        background-repeat: repeat;
+    }
 </style>
 
 <script>
@@ -96,32 +101,27 @@ const page: Page = {
             },
         );
 
-        /*const t2 = gsap.timeline({
+        const t2 = gsap.timeline({
             scrollTrigger: {
-                trigger: '.filter-duotone',
+                trigger: '.pattern',
                 scrub: true,
                 start: 'top bottom', // Element's top reaches the bottom of the viewport
                 end: 'bottom top', // Element's top reaches the center of the viewport
                 markers: true,
             },
-            onUpdate: () => {
-                paths.forEach((path) => {
-                    path.style.strokeDashoffset = String(state.progress);
-                });
-            },
         });
 
         t2.fromTo(
-            '.filter-duotone',
+            '.pattern',
             {
-                //rotation: -10,
-                x: -100
+                //x: -100,
+                y: 200
             },
             {
-                //rotation: 10,
-                x: 100
+                //x: 100,
+                y: -200
             },
-        );*/
+        );
 
         /*t.fromTo(document.documentElement, {
                 '--dash-offset': 1,
@@ -185,30 +185,37 @@ const page: Page = {
         </svg>
     </div>
 
-    <div class="flex flex-col gap-10 p-10 text-lg">
+    <div class="xflex xflex-col xgap-10 m-10 xtext-lg">
         <div
             class="border-2 border-white/10 p-10"
-            style="border-radius: 20px; xclip-path: inset(0 round 20px);"
+            style="border-radius: 20px; relative; clip-path: inset(0 round 20px);"
         >
-            <!--<div class="fixed inset-0 grid place-items-center">
-                hello?
-            </div> -->
+            <!--<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="hidden">
+                <g stroke="#999" stroke-width="1.5" stroke-linecap="round">
+                    <line x1="9" y1="12" x2="15" y2="12"/>
+                    <line x1="12" y1="9" x2="12" y2="15"/>
+                </g>
+            </svg>-->
+
+            <div class="fixed inset-0 grid place-items-center pattern">
+                
+            </div>
 
             <div class="flex flex-col gap-10 items-center">
-                <h3
-                    class="text-7xl text-balance text-center"
-                    style="color: transparent; -webkit-text-stroke: 1px white;"
-                >
-                    My name is Rob, and I've been up to no good since 1988.
-                </h3>
-
                 <Picture
-                    class="filter-duotone xaspect-square object-cover w-[400px]"
+                    class="filter-duotone aspect-square object-cover w-[400px]"
                     src={testImage}
                     formats={['avif', 'webp']}
                     alt="lorem ipsum"
-                    style="xclip-path: inset(0 round 50%)"
+                    style="clip-path: inset(0 round 50%)"
                 />
+
+                <h3
+                    class="text-7xl text-balance text-center leading-tight text-white"
+                    style="color: xtransparent; x-webkit-text-stroke: 1px white;"
+                >
+                    My name is Rob, and I've been doing this sort of stuff for over 20 years.
+                </h3>
             </div>
         </div>
     </div>
