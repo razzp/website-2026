@@ -1,309 +1,211 @@
-import { gsap } from 'gsap';
-import { ScrollTrigger, SplitText } from 'gsap/all';
-import Lenis from 'lenis';
-import { findOrThrow } from 'spank-my-dom';
-import * as THREE from 'three';
-import { Font, type FontData } from 'three/addons/loaders/FontLoader.js';
-import fontData from '../../fonts/Nunito_Regular.json';
-import { HeroBackground, HeroForeground } from '../components/Hero';
-import { getPageConfig, loadPage } from '../components/PageManager';
-import { isSpecialClick } from '../utils';
+import { findAll, findOrThrow } from 'spank-my-dom';
+import {
+    type PageModule,
+    pageRoutes,
+    type RouteKey,
+} from '../../config/runtime';
+import { generateFooterPixels } from '../components/footer-pixels';
+import { getRotationVectors } from '../components/Hero';
+import {
+    getPageMeta,
+    isSpecialClick,
+    swapPage,
+    triggerMouseHint,
+} from '../utils';
 
-gsap.registerPlugin(SplitText);
+interface State {
+    pageModule?: PageModule;
+    enableTransitions: boolean;
+    interactive: boolean;
+    headerVisible: boolean;
+    heroBackgroundVisible: boolean;
+    mouse: {
+        x: number;
+        y: number;
+    };
+}
 
-const state = {
-    renderBackground: true,
-    mouse: new THREE.Vector2(),
+const pageMeta = getPageMeta(document);
+
+// Load everything we need to begin.
+
+const [
+    { gsap },
+    { ScrollTrigger, SplitText },
+    { default: Lenis },
+    { HeroBackground, HeroForeground },
+    { transitionIn, transitionOut },
+    pageModule,
+] = await Promise.all([
+    import('gsap'),
+    import('gsap/all'),
+    import('lenis'),
+    import('../components/Hero'),
+    import('../components/transitions'),
+    pageRoutes[pageMeta.routeKey].load(),
+    document.fonts.ready,
+]);
+
+const header = findOrThrow('#main-header');
+const placeholder = findOrThrow('#hero-placeholder');
+const footerPixels = findOrThrow<HTMLCanvasElement>('#footer-pixels');
+const maxRotation = 0.1;
+
+// Build a state object that we can pass around.
+
+const state: State = {
+    pageModule,
+    enableTransitions: true,
+    interactive: false,
+    headerVisible: false,
+    heroBackgroundVisible: false,
+    mouse: {
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2,
+    },
 };
 
-const lenis = new Lenis();
-// The runtime data is fine, but TypeScript infers the JSON as its exact structural type,
-// and there are some discrepancies between this and the FontData typings.
-const font = new Font(fontData as unknown as FontData);
-const wrapper = findOrThrow('main');
-const placeholder = findOrThrow('#hero-placeholder');
-const strapline = findOrThrow('#hero-strapline');
-const maxRotation = 0.1;
-const heading = findOrThrow('h1').textContent.toLowerCase();
-const { theme } = getPageConfig(document);
-const enableTransitions = false;
+// Listen for some stuff...
+
+new IntersectionObserver(
+    ([entry]) => {
+        state.headerVisible = entry.isIntersecting;
+    },
+    {
+        threshold: 0,
+    },
+).observe(header);
+
+window.addEventListener(
+    'mousemove',
+    (event) => {
+        state.mouse.x = event.clientX;
+        state.mouse.y = event.clientY;
+    },
+    { passive: true },
+);
+
+// Create the hero components.
 
 const heroForeground = new HeroForeground({
     container: findOrThrow('#hero-foreground'),
-    font,
     placeholder,
-    text: heading,
-    colour: theme.meshFace,
+    text: pageMeta.heading,
+    colour: pageMeta.theme.meshFace,
 });
 
 const heroBackground = new HeroBackground({
     container: findOrThrow('#hero-background'),
-    font,
     placeholder,
-    text: heading,
-    colour: theme.primaryContrast,
+    text: pageMeta.heading,
+    colour: pageMeta.theme.primaryContrast,
 });
 
-async function init(): Promise<void> {
-    await Promise.all([heroBackground.compile(), heroForeground.compile()]);
+// Wait for THREE to compile. Probably unnecessary, but it can't hurt.
 
-    heroForeground.resize();
-    heroBackground.resize();
+await Promise.all([heroBackground.compile(), heroForeground.compile()]);
 
-    gsap.ticker.lagSmoothing(0);
+// Resize heroes to fit their allocated placeholders.
 
-    gsap.ticker.add((time) => {
-        lenis.raf(time * 1000);
+heroForeground.resize();
+heroBackground.resize();
 
-        const targetX = state.mouse.y * maxRotation;
-        const targetY = state.mouse.x * maxRotation;
+// Configure Lenis.
 
-        heroForeground.mesh.rotation.x +=
-            (targetX - heroForeground.mesh.rotation.x) * 0.1;
-        heroForeground.mesh.rotation.y +=
-            (targetY - heroForeground.mesh.rotation.y) * 0.1;
+const lenis = new Lenis();
 
-        heroBackground.mesh.rotation.x +=
-            (targetX - heroBackground.mesh.rotation.x) * 0.1;
-        heroBackground.mesh.rotation.y +=
-            (targetY - heroBackground.mesh.rotation.y) * 0.1;
+lenis.on('scroll', ({ scroll }) => {
+    ScrollTrigger.update();
+    triggerMouseHint(scroll);
+});
 
+triggerMouseHint(window.scrollY);
+
+// Configure GSAP.
+
+gsap.registerPlugin(ScrollTrigger, SplitText);
+gsap.ticker.lagSmoothing(0); // Lenis compat.
+
+gsap.ticker.add((time) => {
+    // Synchronise with Lenis.
+    lenis.raf(time * 1000);
+
+    const vectors = getRotationVectors(state, maxRotation);
+
+    heroBackground.rotate(...vectors);
+    heroForeground.rotate(...vectors);
+
+    if (state.headerVisible) {
         heroForeground.render();
 
-        if (state.renderBackground) {
+        if (state.heroBackgroundVisible) {
             heroBackground.render();
         }
-    });
+    }
+});
 
-    triggerMouseHint(window.scrollY);
+// Set up the nav.
 
-    lenis.on('scroll', ({ scroll }) => {
-        triggerMouseHint(scroll);
-        ScrollTrigger.update();
-    });
+findAll<HTMLAnchorElement>('a[data-link-swap]').forEach((link) => {
+    link.addEventListener('click', async (event) => {
+        if (isSpecialClick(event)) return;
 
-    transitionIn().then(() => {
-        const nav = performance.getEntriesByType('navigation')[0] as
-            | PerformanceNavigationTiming
-            | undefined;
-        const scrollY = sessionStorage.getItem('scrollY');
+        const route = new URL(link.href).pathname as RouteKey;
 
-        if (scrollY && nav?.type === 'reload') {
-            sessionStorage.removeItem('scrollY');
-            //lenis.scrollTo(Number(scrollY), { duration: 1});
-            window.scrollTo(0, Number(scrollY));
-            console.log(`RELOAD DETECTED, SCROLLING TO: ${Number(scrollY)}`);
-        }
+        if (!Object.keys(pageRoutes).includes(route)) return;
 
-        document.dispatchEvent(new CustomEvent('foo'));
-    });
+        event.preventDefault();
 
-    document
-        .querySelectorAll<HTMLAnchorElement>('a[data-link-swap]')
-        .forEach((link) => {
-            link.addEventListener('click', async (event) => {
-                if (isSpecialClick(event)) return;
+        const [html, newPageModule] = await Promise.all([
+            fetch(link.href).then((response) => response.text()),
+            pageRoutes[route].load(),
+            transitionOut({ state, heroBackground, lenis }).then(() =>
+                state.pageModule?.destroy(),
+            ),
+        ]);
 
-                event.preventDefault();
+        state.pageModule = newPageModule;
 
-                const page = await loadPage(link.href, {
-                    whileLoading: transitionOut,
-                });
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const pageMeta = getPageMeta(doc);
 
-                heroBackground.setText(page.heading.toLowerCase());
-                heroForeground.setText(page.heading.toLowerCase());
+        history.pushState({}, '', link.href);
 
-                heroBackground.resize();
-                heroForeground.resize();
-
-                heroForeground.setColour(page.theme.meshFace);
-                heroBackground.setColour(page.theme.primaryContrast);
-
-                if (enableTransitions) {
-                    await new Promise((resolve) => setTimeout(resolve, 100));
-                }
-
-                for (const [key, value] of Object.entries(page.theme)) {
-                    if (enableTransitions && key === 'primary') continue;
-
-                    document.documentElement.style.setProperty(
-                        `--theme-${key.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}`,
-                        value,
-                    );
-                }
-
-                if (enableTransitions) {
-                    const colourTween = document.documentElement.animate(
-                        {
-                            '--theme-primary': page.theme.primary,
-                        },
-                        {
-                            duration: 600,
-                            fill: 'forwards',
-                            easing: 'ease',
-                        },
-                    );
-
-                    await colourTween.finished;
-                }
-
-                await transitionIn();
-            });
+        await swapPage({
+            state,
+            pageMeta,
+            doc,
+            heroBackground,
+            heroForeground,
         });
 
-    /*window.addEventListener('popstate', () => {
-        pageManager.loadPage(location.href, { push: false });
-    });*/
-
-    window.addEventListener('beforeunload', () => {
-        sessionStorage.setItem('scrollY', String(window.scrollY));
-    });
-
-    /*window.addEventListener("load", () => {
-        
-    });*/
-}
-
-function setMouseVectors(event: MouseEvent): void {
-    state.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    state.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-}
-
-function transitionIn(): Promise<void> {
-    return new Promise((resolve) => {
-        (async () => {
-            const splitText = SplitText.create(strapline, { type: 'words' });
-            const fogProps = heroBackground.getFogProps();
-
-            state.renderBackground = true;
-
-            await gsap
-                .timeline()
-                .to(heroBackground.scene.fog, {
-                    duration: 0.8,
-                    ease: 'expo.out',
-                    far: fogProps.farVisible,
-                    near: fogProps.nearVisible,
-                })
-                .to(
-                    wrapper,
-                    {
-                        duration: 0.8,
-                        '--inset-top': '100px',
-                        ease: 'expo.in',
-                        onComplete: () => {
-                            state.renderBackground = false;
-                        },
-                    },
-                    '>-0.6',
-                )
-                .to(wrapper, {
-                    duration: 0.4,
-                    '--stretch': '50px',
-                    ease: 'expo.out',
-                })
-                .to(
-                    heroForeground.camera.position,
-                    {
-                        duration: 0.4,
-                        y: heroForeground.pixelsToWorldUnits(-50),
-                        ease: 'expo.out',
-                    },
-                    '<',
-                )
-                .to(wrapper, {
-                    duration: 0.8,
-                    '--stretch': '0px',
-                    ease: 'elastic.out(1,0.5)',
-                })
-                .to(
-                    heroForeground.camera.position,
-                    {
-                        duration: 0.8,
-                        y: 0,
-                        ease: 'elastic.out(1,0.5)',
-                    },
-                    '<',
-                )
-                .from(
-                    splitText.words,
-                    {
-                        duration: 0.8,
-                        y: -50,
-                        skewX: 10,
-                        autoAlpha: 0,
-                        stagger: 0.02,
-                        ease: 'expo.out',
-                        onComplete: () => splitText.revert(),
-                    },
-                    '<',
-                )
-                .progress(enableTransitions ? 0 : 1);
-
-            document.documentElement.classList.add('-show-nav');
-            document.documentElement.classList.add('-show-content');
-            window.addEventListener('pointermove', setMouseVectors);
-
-            resolve();
-        })();
-    });
-}
-
-function transitionOut(): Promise<void> {
-    return new Promise((resolve) => {
-        document.documentElement.classList.remove('-show-nav');
-
-        state.renderBackground = true;
-
-        lenis.scrollTo(0, {
-            duration: window.scrollY === 0 ? 0 : 0.6,
-            easing: gsap.parseEase('expo.inOut'),
-            lock: true,
-            onComplete: async () => {
-                const fogProps = heroBackground.getFogProps();
-
-                document.documentElement.classList.remove('-show-content');
-                window.removeEventListener('pointermove', setMouseVectors);
-
-                await gsap
-                    .timeline()
-                    .to(wrapper, {
-                        duration: 0.8,
-                        '--inset-top': '100%',
-                        ease: 'expo.inOut',
-                    })
-                    .to(
-                        state.mouse,
-                        {
-                            duration: 0.8,
-                            x: 0,
-                            y: 0,
-                            ease: 'expo.inOut',
-                        },
-                        '<',
-                    )
-                    .to(
-                        heroBackground.scene.fog,
-                        {
-                            duration: 0.8,
-                            ease: 'expo.in',
-                            far: fogProps.farHidden,
-                            near: fogProps.nearHidden,
-                        },
-                        '>-0.6',
-                    )
-                    .progress(enableTransitions ? 0 : 1);
-
-                resolve();
+        await transitionIn({
+            state,
+            heroBackground,
+            heroForeground,
+            onBeforeShow: () => newPageModule.init(),
+            onAfterShow: () => {
+                newPageModule.initSafe?.();
+                generateFooterPixels(
+                    footerPixels,
+                    pageMeta.theme.primaryContrast,
+                );
             },
         });
     });
-}
+});
 
-function triggerMouseHint(scroll: number): void {
-    document.documentElement.classList[scroll === 0 ? 'add' : 'remove'](
-        '-show-mouse-hint',
-    );
-}
+// Good to go. Begin the first transition!
 
-export { init };
+await transitionIn({
+    state,
+    heroBackground,
+    heroForeground,
+    onBeforeShow: () => pageModule.init(),
+    onAfterShow: () => {
+        pageModule.initSafe?.();
+        generateFooterPixels(footerPixels, pageMeta.theme.primaryContrast);
+    },
+});
+
+export type { State };

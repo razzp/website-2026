@@ -1,7 +1,19 @@
 @import 'tailwindcss';
 
-@theme {
+@property --theme-primary {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: transparent;
+}
+
+:root {
+    --inset: 100px;
+    --inset-half: calc(var(--inset) / 2);
+
     --duotone-contrast: 1.2;
+}
+
+@theme {
     --ease-in-out-expo: cubic-bezier(0.87, 0, 0.13, 1);
     --animate-float: float 2s ease-in-out infinite;
 
@@ -34,5 +46,65 @@
 
     .filter-duotone {
         @apply filter-[url(#duotone-filter)_contrast(var(--duotone-contrast))];
+    }
+
+    .path-outline {
+        @apply fill-transparent stroke-primary;
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        stroke-linecap: round;
+    }
+}
+
+@utility clip-rounded-* {
+    clip-path: inset(0 round --value(--radius-*));
+    clip-path: inset(0 round calc(--value(integer) * 1%));
+}
+
+@utility text-stroke-* {
+    -webkit-text-stroke-width: calc(--value(integer) * 1px);
+    -webkit-text-stroke-color: --value(--color-*, [color]);
+
+    -webkit-text-stroke-color: color-mix(
+        in oklch,
+        --value(--color-*, [color]) calc(--modifier(integer) * 1%),
+        transparent
+    );
+}
+
+@layer components {
+    #main-nav {
+        @apply fixed z-20 inset-x-0 top-(--inset-half) flex justify-center in-[.-show-nav]:opacity-100 in-[.-show-nav]:translate-y-[-50%] not-in-[.-show-nav]:-translate-y-full not-in-[.-show-nav]:opacity-0 not-in-[.-show-nav]:pointer-events-none transition-all duration-700 ease-in-out-expo;
+
+        ol {
+            @apply flex items-center gap-8 px-8 p-4 bg-primary-translucent hover:[--alpha:100%] backdrop-blur-xl rounded-full lowercase text-3xl;
+        }
+
+        .text-link {
+            @apply text-primary-contrast hover:underline decoration-wavy underline-offset-4 decoration-from-font;
+        }
+
+        .icon-link {
+            @apply text-primary-contrast;
+        }
+    }
+
+    main {
+        --inset-top: 100%;
+        --stretch: 0px;
+        --top: calc(var(--inset-top) - var(--stretch));
+        --right: calc(100% - var(--inset));
+
+        clip-path: shape(
+            from var(--inset) var(--top),
+            curve to var(--right) var(--top) with 50%
+                calc(var(--inset-top) - (var(--stretch) * 2)),
+            curve to var(--right) 100% with
+                calc(100% - var(--inset) - var(--stretch)),
+            line to var(--inset) 100%,
+            curve to var(--inset) var(--top) with
+                calc(var(--inset) + var(--stretch)),
+            close
+        );
     }
 }

@@ -1,0 +1,101 @@
+---
+import '../styles/global.css';
+---
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+
+        <meta name="viewport" content="width=device-width">
+
+        <title></title>
+
+        <style>
+            body {
+                background-color: #222;
+                color: #fff;
+            }
+
+            canvas {
+                transform: translateY(100%);
+                width: 100%;
+            }
+        </style>
+
+        <script>
+            const canvas = document.querySelector<HTMLCanvasElement>('canvas')!;
+            const ctx = canvas.getContext('2d')!;
+
+            const width = canvas.clientWidth;
+            const maxSquareSize = 20;
+            const rows = 12;
+            const columns = Math.ceil(width / maxSquareSize);
+            const columnSize = Math.round(width / columns);
+
+            const a = calculateColumnWidths(width, 20);
+            console.log(a);
+
+            canvas.width = width;
+            canvas.height = rows * columnSize;
+
+            ctx.fillStyle = 'yellow';
+
+            for (let i = 0; i < rows; i++) {
+                const probability = mapRange(i, 0, 9, 90, 10);
+
+                let lastX = 0;
+
+                calculateColumnWidths(width, 20).forEach((x) => {
+                    if (chance(probability)) {
+                        ctx.fillRect(lastX, columnSize * i, x, columnSize);
+                    }
+
+                    lastX += x;
+                });
+            }
+
+            function calculateColumnWidths(
+                containerWidth: number,
+                maxColumnWidth: number,
+            ) {
+                const columns = Math.max(
+                    1,
+                    Math.floor(containerWidth / maxColumnWidth),
+                );
+
+                const baseWidth = Math.floor(containerWidth / columns);
+                const leftover = containerWidth % columns;
+
+                return Array.from(
+                    { length: columns },
+                    (_, i) => baseWidth + (i < leftover ? 1 : 0),
+                );
+            }
+
+            function chance(percent: number) {
+                return Math.random() * 100 < percent;
+            }
+
+            function mapRange(
+                value: number,
+                oldMin: number,
+                oldMax: number,
+                newMin: number,
+                newMax: number,
+            ) {
+                return (
+                    newMin +
+                    ((value - oldMin) * (newMax - newMin)) / (oldMax - oldMin)
+                );
+            }
+        </script>
+    </head>
+
+    <body style="display: grid; place-items: center;">
+        <div
+            style="width: 90dvw; background-color: yellow; padding-top: 40dvh;"
+        >
+            <canvas id="canvas"></canvas>
+        </div>
+    </body>
+</html>

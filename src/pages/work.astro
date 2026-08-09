@@ -1,34 +1,24 @@
 ---
-import { Picture } from 'astro:assets';
-import testImage from '../images/test.jpg';
 import DefaultLayout from '../layouts/DefaultLayout.astro';
-import type { Page, Theme } from '../lib/config';
+import type { PageMeta } from '../lib/config';
 
-const theme: Theme = {
-    primary: '#ff008b',
-    primaryContrast: '#003cff',
-    contentBackground: '#003cff',
-    contentText: '#ff008b',
-    meshFace: '#ff008b',
-};
-
-const page: Page = {
+const pageMeta: PageMeta = {
+    routeKey: '/contact',
     title: 'My Work',
     heading: 'Work',
     strapline: "I've done quite a bit, and for some cool brands too!",
-    theme,
+    theme: {
+        primary: '#ff008b',
+        primaryContrast: '#003cff',
+        contentBackground: '#003cff',
+        contentText: '#ff008b',
+        meshFace: '#ff008b',
+    },
 };
 ---
 
-<DefaultLayout page={page}>
+<DefaultLayout pageMeta={pageMeta}>
     <div class="flex flex-col gap-10 p-10 text-lg">
-        <Picture
-            class="filter-duotone"
-            src={testImage}
-            formats={['avif', 'webp']}
-            alt="lorem ipsum"
-        />
-
         <p>Lorem ipsum dolor sit amet.</p>
         <p>Lorem ipsum dolor sit amet.</p>
         <p>Lorem ipsum dolor sit amet.</p>

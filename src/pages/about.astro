@@ -1,47 +1,989 @@
 ---
+import { Image, Picture } from 'astro:assets';
+import chestBurster from '../images/chest-burster.jpg';
+import bloodSplatterBack from '../images/splatter-b.svg';
+import bloodSplatterFore from '../images/splatter-f.svg';
 import DefaultLayout from '../layouts/DefaultLayout.astro';
+import type { PageMeta } from '../lib/config';
 
-import type { Page, Theme } from '../lib/config';
-
-const theme: Theme = {
-    primary: '#ffb600',
-    primaryContrast: '#8800ff',
-    contentBackground: '#8800ff',
-    contentText: '#ffb600',
-    meshFace: '#ffb600',
-};
-
-const page: Page = {
+const pageMeta: PageMeta = {
+    routeKey: '/about',
     title: 'About Me',
     heading: 'About',
     strapline:
         "I was born in 1988, and the world hasn't really been the same since.",
-    theme,
+    theme: {
+        primary: '#00f9ff',
+        primaryContrast: '#0f00dd',
+        contentBackground: '#0f00dd',
+        contentText: '#00f9ff',
+        meshFace: '#00f9ff',
+    },
 };
 ---
 
-<DefaultLayout page={page}>
-    <div class="flex flex-col gap-10 p-10 text-lg">
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
+<style>
+    .foo {
+        --foo: 21%;
+        mask-image: radial-gradient(
+            circle,
+            black var(--foo),
+            transparent calc(var(--foo) + 1px)
+        );
+    }
+
+    .foo picture::after {
+        --c: rgb(from #0f00dd r g b / 0.5);
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(
+            circle,
+            transparent 75%,
+            var(--c) 100%
+        );
+        mix-blend-mode: overlay;
+    }
+
+    .pattern-b {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 32 32'%3E%3Cg stroke='%2300f9ff' stroke-width='1' stroke-linecap='round' opacity='0.18'%3E%3Cline x1='14' y1='16' x2='18' y2='16'/%3E%3Cline x1='16' y1='14' x2='16' y2='18'/%3E%3C/g%3E%3C/svg%3E");
+        background-repeat: repeat;
+    }
+
+    .splatter {
+        z-index: 30;
+        bottom: -20px;
+        left: 21%;
+        width: 50%;
+        mix-blend-mode: multiply;
+        transform-origin: 50% 100%;
+        xtransform: scale3d(0.5, 0.5, 1);
+    }
+
+    .bar {
+        --inset: 0px;
+
+        outline: 1px dotted red;
+        width: 800px;
+        height: auto;
+        xheight: 500px;
+        xposition: relative;
+    }
+
+    .bar .text {
+        background-color: #fff;
+        clip-path: shape(
+            from var(--inset) calc(75% + var(--inset)),
+            line to calc(100% - var(--inset)) calc(50px + var(--inset)),
+            line to calc(100% - var(--inset)) calc(100% - var(--inset)),
+            line to var(--inset) calc(100% - var(--inset)),
+            close
+        );
+
+        transform: translate(20px, 20px);
+    }
+
+    .bar .shape {
+        float: left;
+        width: 100%;
+        height: 100%;
+        shape-outside: shape(
+            from 0% 0%,
+            line to 100% 0%,
+            line to 100% 50px,
+            line to 0% 75%,
+            close
+        );
+    }
+
+    .bar .img {
+        --offset: -20px;
+
+        xposition: absolute;
+        xinset: 0;
+        xheight: calc(50% - var(--offset));
+        background-color: green;
+        clip-path: shape(
+            from 0% 0%,
+            line to 100% 0%,
+            line to 100% 50px,
+            line to 0% 75%,
+            close
+        );
+    }
+
+    .svgoutline {
+        position: relative;
+    }
+
+    .draw {
+        fill: transparent;
+        stroke: #fff;
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        stroke-linecap: round;
+    }
+
+    path:not(.draw) {
+        fill: #fff;
+    }
+
+    .rays {
+        --rotation: 0deg;
+
+        width: 100%;
+        height: 300px;
+        position: absolute;
+
+        opacity: 0;
+        transform: scale(0);
+
+        background: repeating-conic-gradient(
+            from var(--rotation) at center,
+            transparent,
+            transparent 5%,
+            rgba(0, 249, 255, 0.2) calc(5% + 1deg),
+            rgba(0, 249, 255, 0.4) calc(10% - 1deg),
+            transparent 10%
+        );
+        mask-image: radial-gradient(
+            ellipse at center,
+            transparent 0%,
+            black 20%,
+            transparent calc(100% / sqrt(2))
+        );
+        clip-path: ellipse();
+    }
+
+    .svgoutline svg {
+        position: relative;
+        filter: drop-shadow(0px 0px 20px rgb(255, 255, 255));
+    }
+
+    .objs {
+        position: absolute;
+    }
+
+    .ob {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .o1 {
+        transform: translate3d(-420px, 80px, 0) scale(2) rotate(200deg);
+    }
+    .o2 {
+        transform: translate3d(470px, 100px, 0) scale(1) rotate(300deg);
+    }
+    .o3 {
+        transform: translate3d(230px, -130px, 0) scale(0.7) rotate(150deg);
+    }
+    .o4 {
+        transform: translate3d(-160px, -180px, 0) scale(0.5) rotate(100deg);
+    }
+    .o5 {
+        transform: translate3d(100px, 100px, 0) scale(3) rotate(700deg);
+    }
+
+    .bits {
+        outline: 1px dotted red;
+        position: absolute;
+        inset: 0;
+        mask-image: radial-gradient(
+            ellipse at center,
+            black 25%,
+            transparent calc(100% / sqrt(2))
+        );
+        opacity: 0;
+    }
+
+    .bits.show {
+        xopacity: 1;
+    }
+</style>
+
+<script>
+    import { gsap } from 'gsap';
+    import { ScrollTrigger } from 'gsap/all';
+    /*import * as THREE from 'three';
+
+                                                                                                                                                                                        import {
+                                                                                                                                                                                        TextGeometry,
+                                                                                                                                                                                        type TextGeometryParameters,
+                                                                                                                                                                                    } from 'three/addons/geometries/TextGeometry.js';
+                                                                                                                                                                                    import { Font, type FontData } from 'three/addons/loaders/FontLoader.js';
+                                                                                                                                                                                    import fontData from '../fonts/Nunito_Regular.json';*/
+
+    import confetti from '@hiseb/confetti';
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    document.addEventListener('foo', () => {
+        ScrollTrigger.refresh();
+
+        const t1 = gsap.timeline({
+            scrollTrigger: {
+                trigger: '.day-one h3',
+                scrub: true,
+                start: 'bottom bottom', // Element's top reaches the bottom of the viewport
+                end: 'bottom center', // Element's top reaches the center of the viewport
+                //markers: true,
+            },
+            defaults: {
+                ease: 'power1.in',
+            },
+        });
+
+        t1.fromTo(
+            '.foo',
+            {
+                '--foo': '0%',
+            },
+            {
+                '--foo': '100%',
+            },
+        );
+
+        /////
+
+        const t2 = gsap.timeline({
+            scrollTrigger: {
+                trigger: '.day-one',
+                scrub: true,
+                start: 'top center', // Element's top reaches the bottom of the viewport
+                end: 'bottom center', // Element's top reaches the center of the viewport
+                //markers: true,
+            },
+            defaults: {
+                ease: 'power2.out',
+            },
+        });
+
+        t2.fromTo(
+            '.sf',
+            {
+                y: '50%',
+                scale: 0,
+            },
+            {
+                y: '0%',
+                scale: 1,
+            },
+            0,
+        );
+
+        t2.fromTo(
+            '.sb',
+            {
+                y: '100%',
+                scale: 0,
+            },
+            {
+                y: '0%',
+                scale: 1.5,
+            },
+            0,
+        );
+
+        /////////////////////
+
+        const state = { progress: 0 };
+        const paths =
+            document.querySelectorAll<HTMLElement>('.svgoutline path');
+
+        // const length = path.getTotalLength();
+
+        const t3 = gsap.timeline({
+            /*scrollTrigger: {
+                                                                                                                                                                                                    trigger: '.svgoutline',
+                                                                                                                                                                                                    scrub: true,
+                                                                                                                                                                                                    start: 'top bottom', // Element's top reaches the bottom of the viewport
+                                                                                                                                                                                                    end: 'center center', // Element's top reaches the center of the viewport
+                                                                                                                                                                                                    //markers: true,
+                                                                                                                                                                                                },*/
+            defaults: {
+                ease: 'power1.in',
+            },
+            /*onUpdate: (self) => {
+                                                                                                                                                                                                    paths.forEach((path) => {
+                                                                                                                                                                                                        path.style.strokeDashoffset = String(state.progress);
+                                                                                                                                                                                                    });
+
+                                                                                                                                                                                                    ///
+
+                                                                                                                                                                                                    const afterLabel = t3.time() >= t3.labels.reversePoint;
+
+                                                                                                                                                                                                    document.querySelectorAll('.svgoutline path').forEach(x => {
+                                                                                                                                                                                                        x.classList.toggle(
+                                                                                                                                                                                                            "active",
+                                                                                                                                                                                                            afterLabel && t3.direction === -1
+                                                                                                                                                                                                        );
+                                                                                                                                                                                                    })
+                                                                                                                                                                                                },*/
+        });
+
+        ScrollTrigger.create({
+            trigger: '.svgoutline',
+            scrub: true,
+            start: 'top bottom', // Element's top reaches the bottom of the viewport
+            end: 'top center', // Element's top reaches the center of the viewport
+            animation: t3,
+
+            onUpdate: (self) => {
+                paths.forEach((path) => {
+                    path.style.strokeDashoffset = String(state.progress);
+                });
+
+                ///
+
+                /*const afterLabel = t3.time() >= t3.labels.reversePoint;
+
+                                                                                                                                                                                                    document.querySelectorAll('.svgoutline path').forEach(x => {
+                                                                                                                                                                                                        x.classList.toggle(
+                                                                                                                                                                                                            "draw",
+                                                                                                                                                                                                            afterLabel && self.direction === -1
+                                                                                                                                                                                                        );
+                                                                                                                                                                                                    })*/
+            },
+        });
+
+        t3.fromTo(
+            state,
+            {
+                progress: 1,
+            },
+            {
+                progress: 0,
+                /*onComplete: () => {
+                                                                                                                                                                                                        document.querySelectorAll('.svgoutline path').forEach(x => x.classList.remove('draw'))
+                                                                                                                                                                                                    },*/
+            },
+        );
+        //.addLabel("midpoint")
+
+        const rotations = [0, 0];
+
+        gsap.ticker.add(() => {
+            rotations[0] += 0.1;
+            if (rotations[0] >= 360) {
+                rotations[0] = rotations[0] - 360;
+            }
+            //console.log(rotations[0] + rotations[1]);
+            document
+                .querySelector<HTMLElement>('.rays')
+                ?.style.setProperty(
+                    '--rotation',
+                    `${rotations[0] + rotations[1]}deg`,
+                );
+        });
+
+        const particlesani = gsap
+            .to('.bits', {
+                opacity: 1,
+            })
+            .pause();
+
+        const q = gsap
+            .timeline({
+                scrollTrigger: {
+                    trigger: '.svgoutline',
+                    start: 'top center', // Element's top reaches the bottom of the viewport
+                    //end: 'bottom center', // Element's top reaches the center of the viewport
+                    toggleActions: 'play none none reverse',
+                    onLeaveBack: () => {
+                        //q.progress(0);
+                        particlesani.reverse().then(() => {
+                            enabled = false;
+                            clear();
+                            console.log('bits cleared');
+                        });
+
+                        q.timeScale(5).reverse();
+                        //document.querySelector<HTMLCanvasElement>('.bits')?.classList.remove('show')
+                    },
+                    onEnter: () => {
+                        enabled = true;
+                        requestAnimationFrame(animate);
+                        particlesani.play();
+                        //document.querySelector<HTMLCanvasElement>('.bits')?.classList.add('show')
+                    },
+                    /*onEnter: () => {
+                                                                                                                                                                                                        const bb = document.querySelector('.svgoutline')?.getBoundingClientRect()!;
+                                                                                                                                                                                                        confetti({
+                                                                                                                                                                                        position: { x: bb.x + (bb.width / 2), y: bb.y + (bb.height / 2) },	// Origin position
+                                                                                                                                                                                        count: 100,			// Number of particles
+                                                                                                                                                                                        size: 1,			// Size of the particles
+                                                                                                                                                                                        velocity: 200,		// Initial particle velocity
+                                                                                                                                                                                        fade: true,			// Particles fall off the screen, or fade out
+                                                                                                                                                                                        color: ["#ffffff", '#00f9ff', '#0f00dd']          // Palette the particles are picked from
+                                                                                                                                                                                    });
+                                                                                                                                                                                                    }*/
+                },
+            })
+            .set('.svgoutline path', { fill: '#00f9ff', stroke: 'none' })
+            .to('.svgoutline svg', {
+                scale: 1.1,
+                duration: 1,
+                ease: 'expo.out',
+            })
+            .to(
+                '.rays',
+                {
+                    opacity: 1,
+                    scale: 1,
+                    //'--rotation': '80deg',
+                    ease: 'expo.out',
+                    duration: 1,
+                },
+                '<',
+            )
+            /*.from('.ob', {
+                                                                                                                                                                                                opacity: 0,
+                                                                                                                                                                                                scale: 0,
+                                                                                                                                                                                                x: 0,
+                                                                                                                                                                                                y: 0,
+                                                                                                                                                                                                rotation: '0deg',
+                                                                                                                                                                                                ease: 'expo.out',
+                                                                                                                                                                                                duration: 1,
+                                                                                                                                                                                                stagger: 0.05
+                                                                                                                                                                                            }, '<')*/
+            .fromTo(
+                rotations,
+                { 1: 0 },
+                {
+                    1: 80,
+                    ease: 'expo.out',
+                    duration: 1,
+                },
+                '<',
+            );
+
+        q.eventCallback('onReverseComplete', () => {
+            q.timeScale(1).pause();
+        });
+
+        /*const container = document.querySelector('.awesome')!;
+
+                                                                                                                                                                                            const scene = new THREE.Scene();
+                                                                                                                                                                                            const renderer = new THREE.WebGLRenderer({
+                                                                                                                                                                                                antialias: true,
+                                                                                                                                                                                                alpha: true,
+                                                                                                                                                                                            });
+                                                                                                                                                                                            const camera = new THREE.PerspectiveCamera(75, 1000 / 1000, 0.1, 1000);
+                                                                                                                                                                                            const mesh = new THREE.Mesh();
+
+                                                                                                                                                                                            
+
+                                                                                                                                                                                            const pixelsToWorldUnits = (value: number): number => {
+                                                                                                                                                                                                const visibleHeight =
+                                                                                                                                                                                                    2 *
+                                                                                                                                                                                                    camera.position.distanceTo(mesh.position) *
+                                                                                                                                                                                                    Math.tan(THREE.MathUtils.degToRad(camera.fov * 0.5));
+
+                                                                                                                                                                                                const worldUnitsPerPixel =
+                                                                                                                                                                                                    visibleHeight / renderer.domElement.height;
+
+                                                                                                                                                                                                return value * worldUnitsPerPixel;
+                                                                                                                                                                                            }
+
+                                                                                                                                                                                            renderer.domElement.className = 'w-full h-auto';
+
+                                                                                                                                                                                            renderer.setSize(1000, 1000, true);
+
+                                                                                                                                                                                             camera.position.z = 100;
+
+                                                                                                                                                                                             scene.add(mesh);
+                                                                                                                                                                                            container.appendChild(renderer.domElement);
+
+                                                                                                                                                                                            const font = new Font(fontData as unknown as FontData);
+
+                                                                                                                                                                                            const geometry = new TextGeometry('awesome', {
+                                                                                                                                                                                                depth: 20,
+                                                                                                                                                                                                font,
+                                                                                                                                                                                                size: 18,
+                                                                                                                                                                                                bevelEnabled: true,
+                                                                                                                                                                                                bevelSize: 1,
+                                                                                                                                                                                            });
+
+                                                                                                                                                                                            const { bevelThickness = 0, depth = 0 } = geometry.parameters.options;
+
+                                                                                                                                                                                            geometry.center();
+                                                                                                                                                                                            geometry.translate(0, 0, -(depth / 2 + bevelThickness));
+
+                                                                                                                                                                                            mesh.geometry = geometry;
+
+                                                                                                                                                                                            const light = new THREE.DirectionalLight(0x00f9ff, 10);
+
+                                                                                                                                                                                            light.position.set(0, 10, 20);
+                                                                                                                                                                                            light.target.position.set(0, 0, 0);
+
+                                                                                                                                                                                            scene.add(light, light.target);
+
+                                                                                                                                                                                            mesh.material = [
+                                                                                                                                                                                                new THREE.MeshStandardMaterial({
+                                                                                                                                                                                                color: 0xffffff,
+                                                                                                                                                                                            }),
+                                                                                                                                                                                                new THREE.MeshStandardMaterial({ color: 0x0f00dd }),
+                                                                                                                                                                                            ];
+
+                                                                                                                                                                                            renderer.render(scene, camera);*/
+
+        const canvas = document.querySelector<HTMLCanvasElement>('.bits')!;
+        const ctx = canvas.getContext('2d')!;
+
+        const particles = [];
+
+        const MAX_PARTICLES = 50;
+        const SPAWN_RATE = 1; // particles created per frame
+
+        function resizeCanvas() {
+            const x = document
+                .querySelector('.svgoutline')!
+                .getBoundingClientRect()!;
+            canvas.width = x.width;
+            canvas.height = x.height;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function randomColor() {
+            const colors = ['#00f9ff', '#ffffff'];
+
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        function createParticle() {
+            return {
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                rotation: Math.random() * Math.PI * 2,
+                rotationSpeed: (Math.random() - 0.5) * 0.02,
+
+                size: Math.random() * 10,
+
+                color: randomColor(),
+
+                // random fade duration
+                lifetime: 1000 + Math.random() * 3000,
+
+                // start time
+                birth: performance.now(),
+
+                // optional movement
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+
+                // different shapes
+                shape: Math.random() > 0.5 ? 'square' : 'circle',
+            };
+        }
+
+        function clear() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function addParticles() {
+            /*for (let i = 0; i < SPAWN_RATE; i++) {
+                                                                                                                                                                                        if (particles.length >= MAX_PARTICLES) {
+                                                                                                                                                                                          // remove a random particle rather than the oldest
+                                                                                                                                                                                          const index = Math.floor(Math.random() * particles.length);
+                                                                                                                                                                                          particles.splice(index, 1);
+                                                                                                                                                                                        }
+
+                                                                                                                                                                                        particles.push(createParticle());
+                                                                                                                                                                                      }*/
+
+            for (let i = 0; i < MAX_PARTICLES - particles.length; i++) {
+                particles.push(createParticle());
+            }
+        }
+
+        function drawParticle(particle, now) {
+            const age = now - particle.birth;
+            const progress = age / particle.lifetime;
+
+            // fade out near the end
+            const alpha = Math.max(0, 1 - progress);
+
+            if (alpha === 0) {
+                particles.splice(particles.indexOf(particle), 1);
+                addParticles();
+                return;
+            }
+
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+            particle.rotation += particle.rotationSpeed;
+
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = particle.color;
+
+            //const thickness = particle.size / 3;
+            const thickness = 2;
+            const length = particle.size;
+
+            ctx.save();
+
+            // move origin to particle position
+            ctx.translate(particle.x, particle.y);
+
+            // apply random rotation
+            ctx.rotate(particle.rotation);
+
+            // draw plus sign centered at origin
+            ctx.fillRect(-length / 2, -thickness / 2, length, thickness);
+
+            ctx.fillRect(-thickness / 2, -length / 2, thickness, length);
+
+            ctx.restore();
+        }
+
+        let enabled = false;
+
+        function animate(now) {
+            if (!enabled) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            addParticles();
+
+            /*particles = particles.filter(particle => {
+                                                                                                                                                                                        return now - particle.birth < particle.lifetime;
+                                                                                                                                                                                      });*/
+
+            for (const particle of particles) {
+                drawParticle(particle, now);
+            }
+
+            ctx.globalAlpha = 1;
+
+            requestAnimationFrame(animate);
+        }
+
+        //requestAnimationFrame(animate);
+    });
+</script>
+
+<DefaultLayout pageMeta={pageMeta}>
+    <div class="flex flex-col gap-10 px-10 text-lg">
+        <div class="grid day-one">
+            <div class="[grid-area:1/1] grid place-items-center relative z-10">
+                <Picture
+                    class="filter-duotone"
+                    src={chestBurster}
+                    formats={['avif', 'webp']}
+                    alt="lorem ipsum"
+                    pictureAttributes={{
+                            class: "[grid-area:1/1] relative z-10 overflow-clip",
+                        }}
+                />
+                <h3
+                    class="[grid-area:1/1] relative z-20 mix-blend-exclusion text-transparent text-9xl"
+                    style="-webkit-text-stroke: 3px #ff008b;"
+                >
+                    day one
+                </h3>
+            </div>
+
+            <div
+                class="[grid-area:1/1] grid place-items-center relative z-20 foo"
+            >
+                <Picture
+                    src={chestBurster}
+                    formats={['avif', 'webp']}
+                    alt="lorem ipsum"
+                    pictureAttributes={{
+                            class: "relative z-10 [grid-area:1/1]",
+                        }}
+                />
+                <h3
+                    class="[grid-area:1/1] relative z-20 text-9xl text-shadow-[0_0_50px_rgb(0_0_0/0.5)]"
+                >
+                    day one
+                </h3>
+                <Image
+                    class="absolute splatter sf"
+                    src={bloodSplatterFore}
+                    alt="foo"
+                    aria-hidden="true"
+                />
+                <Image
+                    class="absolute splatter sb"
+                    src={bloodSplatterBack}
+                    alt="foo"
+                    aria-hidden="true"
+                />
+            </div>
+        </div>
     </div>
+
+    <div class="p-10 flex justify-center">
+        <p
+            class="card xp-10 max-w-2/3 text-4xl text-pretty text-center xtext-white   leading-normal "
+        >
+            The Berlin Wall was still standing, Whitney Houston was #1, and
+            Margaret Thatcher was in charge. Even more frightening is that the
+            World Wide Web hadn't been invented yet.
+        </p>
+    </div>
+
+    <!--<div class="p-10">
+        <div class="grid grid-cols-9 grid-rows-2">
+
+        </div>
+    </div> -->
+
+    <!--<div class="p-10">
+        <div class="bar grid">
+            <div class="img [grid-area:1/1]"></div>
+
+            <div class="text [grid-area:1/1]">
+                <div class="shape"></div>
+                <p class="text-xl">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            </div>
+        </div>
+    </div> -->
+
+    <div class="p-10 text-lg">
+        <div
+            class="tl4 border-2 border-white/10 xbg-primary xtext-primary-contrast flex flex-col items-center gap-10 p-10"
+            style="border-radius: 20px; position: relative; clip-path: inset(0 round 20px);"
+        >
+            <div class="fixed inset-0 pattern-b pointer-events-none"></div>
+            <p
+                style="letter-spacing: 10px; color: transparent; -webkit-text-stroke: 1px white;"
+                class="text-7xl"
+            >
+                +++
+            </p>
+            <p
+                class="card xp-10 max-w-prose text-2xl text-pretty text-center leading-normal"
+            >
+                Growing up I was <i>mostly</i> normal. I climbed trees and built
+                bases with my friends. I did however have a fascination for
+                things like pipework and wiring. Something about the patterns
+                and intricacies would really captivate me. Similarly I loved
+                colours, often spending hours drawing pages of Christmas lights.
+                Okay I was weird.
+            </p>
+            <p
+                class="card xp-10 max-w-prose text-2xl text-pretty text-center leading-normal"
+            >
+                Eventually home PC's came along, and with the dial-up tone that
+                will forever be seared in my memory, came a doorway to a world
+                of creativity and experimentation that I immediately fell in
+                love with. It's hard to pinpoint the first time I created an
+                actual website, but it was likely some kind of abomination
+                hosted on Geocities.
+            </p>
+            <p
+                class="card xp-10 max-w-prose text-2xl text-pretty text-center leading-normal"
+            >
+                I learnt the basics. HTML was simple back then. CSS was around,
+                but you still used <code>&lt;font&gt;</code> tags because that's
+                what you knew. I read some books, experimented, probably
+                plagiarised a whole bunch, too. I can't forget Lissa Explains It
+                All either (IYKYK).
+            </p>
+            <p
+                class="card xp-10 max-w-prose text-2xl text-pretty text-center leading-normal"
+            >
+                Then came Flash, heralding in a revolution in web design and
+                giving us some of the most influential websites ever made.
+                Agencies like 2Advanced, WA007, North Kingdom, Group 94, and
+                Fantasy Interactive all pushed the boundaries of what was
+                possible, and for a teenager it was both mesmerising and
+                inspirational.
+            </p>
+            <p
+                class="card xp-10 max-w-prose text-2xl text-pretty text-center leading-normal"
+            >
+                As smartphones superseded PC's and semantics, accessibility and
+                SEO became important, we moved towards modern web standards.
+                Browsers were still wildly inconsistent, but jQuery held our
+                hand through those dark times.
+            </p>
+            <p
+                class="card xp-10 max-w-prose text-2xl text-pretty text-center leading-normal"
+            >
+                And finally we arrive in the present, with 10,000 node
+                dependencies and a 2 minute build time. But it's not all bad.
+                Creativity is certainly going through a renaissance, and amazing
+                tools like Vue, Astro and Tailwind, abstract away time consuming
+                tasks, and make development genuinely fun again.
+            </p>
+            <p
+                class="card xp-10 max-w-prose text-2xl text-pretty text-center leading-normal"
+            >
+                I've seen it all, and I'm glad. I think some historical
+                perspective goes a long way, and while I love and use AI daily
+                to enhance my workflow and learn new things, I'm also proud of
+                my deep knowledge and understanding of the web.
+            </p>
+
+            <div
+                class="grid grid-cols-3 gap-10 xmax-w-prose text-center text-4xl"
+            >
+                <div class="grid gap-4">
+                    <Picture
+                        src={chestBurster}
+                        formats={['avif', 'webp']}
+                        alt="lorem ipsum"
+                        style="clip-path: circle()"
+                        class="filter-duotone aspect-square object-cover xrounded-full"
+                        pictureAttributes={{
+                            class: "relative z-10 [grid-area:1/1]",
+                        }}
+                    />
+                    <Picture
+                        src={chestBurster}
+                        formats={['avif', 'webp']}
+                        alt="lorem ipsum"
+                        class="aspect-square object-cover rounded-full opacity-0 hover:opacity-100 transition-opacity"
+                        pictureAttributes={{
+                            class: "relative z-20 [grid-area:1/1]",
+                        }}
+                    />
+                    <span>day 365</span>
+                </div>
+                <div class="grid gap-4">
+                    <Picture
+                        src={chestBurster}
+                        formats={['avif', 'webp']}
+                        alt="lorem ipsum"
+                        style="clip-path: circle()"
+                        class="filter-duotone aspect-square object-cover xrounded-full"
+                        pictureAttributes={{
+                            class: "relative z-10 [grid-area:1/1]",
+                        }}
+                    />
+                    <Picture
+                        src={chestBurster}
+                        formats={['avif', 'webp']}
+                        alt="lorem ipsum"
+                        class="aspect-square object-cover rounded-full opacity-0 hover:opacity-100 transition-opacity"
+                        pictureAttributes={{
+                            class: "relative z-20 [grid-area:1/1]",
+                        }}
+                    />
+                    <span>interim</span>
+                </div>
+                <div class="grid gap-4">
+                    <Picture
+                        src={chestBurster}
+                        formats={['avif', 'webp']}
+                        alt="lorem ipsum"
+                        style="clip-path: circle()"
+                        class="filter-duotone aspect-square object-cover xrounded-full"
+                        pictureAttributes={{
+                            class: "relative z-10 [grid-area:1/1]",
+                        }}
+                    />
+                    <Picture
+                        src={chestBurster}
+                        formats={['avif', 'webp']}
+                        alt="lorem ipsum"
+                        class="aspect-square object-cover rounded-full opacity-0 hover:opacity-100 transition-opacity"
+                        pictureAttributes={{
+                            class: "relative z-20 [grid-area:1/1]",
+                        }}
+                    />
+                    <span>day 13149</span>
+                </div>
+            </div>
+
+            <p
+                style="letter-spacing: 10px; color: transparent; -webkit-text-stroke: 1px white;"
+                class="text-7xl"
+            >
+                +++
+            </p>
+        </div>
+    </div>
+
+    <div class="p-10 flex flex-col items-center gap-10 justify-center">
+        <p
+            class="card xp-10 max-w-2/3 text-4xl text-pretty text-center xtext-white   leading-normal "
+        >
+            Boring. What do you actually do?
+        </p>
+
+        <p
+            class="card xp-10 max-w-prose text-2xl text-pretty text-center leading-normal"
+        >
+            I build websites and experiences that comply with modern UX
+            standards and paradigms. I can take an idea or mock-up, and turn it
+            into something...
+        </p>
+    </div>
+
+    <div class="svgoutline p-10 flex items-center justify-center">
+        <!--<div class="objs">
+            <div style="letter-spacing: 10px; color: transparent; -webkit-text-stroke: 1px white;" class="ob o1 text-7xl">+</div>
+            <div style="letter-spacing: 10px; color: transparent; -webkit-text-stroke: 1px white;" class="ob o2 text-7xl">+</div>
+            <div style="letter-spacing: 10px; color: transparent; -webkit-text-stroke: 1px white;" class="ob o3 text-7xl">+</div>
+            <div style="letter-spacing: 10px; color: transparent; -webkit-text-stroke: 1px white;" class="ob o4 text-7xl">+</div>
+            <div style="letter-spacing: 10px; color: transparent; -webkit-text-stroke: 1px white;" class="ob o5 text-7xl">+</div>
+        </div> -->
+        <canvas class="bits"></canvas>
+        <div class="rays"></div>
+        <svg
+            width="340.3"
+            height="92.65"
+            viewBox="-2 -2 340.3 92.65"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            class="w-full max-w-[60%] h-auto"
+        >
+            <g stroke-linecap="round" fill-rule="nonzero">
+                <path
+                    pathLength="1"
+                    class="draw"
+                    id="char-0-0"
+                    d="M20.925 69.900L20.925 69.900Q16.050 69.900 12.075 67.425Q8.100 64.950 5.737 60.413Q3.375 55.875 3.375 49.725L3.375 49.725Q3.375 43.875 5.737 39.225Q8.100 34.575 12.262 31.837Q16.425 29.100 21.825 29.100L21.825 29.100Q25.200 29.100 27.938 30.263Q30.675 31.425 32.700 33.150L32.700 33.150L32.700 30L38.850 30L38.850 59.550Q38.850 62.400 40.237 63.263Q41.625 64.125 43.275 64.125L43.275 64.125L41.850 69.375Q34.650 69.375 33.150 63.525L33.150 63.525Q31.425 65.925 28.462 67.912Q25.500 69.900 20.925 69.900ZM22.425 63.900L22.425 63.900Q25.275 63.900 27.825 62.513Q30.375 61.125 32.100 59.025L32.100 59.025L32.100 38.100Q30.075 36.675 27.637 35.813Q25.200 34.950 22.500 34.950L22.500 34.950Q18.900 34.950 16.162 36.788Q13.425 38.625 11.850 41.888Q10.275 45.150 10.275 49.500L10.275 49.500Q10.275 53.700 11.850 56.962Q13.425 60.225 16.200 62.063Q18.975 63.900 22.425 63.900Z"
+                />
+                <path
+                    pathLength="1"
+                    class="draw"
+                    id="char-0-1"
+                    d="M67.125 69L59.700 69L47.400 31.800L53.625 29.625L63.675 61.350L72.825 32.775L80.100 32.775L89.025 61.350L99 29.625L105 31.800L92.625 69L85.200 69L76.200 39.975L67.125 69Z"
+                />
+                <path
+                    pathLength="1"
+                    class="draw"
+                    id="char-0-2"
+                    d="M127.725 69.900L127.725 69.900Q119.325 69.900 114.412 64.537Q109.500 59.175 109.500 49.500L109.500 49.500Q109.500 43.650 111.713 39.038Q113.925 34.425 117.900 31.763Q121.875 29.100 127.125 29.100L127.125 29.100Q132.750 29.100 136.463 31.538Q140.175 33.975 142.050 38.100Q143.925 42.225 143.925 47.175L143.925 47.175Q143.925 49.800 143.700 52.275L143.700 52.275L116.400 52.275Q117.075 57.750 120.225 60.825Q123.375 63.900 128.550 63.900L128.550 63.900Q131.925 63.900 134.625 63.188Q137.325 62.475 139.800 61.350L139.800 61.350L141.375 67.125Q138.675 68.325 135.300 69.112Q131.925 69.900 127.725 69.900ZM116.325 46.800L116.325 46.800L137.700 46.800Q137.700 41.100 134.850 38.025Q132 34.950 126.975 34.950L126.975 34.950Q122.625 34.950 119.775 37.987Q116.925 41.025 116.325 46.800Z"
+                />
+                <path
+                    pathLength="1"
+                    class="draw"
+                    id="char-0-3"
+                    d="M163.425 69.900L163.425 69.900Q159 69.900 155.438 68.775Q151.875 67.650 149.550 65.850L149.550 65.850L152.400 60.225Q154.350 61.875 157.313 62.962Q160.275 64.050 163.650 64.050L163.650 64.050Q167.850 64.050 169.988 62.663Q172.125 61.275 172.125 59.100L172.125 59.100Q172.125 57.525 171.338 56.325Q170.550 55.125 168.450 53.962Q166.350 52.800 162.375 51.450L162.375 51.450Q156.900 49.575 154.163 46.987Q151.425 44.400 151.425 39.825L151.425 39.825Q151.425 35.325 155.363 32.212Q159.300 29.100 166.275 29.100L166.275 29.100Q170.025 29.100 172.950 29.888Q175.875 30.675 178.200 31.875L178.200 31.875L176.325 37.425Q174.300 36.225 171.713 35.475Q169.125 34.725 165.975 34.725L165.975 34.725Q162.075 34.725 160.050 36.300Q158.025 37.875 158.025 39.750L158.025 39.750Q158.025 41.550 159.600 42.825Q161.175 44.100 165.750 45.600L165.750 45.600Q173.175 48.075 176.100 51.075Q179.025 54.075 179.025 58.575L179.025 58.575Q179.025 63.825 174.788 66.862Q170.550 69.900 163.425 69.900Z"
+                />
+                <path
+                    pathLength="1"
+                    class="draw"
+                    id="char-0-4"
+                    d="M204.450 69.900L204.450 69.900Q198.900 69.900 194.475 67.313Q190.050 64.725 187.537 60.112Q185.025 55.500 185.025 49.500L185.025 49.500Q185.025 43.200 187.575 38.625Q190.125 34.050 194.550 31.575Q198.975 29.100 204.450 29.100L204.450 29.100Q209.925 29.100 214.313 31.575Q218.700 34.050 221.287 38.588Q223.875 43.125 223.875 49.350L223.875 49.350Q223.875 55.575 221.325 60.188Q218.775 64.800 214.387 67.350Q210 69.900 204.450 69.900ZM204.450 63.900L204.450 63.900Q210.375 63.900 213.675 59.888Q216.975 55.875 216.975 49.500L216.975 49.500Q216.975 45.600 215.325 42.338Q213.675 39.075 210.863 37.088Q208.050 35.100 204.450 35.100L204.450 35.100Q198.525 35.100 195.225 39Q191.925 42.900 191.925 49.350L191.925 49.350Q191.925 53.250 193.575 56.587Q195.225 59.925 198.037 61.913Q200.850 63.900 204.450 63.900Z"
+                />
+                <path
+                    pathLength="1"
+                    class="draw"
+                    id="char-0-5"
+                    d="M239.625 69L232.875 69L232.875 30L239.400 30L239.400 36.525Q241.500 33.375 244.725 31.238Q247.950 29.100 252.075 29.100L252.075 29.100Q256.725 29.100 259.688 31.350Q262.650 33.600 263.850 37.350L263.850 37.350Q266.175 33.900 269.363 31.500Q272.550 29.100 277.275 29.100L277.275 29.100Q283.650 29.100 286.762 33.113Q289.875 37.125 289.875 43.575L289.875 43.575L289.875 69L283.125 69L283.125 44.100Q283.125 40.050 281.250 37.538Q279.375 35.025 276.075 35.025L276.075 35.025Q272.700 35.025 269.813 37.538Q266.925 40.050 264.750 43.425L264.750 43.425L264.750 69L258 69L258 44.100Q258 40.050 256.125 37.538Q254.250 35.025 250.950 35.025L250.950 35.025Q247.650 35.025 244.725 37.463Q241.800 39.900 239.625 43.200L239.625 43.200L239.625 69Z"
+                />
+                <path
+                    pathLength="1"
+                    class="draw"
+                    id="char-0-6"
+                    d="M317.100 69.900L317.100 69.900Q308.700 69.900 303.788 64.537Q298.875 59.175 298.875 49.500L298.875 49.500Q298.875 43.650 301.087 39.038Q303.300 34.425 307.275 31.763Q311.250 29.100 316.500 29.100L316.500 29.100Q322.125 29.100 325.837 31.538Q329.550 33.975 331.425 38.100Q333.300 42.225 333.300 47.175L333.300 47.175Q333.300 49.800 333.075 52.275L333.075 52.275L305.775 52.275Q306.450 57.750 309.600 60.825Q312.750 63.900 317.925 63.900L317.925 63.900Q321.300 63.900 324 63.188Q326.700 62.475 329.175 61.350L329.175 61.350L330.750 67.125Q328.050 68.325 324.675 69.112Q321.300 69.900 317.100 69.900ZM305.700 46.800L305.700 46.800L327.075 46.800Q327.075 41.100 324.225 38.025Q321.375 34.950 316.350 34.950L316.350 34.950Q312 34.950 309.150 37.987Q306.300 41.025 305.700 46.800Z"
+                />
+            </g>
+        </svg>
+    </div>
+
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+    <br><br>
 </DefaultLayout>

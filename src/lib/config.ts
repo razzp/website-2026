@@ -3,6 +3,7 @@ import type { SvgComponent } from 'astro/types';
 
 import GitHubIcon from 'bootstrap-icons/icons/github.svg';
 import LinkedInIcon from 'bootstrap-icons/icons/linkedin.svg';
+import type { RouteKey } from '../config/runtime';
 
 interface Social {
     name: string;
@@ -15,7 +16,7 @@ interface NavItem {
     href: string;
 }
 
-interface Theme {
+interface PageTheme {
     primary: string;
     primaryContrast: string;
     contentBackground: string;
@@ -23,20 +24,13 @@ interface Theme {
     meshFace: string;
 }
 
-interface Page {
+interface PageMeta {
+    routeKey: RouteKey;
     title: string;
     heading: string;
     strapline: string;
-    theme: Theme;
+    theme: PageTheme;
 }
-
-const defaultTheme: Theme = {
-    primary: '#eee',
-    primaryContrast: '#111',
-    contentBackground: '#111',
-    contentText: '#eee',
-    meshFace: '#fff',
-};
 
 const navigation: NavItem[] = [
     { name: 'Home', href: '/' },
@@ -59,4 +53,4 @@ const socials: Social[] = [
     },
 ];
 
-export { defaultTheme, navigation, type Page, socials, type Theme };
+export { navigation, type PageMeta, type PageTheme, socials };
