@@ -62,18 +62,17 @@ function init(): void {
             },
             defaults: {
                 ease: 'expo.out',
+                duration: 0.6,
             },
         })
         .fromTo(
             '.thug',
             {
-                x: '-100px',
-                y: '-20px',
+                y: '-100%',
                 opacity: 0,
             },
             {
-                x: '0px',
-                y: '0px',
+                y: '0%',
                 opacity: 1,
             },
         );

@@ -40,10 +40,6 @@
 }
 
 @layer utilities {
-    .transition-colors-default {
-        @apply transition-colors ease-in-out duration-300;
-    }
-
     .filter-duotone {
         @apply filter-[url(#duotone-filter)_contrast(var(--duotone-contrast))];
     }

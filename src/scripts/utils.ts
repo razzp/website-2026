@@ -40,8 +40,8 @@ async function swapPage(options: {
         }
     });
 
-    heroBackground.setText(pageMeta.heading.toLowerCase());
-    heroForeground.setText(pageMeta.heading.toLowerCase());
+    heroBackground.setText(pageMeta.heading);
+    heroForeground.setText(pageMeta.heading);
 
     heroBackground.resize();
     heroForeground.resize();
