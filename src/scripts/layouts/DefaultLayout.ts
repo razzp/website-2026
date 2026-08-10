@@ -14,7 +14,7 @@ import {
 } from '../utils';
 
 interface State {
-    pageModule?: PageModule;
+    pageJs?: PageModule;
     enableTransitions: boolean;
     interactive: boolean;
     headerVisible: boolean;
@@ -26,6 +26,7 @@ interface State {
 }
 
 const pageMeta = getPageMeta(document);
+const pageRoute = pageRoutes[pageMeta.routeKey];
 
 // Load everything we need to begin.
 
@@ -35,14 +36,14 @@ const [
     { default: Lenis },
     { HeroBackground, HeroForeground },
     { transitionIn, transitionOut },
-    pageModule,
+    pageJs,
 ] = await Promise.all([
     import('gsap'),
     import('gsap/all'),
     import('lenis'),
     import('../components/Hero'),
     import('../components/transitions'),
-    pageRoutes[pageMeta.routeKey].load(),
+    pageRoute.loadJs(),
     document.fonts.ready,
 ]);
 
@@ -54,7 +55,7 @@ const maxRotation = 0.1;
 // Build a state object that we can pass around.
 
 const state: State = {
-    pageModule,
+    pageJs,
     enableTransitions: true,
     interactive: false,
     headerVisible: false,
@@ -150,21 +151,23 @@ findAll<HTMLAnchorElement>('a[data-link-swap]').forEach((link) => {
     link.addEventListener('click', async (event) => {
         if (isSpecialClick(event)) return;
 
-        const route = new URL(link.href).pathname as RouteKey;
+        const routeKey = new URL(link.href).pathname as RouteKey;
 
-        if (!Object.keys(pageRoutes).includes(route)) return;
+        if (!Object.keys(pageRoutes).includes(routeKey)) return;
 
         event.preventDefault();
 
-        const [html, newPageModule] = await Promise.all([
+        const pageRoute = pageRoutes[routeKey];
+
+        const [html, newPageJs] = await Promise.all([
             fetch(link.href).then((response) => response.text()),
-            pageRoutes[route].load(),
+            pageRoute.loadJs(),
             transitionOut({ state, heroBackground, lenis }).then(() =>
-                state.pageModule?.destroy(),
+                state.pageJs?.destroy(),
             ),
         ]);
 
-        state.pageModule = newPageModule;
+        state.pageJs = newPageJs;
 
         const doc = new DOMParser().parseFromString(html, 'text/html');
         const pageMeta = getPageMeta(doc);
@@ -183,9 +186,12 @@ findAll<HTMLAnchorElement>('a[data-link-swap]').forEach((link) => {
             state,
             heroBackground,
             heroForeground,
-            onBeforeShow: () => newPageModule.init(),
+            onBeforeShow: () => {
+                document.body.dataset.page = pageRoute.cssScope;
+                newPageJs.init();
+            },
             onAfterShow: () => {
-                newPageModule.initSafe?.();
+                newPageJs.initSafe?.();
                 generateFooterPixels(
                     footerPixels,
                     pageMeta.theme.primaryContrast,
@@ -201,9 +207,12 @@ await transitionIn({
     state,
     heroBackground,
     heroForeground,
-    onBeforeShow: () => pageModule.init(),
+    onBeforeShow: async () => {
+        document.body.dataset.page = pageRoute.cssScope;
+        pageJs.init();
+    },
     onAfterShow: () => {
-        pageModule.initSafe?.();
+        pageJs.initSafe?.();
         generateFooterPixels(footerPixels, pageMeta.theme.primaryContrast);
     },
 });

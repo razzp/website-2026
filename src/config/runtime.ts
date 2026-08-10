@@ -5,21 +5,26 @@ interface PageModule {
 }
 
 interface PageRoute {
-    load: () => Promise<PageModule>;
+    loadJs: () => Promise<PageModule>;
+    cssScope: string;
 }
 
 const pageRoutes: Record<string, PageRoute> = {
     '/': {
-        load: () => import('../scripts/pages/index'),
+        loadJs: () => import('../scripts/pages/index'),
+        cssScope: 'index',
     },
     '/about': {
-        load: () => import('../scripts/pages/about'),
+        loadJs: () => import('../scripts/pages/about'),
+        cssScope: 'about',
     },
     '/work': {
-        load: () => import('../scripts/pages/work'),
+        loadJs: () => import('../scripts/pages/work'),
+        cssScope: 'work',
     },
     '/contact': {
-        load: () => import('../scripts/pages/contact'),
+        loadJs: () => import('../scripts/pages/contact'),
+        cssScope: 'contact',
     },
 };
 
