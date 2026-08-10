@@ -126,7 +126,8 @@ function transitionOut({
         state.heroBackgroundVisible = true;
 
         lenis.scrollTo(0, {
-            duration: window.scrollY === 0 ? 0 : 0.6,
+            duration: 0.6,
+            immediate: window.scrollY === 0 || !state.enableTransitions,
             easing: gsap.parseEase('expo.inOut'),
             lock: true,
             onComplete: async () => {
