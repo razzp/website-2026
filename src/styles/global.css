@@ -42,11 +42,6 @@
 
     --color-primary: var(--theme-primary);
     --color-primary-contrast: var(--theme-primary-contrast);
-
-    --color-primary-translucent: rgb(
-        from var(--theme-primary) r g b /
-        var(--alpha, 50%)
-    ); /* get rid? */
 }
 
 @layer utilities {
@@ -95,7 +90,7 @@
         @apply fixed z-20 inset-x-0 top-(--inset-half) flex justify-center in-[.-show-nav]:opacity-100 in-[.-show-nav]:translate-y-[-50%] not-in-[.-show-nav]:-translate-y-full not-in-[.-show-nav]:opacity-0 not-in-[.-show-nav]:pointer-events-none transition-all duration-700 ease-in-out-expo;
 
         ol {
-            @apply flex items-center gap-8 px-8 p-4 bg-primary-translucent hover:[--alpha:100%] backdrop-blur-xl rounded-full lowercase text-3xl;
+            @apply flex items-center gap-8 px-8 p-4 bg-primary/50 hover:bg-primary backdrop-blur-xl rounded-full lowercase text-3xl;
         }
 
         .text-link {
