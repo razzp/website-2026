@@ -1,16 +1,70 @@
+import { gsap } from 'gsap';
+import type { default as LenisInstance } from 'lenis';
 import { findAll, findOrThrow } from 'spank-my-dom';
+import type { pageRoutes } from '../config/runtime';
 import type { PageMeta, PageTheme } from '../lib/config';
-import type { HeroBackground, HeroForeground } from './components/Hero';
+import type { HeroBackground, HeroForeground } from './components/heroes';
 import type { State } from './layouts/DefaultLayout';
 
 function getPageMeta(source: Document): PageMeta {
     return JSON.parse(findOrThrow('#page-meta', source).textContent);
 }
 
-function triggerMouseHint(scroll: number): void {
-    document.documentElement.classList[scroll === 0 ? 'add' : 'remove'](
-        '-show-mouse-hint',
+function getThemeVarsAsStyles(theme: PageTheme): string[] {
+    return Object.entries(theme).map(
+        ([key, value]) =>
+            `--theme-${key.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}:${value}`,
     );
+}
+
+function isSpecialClick(event: PointerEvent): boolean {
+    return event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
+}
+
+function preloadModulesWhenIdle(routes: typeof pageRoutes): void {
+    const connection = navigator.connection;
+
+    // Don't preload on slow or metered connections.
+    if (
+        connection?.saveData ||
+        connection?.effectiveType === 'slow-2g' ||
+        connection?.effectiveType === '2g'
+    ) {
+        return;
+    }
+
+    const preload = () => {
+        for (const { loadJs } of Object.values(routes)) {
+            void loadJs().catch(() => {});
+        }
+    };
+
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(preload, { timeout: 5000 });
+    } else {
+        setTimeout(preload, 1000);
+    }
+}
+
+function restoreScrollPosition(state: State, lenis: LenisInstance): void {
+    const navigation = performance.getEntriesByType('navigation')[0] as
+        | PerformanceNavigationTiming
+        | undefined;
+
+    if (navigation?.type === 'reload') {
+        const savedScrollY = sessionStorage.getItem('scrollPosition');
+
+        if (savedScrollY !== null) {
+            // Ensure Lenis is up to date, as this is likely being called
+            // very early on in the page's lifecycle.
+            lenis.resize();
+
+            lenis.scrollTo(parseFloat(savedScrollY), {
+                immediate: window.scrollY === 0 || !state.enableTransitions,
+                easing: gsap.parseEase('expo.inOut'),
+            });
+        }
+    }
 }
 
 async function swapPage(options: {
@@ -74,14 +128,9 @@ async function swapPage(options: {
     }
 }
 
-function isSpecialClick(event: PointerEvent): boolean {
-    return event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
-}
-
-function getThemeVarsAsStyles(theme: PageTheme): string[] {
-    return Object.entries(theme).map(
-        ([key, value]) =>
-            `--theme-${key.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}:${value}`,
+function triggerMouseHint(scroll: number): void {
+    document.documentElement.classList[scroll === 0 ? 'add' : 'remove'](
+        '-show-mouse-hint',
     );
 }
 
@@ -89,6 +138,8 @@ export {
     getPageMeta,
     getThemeVarsAsStyles,
     isSpecialClick,
+    preloadModulesWhenIdle,
+    restoreScrollPosition,
     swapPage,
     triggerMouseHint,
 };

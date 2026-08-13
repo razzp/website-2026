@@ -3,7 +3,7 @@ import { SplitText } from 'gsap/all';
 import type { default as LenisInstance } from 'lenis';
 import { findOrThrow } from 'spank-my-dom';
 import type { State } from '../layouts/DefaultLayout';
-import type { HeroBackground, HeroForeground } from './Hero';
+import type { HeroBackground, HeroForeground } from './heroes';
 
 const strapline = findOrThrow('#hero-strapline');
 const wrapper = findOrThrow('main');

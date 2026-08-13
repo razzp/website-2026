@@ -1,6 +1,5 @@
 interface PageModule {
     init: () => void;
-    initSafe?: () => void;
     destroy: () => void;
 }
 

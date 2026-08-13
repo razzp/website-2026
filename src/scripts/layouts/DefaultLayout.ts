@@ -5,10 +5,12 @@ import {
     type RouteKey,
 } from '../../config/runtime';
 import { generateFooterPixels } from '../components/footer-pixels';
-import { getRotationVectors } from '../components/Hero';
+import { getRotationVectors } from '../components/heroes';
 import {
     getPageMeta,
     isSpecialClick,
+    preloadModulesWhenIdle,
+    restoreScrollPosition,
     swapPage,
     triggerMouseHint,
 } from '../utils';
@@ -41,7 +43,7 @@ const [
     import('gsap'),
     import('gsap/all'),
     import('lenis'),
-    import('../components/Hero'),
+    import('../components/heroes'),
     import('../components/transitions'),
     pageRoute.loadJs(),
     document.fonts.ready,
@@ -56,7 +58,7 @@ const maxRotation = 0.1;
 
 const state: State = {
     pageJs,
-    enableTransitions: true,
+    enableTransitions: false,
     interactive: false,
     headerVisible: false,
     heroBackgroundVisible: false,
@@ -191,7 +193,6 @@ findAll<HTMLAnchorElement>('a[data-link-swap]').forEach((link) => {
                 newPageJs.init();
             },
             onAfterShow: () => {
-                newPageJs.initSafe?.();
                 generateFooterPixels(
                     footerPixels,
                     pageMeta.theme.primaryContrast,
@@ -212,9 +213,16 @@ await transitionIn({
         pageJs.init();
     },
     onAfterShow: () => {
-        pageJs.initSafe?.();
         generateFooterPixels(footerPixels, pageMeta.theme.primaryContrast);
+        restoreScrollPosition(state, lenis);
     },
+});
+
+preloadModulesWhenIdle(pageRoutes);
+
+// Save scroll position when the page is unloaded.
+window.addEventListener('beforeunload', () => {
+    sessionStorage.setItem('scrollPosition', String(window.scrollY));
 });
 
 export type { State };

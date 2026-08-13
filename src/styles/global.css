@@ -6,6 +6,15 @@
     initial-value: transparent;
 }
 
+@keyframes parallax {
+    from {
+        transform: translate3d(0, calc(0px - var(--parallax)), 0);
+    }
+    to {
+        transform: translate3d(0, var(--parallax), 0);
+    }
+}
+
 :root {
     --inset: 100px;
     --inset-half: calc(var(--inset) / 2);
@@ -33,10 +42,11 @@
 
     --color-primary: var(--theme-primary);
     --color-primary-contrast: var(--theme-primary-contrast);
+
     --color-primary-translucent: rgb(
         from var(--theme-primary) r g b /
         var(--alpha, 50%)
-    );
+    ); /* get rid? */
 }
 
 @layer utilities {
@@ -49,6 +59,18 @@
         stroke-dasharray: 1;
         stroke-dashoffset: 1;
         stroke-linecap: round;
+    }
+
+    .mask-circle {
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Ccircle cx='200' cy='200' r='198' fill='transparent' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E");
+    }
+
+    .mask-plus {
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg stroke='%23000' stroke-width='1'%3E%3Cline x1='14' y1='16' x2='18' y2='16'/%3E%3Cline x1='16' y1='14' x2='16' y2='18'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .clip-ellipse {
+        clip-path: ellipse();
     }
 }
 
@@ -85,7 +107,7 @@
         }
     }
 
-    main {
+    #main-content {
         --inset-top: 100%;
         --stretch: 0px;
         --top: calc(var(--inset-top) - var(--stretch));
@@ -102,5 +124,18 @@
                 calc(var(--inset) + var(--stretch)),
             close
         );
+    }
+
+    .x-parallax {
+        clip-path: inset(0);
+
+        img {
+            @apply absolute object-cover;
+
+            top: calc(0px - (var(--parallax, 0) / 4));
+            height: calc(100% + (var(--parallax, 0) / 2));
+            animation: parallax linear;
+            animation-timeline: view();
+        }
     }
 }

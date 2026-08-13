@@ -2,16 +2,18 @@ import { gsap } from 'gsap';
 import { findAll, findOrThrow } from 'spank-my-dom';
 import { PageEntitiesHelper } from '../components/PageEntitiesHelper';
 
-const pageState = {
-    tldrStrokeProgress: 0,
-};
-
 const pageEntities = new PageEntitiesHelper();
+
+const pageState = {
+    tldr: {
+        pathProgress: 0,
+    },
+};
 
 function init(): void {
     // TL;DR text.
 
-    const tlddr = findOrThrow('#tldr');
+    const tlddr = findOrThrow('.js-tldr');
     const tldrPaths = findAll('path', tlddr);
 
     const tldrTimeline = gsap
@@ -28,11 +30,11 @@ function init(): void {
             onUpdate: () => {
                 tldrPaths.forEach((path) => {
                     path.style.strokeDashoffset = String(
-                        pageState.tldrStrokeProgress,
+                        pageState.tldr.pathProgress,
                     );
                 });
 
-                if (pageState.tldrStrokeProgress <= 0) {
+                if (pageState.tldr.pathProgress <= 0) {
                     tlddr.classList.add('-bright');
                 } else {
                     tlddr.classList.remove('-bright');
@@ -40,16 +42,16 @@ function init(): void {
             },
         })
         .fromTo(
-            pageState,
+            pageState.tldr,
             {
-                tldrStrokeProgress: 1,
+                pathProgress: 1,
             },
             {
-                tldrStrokeProgress: 0,
+                pathProgress: 0,
             },
         );
 
-    pageEntities.gsapTimelines.add(tldrTimeline);
+    pageEntities.gsapAnimations.add(tldrTimeline);
 
     // Thug life glasses.
 
@@ -77,18 +79,18 @@ function init(): void {
             },
         );
 
-    pageEntities.gsapTimelines.add(thugTimeline);
+    pageEntities.gsapAnimations.add(thugTimeline);
 
     // Keywords carousel
 
-    const keywordsLines = gsap.utils.toArray('#keywords .keywords-line');
+    const keywordsLines = gsap.utils.toArray('.js-keywords .js-keywords-line');
     const evenLines = keywordsLines.filter((_, i) => i % 2 === 0);
     const oddLines = keywordsLines.filter((_, i) => i % 2 === 1);
 
     const keywordsTimeline = gsap
         .timeline({
             scrollTrigger: {
-                trigger: '#keywords',
+                trigger: '.js-keywords',
                 start: 'top bottom',
                 end: 'bottom top',
                 scrub: true,
@@ -118,18 +120,25 @@ function init(): void {
             0,
         );
 
-    pageEntities.gsapTimelines.add(keywordsTimeline);
+    pageEntities.gsapAnimations.add(keywordsTimeline);
 
-    console.log('index initialised');
-}
-
-function initSafe(): void {
     // Blurb markers.
 
-    findAll('.blurb').forEach((blurb) => {
-        const marks = findAll('.mark > span', blurb);
+    findAll('.js-blurb').forEach((blurb) => {
+        const marks = findAll('.js-mark', blurb);
 
         if (!marks.length) return;
+
+        const markSpans = marks.map((mark) => {
+            const span = document.createElement('span');
+
+            span.dataset.text = mark.innerText;
+
+            mark.appendChild(span);
+            mark.classList.add('x-mark');
+
+            return span;
+        });
 
         const blurbTimeline = gsap
             .timeline({
@@ -142,28 +151,27 @@ function initSafe(): void {
                     ease: 'expo.out',
                 },
             })
-            .to(marks, {
+            .to(markSpans, {
                 clipPath: 'inset(0 0% 0 0 round 5px)',
                 stagger: 0.05,
             });
 
-        pageEntities.gsapTimelines.add(blurbTimeline);
+        pageEntities.gsapAnimations.add(blurbTimeline);
     });
 
     // Seen enough?
 
     const drawConnections = drawConnectionsFactory();
 
-    drawConnections();
-
-    const arrows = gsap.utils.toArray('.connection-yep .arrow');
-    const yepHeading = findOrThrow('.connection-yep .heading');
+    const connections = findOrThrow('.js-connections');
+    const arrows = gsap.utils.toArray('.js-connection-yep .js-arrow');
+    const yepHeading = findOrThrow('.js-connection-yep .js-heading');
 
     const enoughTimeline = gsap
         .timeline({
             paused: true,
             scrollTrigger: {
-                trigger: '.option-box',
+                trigger: '.js-option-box',
                 start: 'bottom bottom',
                 toggleActions: 'play none none reverse',
                 onEnter: () => {
@@ -194,13 +202,20 @@ function initSafe(): void {
             },
         );
 
-    pageEntities.gsapTimelines.add(enoughTimeline);
+    const enoughResizeObserver = new ResizeObserver(() => {
+        drawConnections();
+    });
+
+    enoughResizeObserver.observe(connections);
+
+    pageEntities.observers.add(enoughResizeObserver);
+    pageEntities.gsapAnimations.add(enoughTimeline);
 }
 
 function drawConnectionsFactory(): () => void {
-    const yep = findOrThrow('.connection-yep');
-    const nope = findOrThrow('.connection-nope');
-    const svg = findOrThrow('svg.connections');
+    const yep = findOrThrow('.js-connection-yep');
+    const nope = findOrThrow('.js-connection-nope');
+    const svg = findOrThrow('.js-connections');
 
     return () => {
         // Get bounding rects.
@@ -226,8 +241,6 @@ function drawConnectionsFactory(): () => void {
 
 function destroy(): void {
     pageEntities.killAll();
-
-    console.log('index destroyed');
 }
 
-export { destroy, init, initSafe };
+export { destroy, init };

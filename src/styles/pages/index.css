@@ -1,5 +1,7 @@
+@reference '../global.css';
+
 [data-page='index'] {
-    #tldr {
+    .x-tldr {
         filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 0.5));
         transition: filter 0.4s ease;
 
@@ -8,7 +10,7 @@
         }
     }
 
-    #keywords {
+    .x-keywords {
         mask-image: linear-gradient(
             to right,
             transparent 0%,
@@ -18,16 +20,14 @@
         );
     }
 
-    .blurb .mark {
+    .x-mark {
         --angle: -14deg;
 
-        position: relative;
-        padding-inline: 6px;
-        margin-inline: 2px;
-        white-space: nowrap;
+        @apply relative px-1.5 mx-0.5 whitespace-nowrap;
 
         > span {
-            position: absolute;
+            @apply absolute pointer-events-none;
+
             inset: -1px 0;
             background-color: var(--color-primary);
             color: var(--color-primary-contrast);
@@ -35,114 +35,109 @@
             clip-path: inset(0 100% 0 0 round 5px);
 
             &::after {
+                @apply block;
+
                 content: attr(data-text);
                 transform: skew(calc(0deg - var(--angle)), 0deg);
-                display: block;
             }
         }
     }
 
-    #enough {
-        .connection-yep {
-            .heading {
-                anchor-name: --arrow-anchor;
+    .x-connection-yep {
+        .x-heading {
+            anchor-name: --arrow-anchor;
 
-                &.-highlight {
-                    transform: scale(1.5);
-                    text-shadow: 0px 0px 50px;
-                }
-            }
-
-            .arrow {
-                --scale: 1;
-                --angle: 0deg;
-
-                width: calc(var(--width) * var(--scale));
-                height: calc(var(--height) * var(--scale));
-                background-color: var(--color-primary);
-                position: absolute;
-                mask: var(--url) no-repeat center / contain;
-
-                position-anchor: --arrow-anchor;
-                position-area: center;
-                right: anchor(center);
-                transform: translateX(calc(0px - var(--distance)))
-                    rotate(var(--angle));
-                transform-origin: calc(100% + var(--distance)) center;
-
-                &.-arrow-1 {
-                    --width: 155px;
-                    --height: 63px;
-                    --angle: -21deg;
-                    --scale: 1;
-                    --distance: 76px;
-                    --url: url('../../images/arrow-1.svg');
-                }
-
-                &.-arrow-2 {
-                    --width: 152px;
-                    --height: 62px;
-                    --angle: 20deg;
-                    --scale: 0.5;
-                    --distance: 72px;
-                    --url: url('../../images/arrow-2.svg');
-                    animation-delay: 100ms;
-                }
-
-                &.-arrow-3 {
-                    --width: 171px;
-                    --height: 78px;
-                    --angle: 60deg;
-                    --scale: 1.5;
-                    --distance: 70px;
-                    --url: url('../../images/arrow-3.svg');
-                    animation-delay: 200ms;
-                }
-
-                &.-arrow-4 {
-                    --width: 152px;
-                    --height: 60px;
-                    --angle: 130deg;
-                    --scale: 0.4;
-                    --distance: 50px;
-                    --url: url('../../images/arrow-4.svg');
-                    animation-delay: 300ms;
-                }
-
-                &.-arrow-5 {
-                    --width: 152px;
-                    --height: 35px;
-                    --angle: 167deg;
-                    --scale: 1.5;
-                    --distance: 70px;
-                    --url: url('../../images/arrow-5.svg');
-                    animation-delay: 400ms;
-                }
-
-                &.-arrow-6 {
-                    --width: 158px;
-                    --height: 64px;
-                    --angle: 210deg;
-                    --scale: 0.5;
-                    --distance: 70px;
-                    --url: url('../../images/arrow-6.svg');
-                    animation-delay: 500ms;
-                }
+            &.-highlight {
+                transform: scale(1.5);
+                text-shadow: 0px 0px 50px;
             }
         }
 
+        .x-arrow {
+            --scale: 1;
+            --angle: 0deg;
+
+            @apply absolute;
+
+            width: calc(var(--width) * var(--scale));
+            height: calc(var(--height) * var(--scale));
+            background-color: var(--color-primary);
+            mask: var(--url) no-repeat center / contain;
+
+            position-anchor: --arrow-anchor;
+            position-area: center;
+            right: anchor(center);
+            transform: translateX(calc(0px - var(--distance)))
+                rotate(var(--angle));
+            transform-origin: calc(100% + var(--distance)) center;
+
+            &.-arrow-1 {
+                --width: 155px;
+                --height: 63px;
+                --angle: -21deg;
+                --scale: 1;
+                --distance: 76px;
+                --url: url('../../images/arrow-1.svg');
+            }
+
+            &.-arrow-2 {
+                --width: 152px;
+                --height: 62px;
+                --angle: 20deg;
+                --scale: 0.5;
+                --distance: 72px;
+                --url: url('../../images/arrow-2.svg');
+                animation-delay: 100ms;
+            }
+
+            &.-arrow-3 {
+                --width: 171px;
+                --height: 78px;
+                --angle: 60deg;
+                --scale: 1.5;
+                --distance: 70px;
+                --url: url('../../images/arrow-3.svg');
+                animation-delay: 200ms;
+            }
+
+            &.-arrow-4 {
+                --width: 152px;
+                --height: 60px;
+                --angle: 130deg;
+                --scale: 0.4;
+                --distance: 50px;
+                --url: url('../../images/arrow-4.svg');
+                animation-delay: 300ms;
+            }
+
+            &.-arrow-5 {
+                --width: 152px;
+                --height: 35px;
+                --angle: 167deg;
+                --scale: 1.5;
+                --distance: 70px;
+                --url: url('../../images/arrow-5.svg');
+                animation-delay: 400ms;
+            }
+
+            &.-arrow-6 {
+                --width: 158px;
+                --height: 64px;
+                --angle: 210deg;
+                --scale: 0.5;
+                --distance: 70px;
+                --url: url('../../images/arrow-6.svg');
+                animation-delay: 500ms;
+            }
+        }
+    }
+
+    .x-option-box {
         nav ol li:not(:last-child)::after {
+            @apply opacity-25;
+
             content: '//';
-            opacity: 0.25;
             padding-inline: calc(var(--spacing) * 4);
         }
-    }
-
-    .mask-circle {
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Ccircle cx='200' cy='200' r='198' fill='transparent' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E");
-    }
-
-    .mask-plus {
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg stroke='%23000' stroke-width='1'%3E%3Cline x1='14' y1='16' x2='18' y2='16'/%3E%3Cline x1='16' y1='14' x2='16' y2='18'/%3E%3C/g%3E%3C/svg%3E");
     }
 }
