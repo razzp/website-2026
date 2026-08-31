@@ -1,3 +1,4 @@
+import type { default as LenisInstance } from 'lenis';
 import { findAll, findOrThrow } from 'spank-my-dom';
 import {
     type PageModule,
@@ -21,6 +22,7 @@ interface State {
     interactive: boolean;
     headerVisible: boolean;
     heroBackgroundVisible: boolean;
+    lenis: LenisInstance;
     mouse: {
         x: number;
         y: number;
@@ -34,7 +36,7 @@ const pageRoute = pageRoutes[pageMeta.routeKey];
 
 const [
     { gsap },
-    { ScrollTrigger, SplitText },
+    { ScrollTrigger, SplitText, MotionPathPlugin },
     { default: Lenis },
     { HeroBackground, HeroForeground },
     { transitionIn, transitionOut },
@@ -57,6 +59,9 @@ const maxRotation = 0.1;
 // Build a state object that we can pass around.
 
 const state: State = {
+    lenis: new Lenis({
+        //prevent: (node) => node instanceof HTMLDialogElement
+    }),
     pageJs,
     enableTransitions: false,
     interactive: false,
@@ -67,6 +72,26 @@ const state: State = {
         y: window.innerHeight / 2,
     },
 };
+
+// Configure Lenis.
+
+//const lenis = new Lenis();
+
+state.lenis.on('scroll', ({ scroll }) => {
+    ScrollTrigger.update();
+    triggerMouseHint(scroll);
+});
+
+triggerMouseHint(window.scrollY);
+
+// Configure GSAP.
+
+gsap.registerPlugin(ScrollTrigger, SplitText, MotionPathPlugin);
+gsap.ticker.lagSmoothing(0);
+
+gsap.ticker.add((time) => {
+    state.lenis.raf(time * 1000);
+});
 
 // Listen for some stuff...
 
@@ -113,26 +138,7 @@ await Promise.all([heroBackground.compile(), heroForeground.compile()]);
 heroForeground.resize();
 heroBackground.resize();
 
-// Configure Lenis.
-
-const lenis = new Lenis();
-
-lenis.on('scroll', ({ scroll }) => {
-    ScrollTrigger.update();
-    triggerMouseHint(scroll);
-});
-
-triggerMouseHint(window.scrollY);
-
-// Configure GSAP.
-
-gsap.registerPlugin(ScrollTrigger, SplitText);
-gsap.ticker.lagSmoothing(0); // Lenis compat.
-
-gsap.ticker.add((time) => {
-    // Synchronise with Lenis.
-    lenis.raf(time * 1000);
-
+gsap.ticker.add(() => {
     const vectors = getRotationVectors(state, maxRotation);
 
     heroBackground.rotate(...vectors);
@@ -164,8 +170,8 @@ findAll<HTMLAnchorElement>('a[data-link-swap]').forEach((link) => {
         const [html, newPageJs] = await Promise.all([
             fetch(link.href).then((response) => response.text()),
             pageRoute.loadJs(),
-            transitionOut({ state, heroBackground, lenis }).then(() =>
-                state.pageJs?.destroy(),
+            transitionOut({ state, heroBackground }).then(() =>
+                state.pageJs?.destroy(state),
             ),
         ]);
 
@@ -190,7 +196,7 @@ findAll<HTMLAnchorElement>('a[data-link-swap]').forEach((link) => {
             heroForeground,
             onBeforeShow: () => {
                 document.body.dataset.page = pageRoute.cssScope;
-                newPageJs.init();
+                newPageJs.init(state);
             },
             onAfterShow: () => {
                 generateFooterPixels(
@@ -210,11 +216,11 @@ await transitionIn({
     heroForeground,
     onBeforeShow: async () => {
         document.body.dataset.page = pageRoute.cssScope;
-        pageJs.init();
+        pageJs.init(state);
     },
     onAfterShow: () => {
         generateFooterPixels(footerPixels, pageMeta.theme.primaryContrast);
-        restoreScrollPosition(state, lenis);
+        restoreScrollPosition(state);
     },
 });
 

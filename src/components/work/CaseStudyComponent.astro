@@ -1,0 +1,73 @@
+---
+import { Image } from 'astro:assets';
+import CloseIcon from 'bootstrap-icons/icons/x-circle.svg';
+import type { CaseStudy } from '../../scripts/pages/work/types/CaseStudy';
+
+interface Props {
+    caseStudy: CaseStudy;
+}
+
+const { title, abstract, logo, backgroundColour, textColour, tags } =
+    Astro.props.caseStudy;
+---
+
+<div
+    data-tags={tags.join('|')}
+    data-text-colour={textColour}
+    data-background-colour={backgroundColour}
+    class="js-study x-study relative rounded-3xl flex flex-col items-center justify-center overflow-clip bg-(--bg-colour) text-(--text-colour) scroll-mt-10"
+    style={`--bg-colour:${backgroundColour};--text-colour:${textColour};`}
+>
+    <div class="js-study-content flex flex-col items-center gap-10 w-[50%]">
+        <Image
+            class="js-study-logo relative w-[200px] h-auto "
+            src={logo}
+            alt={`Logo for ${title}`}
+        />
+
+        <p class="text-pretty text-center">{abstract}</p>
+
+        <button
+            type="button"
+            class="js-open text-(--bg-colour) bg-(--text-colour) px-10 py-2 rounded"
+        >
+            discover
+        </button>
+    </div>
+
+    <!-- Dialog content -->
+
+    <template>
+        <button
+            type="button"
+            class="js-dialog-close fixed top-10 right-10 text-(--text-colour) cursor-pointer"
+        >
+            <CloseIcon width={50} height={50} fill="currentColor" />
+        </button>
+
+        <div class="js-dialog-content flex flex-col gap-10 p-10 items-center">
+            <Image
+                class="js-dialog-logo relative w-[400px] h-auto origin-top-left"
+                src={logo}
+                alt={`Logo for ${title}`}
+            />
+
+            <div class="js-dialog-body">
+                <div class="flex flex-col gap-10 text-(--text-colour)">
+                    <h2
+                        class="text-center text-7xl leading-tight text-balance text-transparent text-stroke-2 text-stroke-(--text-colour)"
+                    >
+                        {title}
+                    </h2>
+
+                    <hr
+                        class="w-full border-(--text-colour)"
+                        role="presentation"
+                    >
+
+                    <slot />
+                </div>
+            </div>
+        </div>
+    </template>
+</div>

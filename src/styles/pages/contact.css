@@ -1,0 +1,81 @@
+@reference '../global.css';
+
+[data-page='contact'] {
+    .x-plane-bounds {
+        position: absolute;
+        inset: 0 100px;
+        overflow: clip;
+        mask-image: linear-gradient(
+            to right,
+            transparent 0%,
+            black 20%,
+            black 80%,
+            transparent 100%
+        );
+        z-index: 10;
+        pointer-events: none;
+
+        filter: drop-shadow(30px 30px 26px rgba(0, 0, 0, 0.5));
+    }
+
+    .x-plane {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        display: grid;
+        place-items: center;
+        font-size: 100px;
+        line-height: 1;
+        transform-origin: center;
+
+        .x-fill {
+            fill: var(--theme-primary-contrast);
+        }
+
+        .x-outline {
+            fill: var(--theme-primary);
+        }
+    }
+
+    .x-trail {
+        mask-image: linear-gradient(
+            to right,
+            transparent 0%,
+            black 20%,
+            black 80%,
+            transparent 100%
+        );
+    }
+
+    .x-reason-heading {
+        transition: 0.4s ease-out;
+
+        transition-property:
+            text-shadow, color, -webkit-text-stroke-color,
+            -webkit-text-stroke-width;
+
+        &.-active {
+            text-shadow:
+                0px 0px 10px var(--theme-primary-contrast),
+                0px 0px 30px rgb(from var(--theme-primary) r g b / 0.5);
+        }
+    }
+
+    .x-3d-link {
+        --size: 5px;
+        --offset: calc(0px - var(--size) / 2);
+
+        box-shadow: 0 0;
+        transition: 0.4s var(--ease-in-out-expo);
+        transition-property: box-shadow, transform;
+
+        &:hover {
+            transform: translate3d(var(--offset), var(--offset), 0);
+            box-shadow: var(--size) var(--size);
+        }
+
+        &:active {
+            filter: brightness(0.9);
+        }
+    }
+}

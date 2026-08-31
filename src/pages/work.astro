@@ -1,9 +1,34 @@
 ---
+import { Image } from 'astro:assets';
+import type { SvgComponent } from 'astro/types';
+import Project from '../components/work/Project.astro';
+import CelticStudy from '../components/work/studies/CelticStudy.astro';
+import ExeterChiefsStudy from '../components/work/studies/ExeterChiefsStudy.astro';
+import KettlewellStudy from '../components/work/studies/KettlewellStudy.astro';
+import NakedPharmacyStudy from '../components/work/studies/NakedPharmacyStudy.astro';
+import ScillyFlowersStudy from '../components/work/studies/ScillyFlowersStudy.astro';
+import VistaStudy from '../components/work/studies/VistaStudy.astro';
+import WeirdFishStudy from '../components/work/studies/WeirdFishStudy.astro';
+import aerocatch from '../images/aerocatch.svg';
+import ageRating from '../images/BBFC-18.svg';
+import celtic from '../images/celtic.svg';
+import forthglade from '../images/forthglade.svg';
+import frugi from '../images/frugi.svg';
+import icklebubba from '../images/ickle-bubba.svg';
+import kernowcraft from '../images/kernowcraft.svg';
+import nhs from '../images/nhs.svg';
+import samsung from '../images/samsung.svg';
+import turtledoves from '../images/turtledoves.svg';
+import virginmedia from '../images/virginmedia.svg';
+import walsh from '../images/walsh.svg';
+import webselect from '../images/webselect.svg';
+import weirdfish from '../images/weirdfish.svg';
 import DefaultLayout from '../layouts/DefaultLayout.astro';
 import type { PageMeta } from '../lib/config';
+import { Tags } from '../scripts/pages/work/types/CaseStudy';
 
 const pageMeta: PageMeta = {
-    routeKey: '/contact',
+    routeKey: '/work',
     title: 'My Work',
     heading: 'work',
     strapline: "I've done quite a bit, and for some cool brands too!",
@@ -15,30 +40,209 @@ const pageMeta: PageMeta = {
         meshFace: '#ff008b',
     },
 };
+
+interface Client {
+    logo: SvgComponent & ImageMetadata;
+    alt: string;
+}
+
+const clientLogos = [
+    {
+        logo: weirdfish,
+        alt: 'Lorem ipsum',
+    },
+    {
+        logo: forthglade,
+        alt: 'Lorem ipsum',
+    },
+    {
+        logo: walsh,
+        alt: 'Lorem ipsum',
+    },
+    {
+        logo: icklebubba,
+        alt: 'Lorem ipsum',
+    },
+    {
+        logo: kernowcraft,
+        alt: 'Lorem ipsum',
+    },
+    {
+        logo: celtic,
+        alt: 'Lorem ipsum',
+    },
+    {
+        logo: turtledoves,
+        alt: 'Lorem ipsum',
+    },
+    {
+        logo: frugi,
+        alt: 'Lorem ipsum',
+    },
+    {
+        logo: aerocatch,
+        alt: 'Lorem ipsum',
+    },
+    {
+        logo: samsung,
+        alt: 'Lorem ipsum',
+    },
+    {
+        logo: virginmedia,
+        alt: 'Lorem ipsum',
+    },
+    {
+        logo: nhs,
+        alt: 'Lorem ipsum',
+    },
+] satisfies Client[];
 ---
 
 <DefaultLayout pageMeta={pageMeta}>
-    <div class="flex flex-col gap-10 p-10 text-lg">
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-        <p>Lorem ipsum dolor sit amet.</p>
-    </div>
+    <section class="js-outer p-10 text-lg grid grid-cols-2 gap-10 relative">
+        <div
+            class="js-tags-container x-tags-container flex items-center justify-center gap-10 p-10 sticky top-10 rounded-3xl clip-rounded-3xl border-2 border-primary/75"
+            aria-hidden="true"
+        >
+            <div
+                class="fixed -z-10 inset-0 mask-plus mask-size-[64px] bg-primary/25 pointer-events-none"
+            ></div>
+
+            <span
+                class="js-mouse-follower x-mouse-follower z-10 fixed top-0 left-0 block w-[20px] h-[20px] border-2 border-primary rounded-full pointer-events-none"
+            >
+                <span></span>
+            </span>
+
+            <div
+                class="js-tags x-tags absolute inset-0 items-center justify-center flex flex-wrap p-5 gap-5 z-20 invisible"
+            >
+                {Object.values(Tags).map((tag) => (
+                    <div class="js-tag x-tag" data-tag={tag}>{tag}</div>
+                ))}
+            </div>
+        </div>
+
+        <div class="x-studies grid gap-10">
+            <div
+                class="js-title-slide flex flex-col items-center justify-center gap-10 scroll-mt-10"
+            >
+                <p
+                    class="text-7xl tracking-widest text-transparent text-stroke-1 text-stroke-primary"
+                >
+                    +++
+                </p>
+
+                <h2 class="text-primary text-7xl text-center lowercase">
+                    Case studies
+                </h2>
+
+                <p
+                    class="text-7xl tracking-widest text-transparent text-stroke-1 text-stroke-primary"
+                >
+                    +++
+                </p>
+            </div>
+
+            <WeirdFishStudy />
+            <CelticStudy />
+            <ScillyFlowersStudy />
+            <KettlewellStudy />
+            <VistaStudy />
+            <ExeterChiefsStudy />
+            <NakedPharmacyStudy />
+        </div>
+    </section>
+
+    <section class="p-10 flex flex-col items-center gap-10 text-center">
+        <p
+            class="text-7xl xtracking-widest text-transparent text-stroke-2 text-stroke-primary"
+        >
+            Webselect Ltd.
+        </p>
+
+        <!-- biome-ignore format: preserve whitespace -->
+        <p class="max-w-prose text-2xl text-pretty text-center leading-normal">
+            I'm incredibly proud to have worked with the team at <a href="https://www.webselect.net" target="_blank" rel="noopener">Webselect Ltd</a> for the majority of my adult life, and also of my role in developing and maintaining our proprietary e-commerce product, SelectCommerce. This predated the Shopify boom, and gave our clients a groundbreaking CMS in which they could build pages, manage their products, perform audits, aggregate data, and more. SelectCommerce helped both start-ups and established brands grow exponentially, and its legacy still lives on today.        
+        </p>
+
+        <div
+            class="w-[50px] h-[50px] bg-current mask-logo"
+            style={`mask-image: url('${webselect.src}');`}
+            role="img"
+            aria-label="Webselect Logo"
+        ></div>
+
+        <div
+            class="flex flex-col items-center self-stretch gap-10 p-10 rounded-3xl clip-rounded-3xl border-2 border-primary/75"
+        >
+            <div
+                class="fixed -z-10 inset-0 mask-plus mask-size-[64px] bg-primary/25 pointer-events-none"
+            ></div>
+
+            <div class="js-logos grid grid-cols-4 gap-20">
+                {clientLogos.map(({ logo, alt }) => (
+                    <div class="js-logo x-logo mask-logo" style={`mask-image: url('${logo.src}');`} role="img" aria-label={alt}></div>
+                ))}
+            </div>
+        </div>
+    </section>
+
+    <section class="p-10 flex flex-col items-center gap-10">
+        <p
+            class="text-7xl xtracking-widest text-transparent text-stroke-2 text-stroke-primary xtext-center"
+        >
+            Personal Projects
+        </p>
+
+        <p class="max-w-prose text-2xl text-pretty text-center leading-normal">
+            I've had all sorts of terrible ideas over the years, but if you
+            throw enough shit at the wall, some of it will stick. Here's a few
+            examples that have actually proved pretty useful...
+        </p>
+
+        <div class="grid grid-cols-3 gap-10 text-center text-pretty">
+            <Project
+                title="NVM Quick Switch"
+                linkName="View on GitHub"
+                linkHref="#"
+            >
+                <p>
+                    A tray icon / GUI for NVM Windows. Used extensively by
+                    myself and colleagues for quickly managing node versions
+                    between projects.
+                </p>
+            </Project>
+
+            <Project
+                class="js-18-wrapper"
+                title="Spank My DOM"
+                linkName="View on GitHub"
+                linkHref="#"
+            >
+                <Image
+                    class="js-18 absolute top-[-20px] right-[-20px] w-[80px] border-[10px] border-primary bg-primary rounded-full"
+                    src={ageRating}
+                    alt={`lorem ipsum`}
+                />
+
+                <p>
+                    A small set of DOM utilities, especially useful for
+                    prototyping, or on projects that don't require a framework.
+                </p>
+            </Project>
+
+            <Project title="Bossy Boots" linkName="View on GitHub" linkHref="#">
+                <p>
+                    A collection of type guards and assertions for keeping
+                    TypeScript files tidy and succinct. Especially useful in
+                    strict mode!
+                </p>
+            </Project>
+        </div>
+    </section>
+
+    <dialog
+        class="js-dialog x-dialog m-auto max-w-none max-h-none w-dvw h-dvh bg-transparent scrollbar-gutter-stable not-[.-interactive]:overflow-hidden"
+    ></dialog>
 </DefaultLayout>

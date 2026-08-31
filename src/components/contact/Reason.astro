@@ -1,0 +1,29 @@
+---
+interface Props {
+    heading: string;
+    body: string;
+    orientation?: 'left' | 'right';
+}
+
+const { heading, body, orientation = 'left' } = Astro.props;
+---
+
+<div class="grid grid-cols-2">
+    <div
+        class={`js-reason flex flex-col items-center gap-10 p-10 ${orientation === 'left' ? '[grid-area:1/1/1/1]' : '[grid-area:1/2/1/3]'}`}
+    >
+        <h3
+            class="js-reason-heading x-reason-heading text-[20rem] leading-none [&:not(.-active)]:text-transparent [&:not(.-active)]:text-stroke-2 [&:not(.-active)]:text-stroke-primary"
+        >
+            {heading}
+        </h3>
+
+        <p class="max-w-2/3 text-4xl text-pretty text-center">
+            {body}
+        </p>
+    </div>
+
+    <div class="relative [grid-area:1/1/1/3] pointer-events-none">
+        <slot />
+    </div>
+</div>

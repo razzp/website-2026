@@ -1,0 +1,53 @@
+---
+interface Props {
+    width: string;
+    height: string;
+    path: string;
+    class?: string;
+    direction: 'rtl' | 'ltr';
+    ease?: gsap.EaseString | gsap.EaseFunction;
+}
+
+const {
+    width,
+    height,
+    path,
+    direction,
+    class: className,
+    ease = 'none',
+} = Astro.props;
+
+const pathId = crypto.randomUUID();
+const definitionId = `def-${pathId}`;
+const maskId = `mask-${pathId}`;
+---
+
+<svg
+    class:list={["js-trail x-trail w-full h-auto", className]}
+    width={width}
+    height={height}
+    viewBox={`0 0 ${width} ${height}`}
+    data-direction={direction}
+    data-ease={ease}
+    aria-hidden="true"
+>
+    <defs>
+        <path
+            id={definitionId}
+            d={path}
+            stroke-width="2"
+            vector-effect="non-scaling-stroke"
+        />
+
+        <mask id={maskId}>
+            <use href={`#${definitionId}`} class="stroke-white" />
+        </mask>
+    </defs>
+
+    <use
+        href={`#${definitionId}`}
+        mask={`url(#${maskId})`}
+        class="fill-transparent stroke-primary/50"
+        stroke-dasharray="6 10"
+    />
+</svg>

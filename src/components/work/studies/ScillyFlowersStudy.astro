@@ -1,0 +1,77 @@
+---
+import logo from '../../../images/scilly.svg';
+import {
+    type CaseStudy,
+    Tags,
+} from '../../../scripts/pages/work/types/CaseStudy';
+import CaseStudyComponent from '../CaseStudyComponent.astro';
+
+const model = {
+    title: 'Scilly Flowers',
+    abstract:
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+    logo,
+    backgroundColour: '#1c816a',
+    textColour: '#fff',
+    tags: [
+        Tags.HTML5,
+        Tags.CSS3,
+        Tags.MobileFirst,
+        Tags.Responsive,
+        Tags.Ecommerce,
+        Tags.Bootstrap,
+        Tags.TypeScript,
+    ],
+} satisfies CaseStudy;
+---
+
+<CaseStudyComponent caseStudy={model}>
+    <p class="text-center text-pretty text-2xl max-w-prose">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+        commodo consequat.
+    </p>
+
+    <p class="text-center text-pretty text-2xl max-w-prose">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+        commodo consequat.
+    </p>
+
+    <p class="text-center text-pretty text-2xl max-w-prose">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+        commodo consequat.
+    </p>
+
+    <p class="text-center text-pretty text-2xl max-w-prose">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+        commodo consequat.
+    </p>
+
+    <p class="text-center text-pretty text-2xl max-w-prose">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+        commodo consequat.
+    </p>
+
+    <p class="text-center text-pretty text-2xl max-w-prose">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+        commodo consequat.
+    </p>
+
+    <p class="text-center text-pretty text-2xl max-w-prose">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+        commodo consequat.
+    </p>
+</CaseStudyComponent>

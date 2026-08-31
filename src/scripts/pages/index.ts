@@ -2,13 +2,19 @@ import { gsap } from 'gsap';
 import { findAll, findOrThrow } from 'spank-my-dom';
 import { PageEntitiesHelper } from '../components/PageEntitiesHelper';
 
-const pageEntities = new PageEntitiesHelper();
+interface PageState {
+    tldr: {
+        pathProgress: number;
+    };
+}
 
-const pageState = {
+const pageState: PageState = {
     tldr: {
         pathProgress: 0,
     },
 };
+
+const pageEntities = new PageEntitiesHelper();
 
 function init(): void {
     // TL;DR text.
@@ -213,9 +219,10 @@ function init(): void {
 }
 
 function drawConnectionsFactory(): () => void {
+    const svg = findOrThrow('.js-connections');
+    const circle = findOrThrow('circle', svg);
     const yep = findOrThrow('.js-connection-yep');
     const nope = findOrThrow('.js-connection-nope');
-    const svg = findOrThrow('.js-connections');
 
     return () => {
         // Get bounding rects.
@@ -223,6 +230,8 @@ function drawConnectionsFactory(): () => void {
         const nopeRect = nope.getBoundingClientRect();
         const svgRect = svg.getBoundingClientRect();
         const center = svgRect.width / 2;
+
+        circle.setAttribute('cx', `${center}`);
 
         // Resize the SVG to match its container.
         svg.setAttribute('viewBox', `0 0 ${svgRect.width} ${svgRect.height}`);

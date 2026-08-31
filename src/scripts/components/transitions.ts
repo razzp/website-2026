@@ -1,6 +1,5 @@
 import { gsap } from 'gsap';
 import { SplitText } from 'gsap/all';
-import type { default as LenisInstance } from 'lenis';
 import { findOrThrow } from 'spank-my-dom';
 import type { State } from '../layouts/DefaultLayout';
 import type { HeroBackground, HeroForeground } from './heroes';
@@ -110,23 +109,21 @@ function transitionIn({
 function transitionOut({
     state,
     heroBackground,
-    lenis,
     onAfterHide,
 }: {
     state: State;
     heroBackground: HeroBackground;
-    lenis: LenisInstance;
     onAfterHide?: () => void;
 }): Promise<void> {
     return new Promise((resolve) => {
-        const { enableTransitions } = state;
+        const { enableTransitions, lenis } = state;
 
         document.documentElement.classList.remove('-show-nav');
 
         state.heroBackgroundVisible = true;
 
         lenis.scrollTo(0, {
-            duration: 0.6,
+            duration: 0.8,
             immediate: window.scrollY === 0 || !state.enableTransitions,
             easing: gsap.parseEase('expo.inOut'),
             lock: true,

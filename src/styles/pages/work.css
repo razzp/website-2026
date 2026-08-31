@@ -1,0 +1,57 @@
+@reference '../global.css';
+
+[data-page='work'] {
+    .x-tags-container {
+        height: calc(100dvh - (var(--spacing) * 20));
+    }
+
+    .x-tags {
+        filter: drop-shadow(30px 30px 26px rgba(0, 0, 0, 0.5));
+    }
+
+    .x-tag {
+        @apply top-0 left-0 px-3 py-1 bg-primary-contrast text-primary rounded-md whitespace-nowrap border-2 border-primary;
+        transition: 0.4s ease;
+        transition-property: color, background, border-color;
+
+        &.-highlight {
+            @apply bg-primary text-primary-contrast border-transparent;
+        }
+    }
+
+    .x-mouse-follower {
+        transform: translate3d(calc(var(--x) - 50%), calc(var(--y) - 50%), 0);
+    }
+
+    .x-studies {
+        grid-auto-rows: calc(100dvh - (var(--spacing) * 20));
+    }
+
+    .x-study {
+        background-image: radial-gradient(
+            ellipse,
+            transparent 50%,
+            rgba(0, 0, 0, 0.25) 100%
+        );
+    }
+
+    .x-dialog {
+        &::backdrop {
+            backdrop-filter: blur(var(--blur, 0px))
+                brightness(var(--brightness, 1));
+
+            background: repeating-conic-gradient(
+                from 0deg at var(--x) var(--y),
+                transparent,
+                transparent var(--rotation),
+                var(--bg-colour) var(--rotation),
+                var(--bg-colour) 10%,
+                transparent 10%
+            );
+        }
+    }
+
+    .x-logo {
+        @apply w-[200px] h-auto aspect-200/60 bg-current origin-top-right;
+    }
+}

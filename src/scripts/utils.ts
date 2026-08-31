@@ -1,5 +1,4 @@
 import { gsap } from 'gsap';
-import type { default as LenisInstance } from 'lenis';
 import { findAll, findOrThrow } from 'spank-my-dom';
 import type { pageRoutes } from '../config/runtime';
 import type { PageMeta, PageTheme } from '../lib/config';
@@ -8,6 +7,27 @@ import type { State } from './layouts/DefaultLayout';
 
 function getPageMeta(source: Document): PageMeta {
     return JSON.parse(findOrThrow('#page-meta', source).textContent);
+}
+
+function getScrollbarWidth(): number {
+    const tempElement = document.createElement('div');
+
+    tempElement.style.cssText = `
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+        width: 100px;
+        height: 100px;
+        overflow: scroll;
+    `;
+
+    document.body.appendChild(tempElement);
+
+    const width = tempElement.offsetWidth - tempElement.clientWidth;
+
+    tempElement.remove();
+
+    return width;
 }
 
 function getThemeVarsAsStyles(theme: PageTheme): string[] {
@@ -46,12 +66,13 @@ function preloadModulesWhenIdle(routes: typeof pageRoutes): void {
     }
 }
 
-function restoreScrollPosition(state: State, lenis: LenisInstance): void {
+function restoreScrollPosition(state: State): void {
     const navigation = performance.getEntriesByType('navigation')[0] as
         | PerformanceNavigationTiming
         | undefined;
 
     if (navigation?.type === 'reload') {
+        const { enableTransitions, lenis } = state;
         const savedScrollY = sessionStorage.getItem('scrollPosition');
 
         if (savedScrollY !== null) {
@@ -60,7 +81,8 @@ function restoreScrollPosition(state: State, lenis: LenisInstance): void {
             lenis.resize();
 
             lenis.scrollTo(parseFloat(savedScrollY), {
-                immediate: window.scrollY === 0 || !state.enableTransitions,
+                duration: 0.6,
+                immediate: !enableTransitions,
                 easing: gsap.parseEase('expo.inOut'),
             });
         }
@@ -78,6 +100,7 @@ async function swapPage(options: {
 
     document.title = pageMeta.title;
 
+    findOrThrow('#page-meta').innerHTML = JSON.stringify(pageMeta);
     findOrThrow('#hero-strapline').innerHTML = pageMeta.strapline;
 
     findOrThrow('meta[name="theme-color"]').setAttribute(
@@ -104,6 +127,7 @@ async function swapPage(options: {
     heroBackground.setColour(pageMeta.theme.primaryContrast);
 
     for (const [key, value] of Object.entries(pageMeta.theme)) {
+        // Ignore 'primary' as we'll animate it later...
         if (state.enableTransitions && key === 'primary') continue;
 
         document.documentElement.style.setProperty(
@@ -136,6 +160,7 @@ function triggerMouseHint(scroll: number): void {
 
 export {
     getPageMeta,
+    getScrollbarWidth,
     getThemeVarsAsStyles,
     isSpecialClick,
     preloadModulesWhenIdle,

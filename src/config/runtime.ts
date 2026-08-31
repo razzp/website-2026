@@ -1,6 +1,8 @@
+import type { State } from '../scripts/layouts/DefaultLayout';
+
 interface PageModule {
-    init: () => void;
-    destroy: () => void;
+    init: (state: State) => void;
+    destroy: (state: State) => void;
 }
 
 interface PageRoute {
@@ -18,7 +20,7 @@ const pageRoutes: Record<string, PageRoute> = {
         cssScope: 'about',
     },
     '/work': {
-        loadJs: () => import('../scripts/pages/work'),
+        loadJs: () => import('../scripts/pages/work/work'),
         cssScope: 'work',
     },
     '/contact': {

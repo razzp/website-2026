@@ -3,16 +3,25 @@ import { findOrThrow } from 'spank-my-dom';
 import { PageEntitiesHelper } from '../components/PageEntitiesHelper';
 import { Particles } from '../components/particles';
 
-const pageEntities = new PageEntitiesHelper();
+interface PageState {
+    awesome: {
+        pathProgress: number;
+        rotations: [number, number];
+        particlesIntersecting: boolean;
+        raysIntersecting: boolean;
+    };
+}
 
-const pageState = {
+const pageState: PageState = {
     awesome: {
         pathProgress: 0,
-        rotations: [0, 0] satisfies [number, number],
+        rotations: [0, 0],
         particlesIntersecting: false,
         raysIntersecting: false,
     },
 };
+
+const pageEntities = new PageEntitiesHelper();
 
 function init(): void {
     // Day one section.
@@ -172,15 +181,9 @@ function init(): void {
         })
         .pause();
 
-    const awesomeRaysObserver = new IntersectionObserver(
-        ([entry]) => {
-            pageState.awesome.raysIntersecting = entry.isIntersecting;
-        },
-        {
-            threshold: 0,
-            rootMargin: '10% 0%',
-        },
-    );
+    const awesomeRaysObserver = new IntersectionObserver(([entry]) => {
+        pageState.awesome.raysIntersecting = entry.isIntersecting;
+    });
 
     awesomeRaysObserver.observe(awesomeRays);
 
@@ -193,10 +196,6 @@ function init(): void {
     const awesomeParticlesIntersectionObserver = new IntersectionObserver(
         ([entry]) => {
             pageState.awesome.particlesIntersecting = entry.isIntersecting;
-        },
-        {
-            threshold: 0,
-            rootMargin: '10% 0%',
         },
     );
 
