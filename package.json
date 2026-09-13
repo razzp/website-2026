@@ -9,7 +9,9 @@
         "dev": "astro dev",
         "build": "astro build",
         "preview": "astro preview",
-        "biome": "biome check --write"
+        "biome": "biome check --write",
+        "tools:create-font-subsets": "node ./tools/create-font-subsets/index.ts",
+        "tools:create-word-svgs": "node ./tools/create-word-svgs/index.ts"
     },
     "dependencies": {
         "@dimforge/rapier2d-compat": "^0.20.0",
@@ -25,7 +27,13 @@
     },
     "devDependencies": {
         "@biomejs/biome": "^2.5.3",
+        "@types/fontkit": "^2.0.9",
+        "@types/subset-font": "^2.3.0",
         "@types/three": "^0.185.1",
-        "colorjs.io": "^0.7.0"
+        "chalk": "^6.0.0",
+        "colorjs.io": "^0.7.0",
+        "fontkit": "^2.0.4",
+        "playwright": "^1.63.0",
+        "subset-font": "^2.7.0"
     }
 }
