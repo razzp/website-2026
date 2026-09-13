@@ -59,9 +59,7 @@ const maxRotation = 0.1;
 // Build a state object that we can pass around.
 
 const state: State = {
-    lenis: new Lenis({
-        //prevent: (node) => node instanceof HTMLDialogElement
-    }),
+    lenis: new Lenis(),
     pageJs,
     enableTransitions: false,
     interactive: false,
@@ -74,8 +72,6 @@ const state: State = {
 };
 
 // Configure Lenis.
-
-//const lenis = new Lenis();
 
 state.lenis.on('scroll', ({ scroll }) => {
     ScrollTrigger.update();
