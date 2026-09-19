@@ -1,5 +1,6 @@
 import type { default as LenisInstance } from 'lenis';
 import { findAll, findOrThrow } from 'spank-my-dom';
+import type { Font } from 'three/addons/loaders/FontLoader.js';
 import {
     type PageModule,
     pageRoutes,
@@ -10,6 +11,7 @@ import { getRotationVectors } from '../components/heroes';
 import {
     getPageMeta,
     isSpecialClick,
+    loadThreeJsFont,
     preloadModulesWhenIdle,
     restoreScrollPosition,
     swapPage,
@@ -17,12 +19,13 @@ import {
 } from '../utils';
 
 interface State {
-    pageJs?: PageModule;
     enableTransitions: boolean;
     interactive: boolean;
     headerVisible: boolean;
     heroBackgroundVisible: boolean;
     lenis: LenisInstance;
+    threeJsFont: Font;
+    pageJs?: PageModule;
     mouse: {
         x: number;
         y: number;
@@ -40,6 +43,7 @@ const [
     { default: Lenis },
     { HeroBackground, HeroForeground },
     { transitionIn, transitionOut },
+    threeJsFont,
     pageJs,
 ] = await Promise.all([
     import('gsap'),
@@ -47,6 +51,7 @@ const [
     import('lenis'),
     import('../components/heroes'),
     import('../components/transitions'),
+    loadThreeJsFont(),
     pageRoute.loadJs(),
     document.fonts.ready,
 ]);
@@ -59,12 +64,13 @@ const maxRotation = 0.1;
 // Build a state object that we can pass around.
 
 const state: State = {
-    lenis: new Lenis(),
-    pageJs,
     enableTransitions: false,
     interactive: false,
     headerVisible: false,
     heroBackgroundVisible: false,
+    lenis: new Lenis(),
+    threeJsFont,
+    pageJs,
     mouse: {
         x: window.innerWidth / 2,
         y: window.innerHeight / 2,

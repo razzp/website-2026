@@ -1,9 +1,21 @@
 import { gsap } from 'gsap';
 import { findAll, findOrThrow } from 'spank-my-dom';
+import type * as THREE from 'three';
+import type { Font } from 'three/addons/loaders/FontLoader.js';
 import type { pageRoutes } from '../config/runtime';
 import type { PageMeta, PageTheme } from '../lib/config';
 import type { HeroBackground, HeroForeground } from './components/heroes';
 import type { State } from './layouts/DefaultLayout';
+
+function expoInWithInitialVelocity(
+    velocity: number,
+    acceleration: number = 8,
+): (position: number) => number {
+    return (position: number) =>
+        velocity * position +
+        ((1 - velocity) * (Math.exp(acceleration * position) - 1)) /
+            (Math.exp(acceleration) - 1);
+}
 
 function getPageMeta(source: Document): PageMeta {
     return JSON.parse(findOrThrow('#page-meta', source).textContent);
@@ -37,8 +49,32 @@ function getThemeVarsAsStyles(theme: PageTheme): string[] {
     );
 }
 
+function getWorldUnitsPerPixel(
+    camera: THREE.PerspectiveCamera,
+    renderer: THREE.WebGLRenderer,
+): number {
+    const distance = camera.position.z;
+    const radians = camera.fov * (Math.PI / 180);
+    const visibleWorldHeight = 2 * Math.tan(radians * 0.5) * distance;
+
+    return visibleWorldHeight / renderer.domElement.clientHeight;
+}
+
 function isSpecialClick(event: PointerEvent): boolean {
     return event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
+}
+
+async function loadThreeJsFont(): Promise<Font> {
+    const path = './fonts/StackSansText-Regular-subset.ttf';
+
+    const [{ Font }, fontData] = await Promise.all([
+        import('three/addons/loaders/FontLoader.js'),
+        import('three/addons/loaders/TTFLoader.js').then(({ TTFLoader }) =>
+            new TTFLoader().loadAsync(path),
+        ),
+    ]);
+
+    return new Font(fontData);
 }
 
 function preloadModulesWhenIdle(routes: typeof pageRoutes): void {
@@ -159,10 +195,13 @@ function triggerMouseHint(scroll: number): void {
 }
 
 export {
+    expoInWithInitialVelocity,
     getPageMeta,
     getScrollbarWidth,
     getThemeVarsAsStyles,
+    getWorldUnitsPerPixel,
     isSpecialClick,
+    loadThreeJsFont,
     preloadModulesWhenIdle,
     restoreScrollPosition,
     swapPage,

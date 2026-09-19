@@ -16,7 +16,7 @@ const pageRoutes: Record<string, PageRoute> = {
         cssScope: 'index',
     },
     '/about': {
-        loadJs: () => import('../scripts/pages/about'),
+        loadJs: () => import('../scripts/pages/about/about'),
         cssScope: 'about',
     },
     '/work': {

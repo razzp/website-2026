@@ -1,4 +1,5 @@
 import { gsap } from 'gsap';
+import type * as THREE from 'three';
 
 type GSAPAnimation = gsap.core.Timeline | gsap.core.Tween;
 type ValidObserver = IntersectionObserver | ResizeObserver;
@@ -6,6 +7,8 @@ type ValidObserver = IntersectionObserver | ResizeObserver;
 class PageEntitiesHelper {
     private readonly gsapTickers: Set<gsap.TickerCallback> = new Set();
 
+    public readonly renderers: Set<THREE.WebGLRenderer> = new Set();
+    public readonly animations: Set<Animation> = new Set();
     public readonly gsapAnimations: Set<GSAPAnimation> = new Set();
     public readonly observers: Set<ValidObserver> = new Set();
     public readonly controllers: Set<AbortController> = new Set();
@@ -34,6 +37,15 @@ class PageEntitiesHelper {
     }
 
     public killAll(): void {
+        this.renderers.forEach((renderer) => {
+            renderer.dispose();
+            renderer.forceContextLoss();
+        });
+
+        this.animations.forEach((animation) => {
+            animation.cancel();
+        });
+
         this.gsapTickers.forEach((callback) => {
             gsap.ticker.remove(callback);
         });

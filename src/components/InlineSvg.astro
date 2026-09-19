@@ -1,0 +1,15 @@
+---
+interface Props extends astroHTML.JSX.SVGAttributes {
+    svg: string;
+}
+
+const { svg, ...attrs } = Astro.props;
+
+const attrString = Object.entries(attrs)
+    .map(([key, value]) => `${key}="${value}"`)
+    .join(' ');
+
+const withAttributes = svg.replace(/<svg([^>]*)>/g, `<svg $1 ${attrString}>`);
+---
+
+<Fragment set:html={withAttributes} />
