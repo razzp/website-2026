@@ -15,7 +15,7 @@ interface Word {
 // #region Config
 
 const fontSize = 100;
-const padding = 100;
+const padding = 10;
 const outputPath = './src/images/words/';
 
 const fontPaths = {
