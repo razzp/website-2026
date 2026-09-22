@@ -57,9 +57,7 @@ const [
 ]);
 
 const header = findOrThrow('#main-header');
-const placeholder = findOrThrow('#hero-placeholder');
 const footerPixels = findOrThrow<HTMLCanvasElement>('#footer-pixels');
-const maxRotation = 0.1;
 
 // Build a state object that we can pass around.
 
@@ -117,16 +115,19 @@ window.addEventListener(
 
 // Create the hero components.
 
+const heroPlaceholder = findOrThrow('#hero-placeholder');
+const heroMaxRotation = 0.1;
+
 const heroForeground = new HeroForeground({
     container: findOrThrow('#hero-foreground'),
-    placeholder,
+    placeholder: heroPlaceholder,
     text: pageMeta.heading,
     colour: pageMeta.theme.meshFace,
 });
 
 const heroBackground = new HeroBackground({
     container: findOrThrow('#hero-background'),
-    placeholder,
+    placeholder: heroPlaceholder,
     text: pageMeta.heading,
     colour: pageMeta.theme.primaryContrast,
 });
@@ -141,7 +142,7 @@ heroForeground.resize();
 heroBackground.resize();
 
 gsap.ticker.add(() => {
-    const vectors = getRotationVectors(state, maxRotation);
+    const vectors = getRotationVectors(state, heroMaxRotation);
 
     heroBackground.rotate(...vectors);
     heroForeground.rotate(...vectors);
