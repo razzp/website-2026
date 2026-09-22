@@ -3,6 +3,7 @@ import { Image, Picture } from 'astro:assets';
 import DayThumb from '../components/about/DayThumb.astro';
 import NoiseSvg from '../components/about/NoiseSvg.astro';
 import InlineSvg from '../components/InlineSvg.astro';
+import PlusSignDivider from '../components/PlusSignDivider.astro';
 import chestBurster from '../images/chest-burster.jpg';
 import holyGrail from '../images/holy-grail.jpg';
 import portraitBaby from '../images/portrait-10-months.jpg';
@@ -124,11 +125,7 @@ const bloodSplatters = [
                 class="fixed -z-10 inset-0 mask-plus mask-plus-small bg-primary/10 pointer-events-none"
             ></div>
 
-            <p
-                class="text-7xl tracking-widest text-transparent text-stroke-1 text-stroke-primary"
-            >
-                +++
-            </p>
+            <PlusSignDivider />
 
             <h2 class="text-4xl">The story so far</h2>
 
@@ -171,11 +168,7 @@ const bloodSplatters = [
                 </p>
             </div>
 
-            <p
-                class="text-7xl tracking-widest text-transparent text-stroke-1 text-stroke-primary"
-            >
-                +++
-            </p>
+            <PlusSignDivider />
 
             <div
                 class="js-day-thumbs grid grid-cols-3 gap-10 text-center text-4xl"
@@ -199,11 +192,7 @@ const bloodSplatters = [
                 </DayThumb>
             </div>
 
-            <p
-                class="text-7xl tracking-widest text-transparent text-stroke-1 text-stroke-primary"
-            >
-                +++
-            </p>
+            <PlusSignDivider />
         </div>
     </section>
 

@@ -1,0 +1,23 @@
+---
+interface Props {
+    class?: string;
+    size?: number;
+}
+
+const { class: className, size = 3 } = Astro.props;
+
+const hasTextSize = className && /text-\d+/.test(className);
+const hasStrokeColour = className && /text-stroke-[a-z]+/.test(className);
+
+const defaultClasses = {
+    'text-7xl': !hasTextSize,
+    'text-stroke-primary': !hasStrokeColour,
+};
+---
+
+<div
+    class:list={["plus-sign-divider", defaultClasses, className]}
+    aria-hidden="true"
+>
+    {Array(size).fill('+').join('')}
+</div>

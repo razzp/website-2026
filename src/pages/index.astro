@@ -1,5 +1,6 @@
 ---
 import { Image, Picture } from 'astro:assets';
+import PlusSignDivider from '../components/PlusSignDivider.astro';
 import portrait from '../images/portrait.jpg';
 import thugGlasses from '../images/thug-glasses.svg';
 import DefaultLayout from '../layouts/DefaultLayout.astro';
@@ -178,11 +179,7 @@ const pageMeta: PageMeta = {
                     class="fixed inset-0 -z-10 mask-plus mask-size-[64px] bg-primary/10 pointer-events-none"
                 ></div>
 
-                <p
-                    class="text-7xl tracking-widest text-transparent text-stroke-1 text-stroke-primary"
-                >
-                    +++
-                </p>
+                <PlusSignDivider />
 
                 <!-- biome-ignore format: preserve whitespace -->
                 <p
@@ -198,11 +195,7 @@ const pageMeta: PageMeta = {
                     In a nutshell, I specialise in shaping client-side experiences, combining strong work ethic with historical perspective, and a deep understanding of usability, accessibility and modern web standards.
                 </p>
 
-                <p
-                    class="text-7xl tracking-widest text-transparent text-stroke-1 text-stroke-primary"
-                >
-                    +++
-                </p>
+                <PlusSignDivider />
             </div>
         </div>
     </section>
