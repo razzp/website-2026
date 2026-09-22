@@ -62,6 +62,13 @@
 
     .mask-plus {
         mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cg stroke='%23000' stroke-width='1'%3E%3Cline x1='14' y1='16' x2='18' y2='16'/%3E%3Cline x1='16' y1='14' x2='16' y2='18'/%3E%3C/g%3E%3C/svg%3E");
+        mask-size: var(--mask-size, 150px);
+        mask-position: round(calc((100dvw - var(--mask-size, 150px)) / 2), 1px)
+            0px;
+
+        &.mask-plus-small {
+            --mask-size: 64px;
+        }
     }
 
     .mask-logo {
