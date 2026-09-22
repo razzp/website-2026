@@ -32,15 +32,15 @@ interface PageMeta {
     theme: PageTheme;
 }
 
-const navigation: NavItem[] = [
+const navigation = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
     { name: 'Work', href: '/work' },
     { name: 'Contact', href: '/contact' },
     { name: 'Blog', href: '/' },
-];
+] satisfies NavItem[];
 
-const socials: Social[] = [
+const socials = [
     {
         name: 'GitHub',
         href: 'http://www.github.com/razzp',
@@ -51,6 +51,6 @@ const socials: Social[] = [
         href: 'http://www.linkedin.com',
         icon: LinkedInIcon,
     },
-];
+] satisfies Social[];
 
 export { navigation, type PageMeta, type PageTheme, socials };
