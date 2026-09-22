@@ -119,6 +119,7 @@ const heroPlaceholder = findOrThrow('#hero-placeholder');
 const heroMaxRotation = 0.1;
 
 const heroForeground = new HeroForeground({
+    state,
     container: findOrThrow('#hero-foreground'),
     placeholder: heroPlaceholder,
     text: pageMeta.heading,
@@ -126,6 +127,7 @@ const heroForeground = new HeroForeground({
 });
 
 const heroBackground = new HeroBackground({
+    state,
     container: findOrThrow('#hero-background'),
     placeholder: heroPlaceholder,
     text: pageMeta.heading,

@@ -14,11 +14,11 @@ import {
     TextGeometry,
     type TextGeometryParameters,
 } from 'three/addons/geometries/TextGeometry.js';
-import { Font, type FontData } from 'three/addons/loaders/FontLoader.js';
-import fontData from '../../fonts/Nunito_Regular.json';
+import type { Font } from 'three/addons/loaders/FontLoader.js';
 import type { State } from '../layouts/DefaultLayout';
 
 interface Options {
+    state: State;
     container: HTMLElement;
     placeholder: HTMLElement;
     text: string;
@@ -40,11 +40,8 @@ interface FogProps {
     farVisible: number;
 }
 
-// The runtime data is fine, but TypeScript infers the JSON as its exact structural type,
-// and there are some discrepancies between this and the FontData typings.
-const font = new Font(fontData as unknown as FontData);
-
 abstract class Hero {
+    private readonly font: Font;
     private readonly renderer: WebGLRenderer;
     private readonly container: HTMLElement;
     private readonly placeholder: HTMLElement;
@@ -65,7 +62,7 @@ abstract class Hero {
         options: Options,
         textGeometryParams?: Partial<TextGeometryParameters>,
     ) {
-        const { container, placeholder, text } = options;
+        const { state, container, placeholder, text } = options;
 
         const scene = new Scene();
         const renderer = new WebGLRenderer({ antialias: true, alpha: true });
@@ -80,6 +77,7 @@ abstract class Hero {
         scene.add(mesh);
         container.appendChild(renderer.domElement);
 
+        this.font = state.threeJsFont;
         this.scene = scene;
         this.camera = camera;
         this.mesh = mesh;
@@ -157,7 +155,7 @@ abstract class Hero {
 
         const geometry = new TextGeometry(value, {
             ...this.textGeometryParams,
-            font,
+            font: this.font,
             size: this.pixelsToWorldUnits(placeholderHeight),
             bevelEnabled: true,
             bevelSize: 1,
