@@ -15,7 +15,6 @@ import {
     preloadModulesWhenIdle,
     restoreScrollPosition,
     swapPage,
-    triggerMouseHint,
 } from '../utils';
 
 interface State {
@@ -235,5 +234,11 @@ preloadModulesWhenIdle(pageRoutes);
 window.addEventListener('beforeunload', () => {
     sessionStorage.setItem('scrollPosition', String(window.scrollY));
 });
+
+function triggerMouseHint(scroll: number): void {
+    document.documentElement.classList[scroll === 0 ? 'add' : 'remove'](
+        '-show-mouse-hint',
+    );
+}
 
 export type { State };

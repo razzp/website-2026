@@ -188,12 +188,6 @@ async function swapPage(options: {
     }
 }
 
-function triggerMouseHint(scroll: number): void {
-    document.documentElement.classList[scroll === 0 ? 'add' : 'remove'](
-        '-show-mouse-hint',
-    );
-}
-
 export {
     expoInWithInitialVelocity,
     getPageMeta,
@@ -205,5 +199,4 @@ export {
     preloadModulesWhenIdle,
     restoreScrollPosition,
     swapPage,
-    triggerMouseHint,
 };
