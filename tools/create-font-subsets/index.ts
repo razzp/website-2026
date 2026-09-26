@@ -7,7 +7,7 @@ import subsetFont from 'subset-font';
 
 const fontPaths = ['./assets/fonts/StackSansText-Regular.ttf'];
 
-const words = ['hello', 'about', 'work', 'contact', 'awesome', '5'];
+const words = ['hello', 'about', 'work', 'contact', 'awesome', '5.'];
 
 // #endregion
 
