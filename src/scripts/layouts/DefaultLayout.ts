@@ -94,14 +94,9 @@ gsap.ticker.add((time) => {
 
 // Listen for some stuff...
 
-new IntersectionObserver(
-    ([entry]) => {
-        state.headerVisible = entry.isIntersecting;
-    },
-    {
-        threshold: 0,
-    },
-).observe(header);
+new IntersectionObserver(([entry]) => {
+    state.headerVisible = entry.isIntersecting;
+}).observe(header);
 
 window.addEventListener(
     'mousemove',
