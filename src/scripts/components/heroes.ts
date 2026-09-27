@@ -191,8 +191,8 @@ class HeroForeground extends Hero {
         const { theme } = options;
 
         const light = new HemisphereLight(
-            theme.primary,
             theme.primaryContrast,
+            theme.primary,
             0.2,
         );
 
@@ -217,8 +217,8 @@ class HeroForeground extends Hero {
         this.faceMaterial.color.set(theme.primary);
         this.extrusionMaterial.color.set(0xffffff);
 
-        this.light.color.set(theme.primary);
-        this.light.groundColor.set(theme.primaryContrast);
+        this.light.color.set(theme.primaryContrast);
+        this.light.groundColor.set(theme.primary);
     }
 }
 
