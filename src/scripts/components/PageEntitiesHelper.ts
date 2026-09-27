@@ -1,104 +1,166 @@
 import { gsap } from 'gsap';
 import type * as THREE from 'three';
 
-type GSAPAnimation = gsap.core.Timeline | gsap.core.Tween;
-type ValidObserver = IntersectionObserver | ResizeObserver;
+interface AddOptions<T> {
+    onKill?: (value: T) => void;
+    onReset?: (value: T) => void;
+}
+
+interface Entity {
+    kill: () => void;
+    reset: () => void;
+}
 
 class PageEntitiesHelper {
-    private readonly gsapTickers: Set<gsap.TickerCallback> = new Set();
+    private readonly entities = new Map<symbol, Entity>();
+    private readonly tickers = new Set<(time: number) => void>();
+    private currentRequestId: number | null = null;
 
-    public readonly renderers: Set<THREE.WebGLRenderer> = new Set();
-    public readonly animations: Set<Animation> = new Set();
-    public readonly gsapAnimations: Set<GSAPAnimation> = new Set();
-    public readonly observers: Set<ValidObserver> = new Set();
-    public readonly controllers: Set<AbortController> = new Set();
-    public readonly frameRequests: Set<number> = new Set();
-    public readonly funcs: Set<() => void> = new Set();
+    private checkForTickers(): void {
+        if (this.tickers.size > 0) {
+            this.currentRequestId = requestAnimationFrame((time) => {
+                for (const ticker of this.tickers.values()) {
+                    ticker(time);
+                }
 
-    public addTicker(callback: gsap.TickerCallback): void {
-        this.gsapTickers.add(callback);
-        gsap.ticker.add(callback);
+                this.checkForTickers();
+            });
+        }
     }
 
-    public requestAnimationFrame(callback: FrameRequestCallback): number {
-        const handle = requestAnimationFrame((time) => {
-            this.frameRequests.delete(handle);
-            callback(time);
+    public add<T>(value: T, options: AddOptions<T>): symbol {
+        const id = Symbol();
+        const { onKill, onReset } = { ...options };
+        const exists = () => this.entities.has(id);
+
+        this.entities.set(id, {
+            kill: () => {
+                if (exists()) {
+                    onKill?.(value);
+                    this.entities.delete(id);
+                }
+            },
+            reset: () => {
+                if (exists()) {
+                    onReset?.(value);
+                }
+            },
         });
 
-        this.frameRequests.add(handle);
-
-        return handle;
+        return id;
     }
 
-    public cancelAnimationFrame(handle: number): void {
-        cancelAnimationFrame(handle);
-        this.frameRequests.delete(handle);
+    public addAnimation(
+        value: Animation,
+        options?: { pauseOnReset: boolean },
+    ): symbol {
+        const { pauseOnReset = true } = { ...options };
+
+        return this.add(value, {
+            onKill: (ref) => {
+                ref.cancel();
+            },
+            onReset: (ref) => {
+                ref.currentTime = 0;
+
+                if (pauseOnReset) {
+                    ref.pause();
+                }
+            },
+        });
+    }
+
+    public addGsapAnimation(
+        value: gsap.core.Animation,
+        options?: { pauseOnReset: boolean },
+    ): symbol {
+        const { pauseOnReset = true } = { ...options };
+
+        return this.add(value, {
+            onKill: (ref) => {
+                ref.scrollTrigger?.kill();
+                ref.revert();
+            },
+            onReset: (ref) => {
+                ref.seek(0);
+
+                if (pauseOnReset) {
+                    ref.pause();
+                }
+            },
+        });
+    }
+
+    public addController(value: AbortController): symbol {
+        return this.add(value, {
+            onKill: (ref) => {
+                ref.abort();
+            },
+        });
+    }
+
+    public addObserver(value: IntersectionObserver | ResizeObserver): symbol {
+        return this.add(value, {
+            onKill: (ref) => {
+                ref.disconnect();
+            },
+        });
+    }
+
+    public addThreeRenderer(value: THREE.WebGLRenderer): symbol {
+        return this.add(value, {
+            onKill: (ref) => {
+                ref.dispose();
+                ref.forceContextLoss();
+            },
+        });
+    }
+
+    public addTicker(callback: (time: number) => void): symbol {
+        this.tickers.add(callback);
+        this.checkForTickers();
+
+        return this.add(callback, {
+            onKill: (ref) => {
+                this.tickers.delete(ref);
+            },
+        });
+    }
+
+    public addGsapTicker(callback: gsap.TickerCallback): symbol {
+        gsap.ticker.add(callback);
+
+        return this.add(callback, {
+            onKill: (ref) => {
+                gsap.ticker.remove(ref);
+            },
+        });
+    }
+
+    public reset(...ids: symbol[]): void {
+        for (const id of ids) {
+            this.entities.get(id)?.reset();
+        }
+    }
+
+    public kill(...ids: symbol[]): void {
+        for (const id of ids) {
+            this.entities.get(id)?.kill();
+        }
     }
 
     public killAll(): void {
-        this.renderers.forEach((renderer) => {
-            renderer.dispose();
-            renderer.forceContextLoss();
-        });
+        if (this.currentRequestId) {
+            cancelAnimationFrame(this.currentRequestId);
+            this.currentRequestId = null;
+        }
 
-        this.animations.forEach((animation) => {
-            animation.cancel();
-        });
+        for (const entity of this.entities.values()) {
+            entity.kill();
+        }
 
-        this.gsapTickers.forEach((callback) => {
-            gsap.ticker.remove(callback);
-        });
-
-        this.gsapAnimations.forEach((animation) => {
-            animation.kill();
-        });
-
-        this.observers.forEach((observer) => {
-            observer.disconnect();
-        });
-
-        this.controllers.forEach((controller) => {
-            controller.abort();
-        });
-
-        this.frameRequests.forEach((id) => {
-            cancelAnimationFrame(id);
-        });
-
-        this.funcs.forEach((func) => {
-            func();
-        });
-
-        this.gsapTickers.clear();
-        this.gsapAnimations.clear();
-        this.observers.clear();
-        this.controllers.clear();
-        this.frameRequests.clear();
-        this.funcs.clear();
-    }
-
-    public updatable<T = unknown>({
-        kill,
-    }: {
-        kill: (oldValue: T | undefined) => void;
-    }) {
-        const map = new Map<Element, T>();
-
-        this.funcs.add(() => {
-            map.forEach((value) => {
-                kill(value);
-            });
-
-            map.clear();
-        });
-
-        return {
-            update: (target: Element, value: T) => {
-                kill(map.get(target));
-                map.set(target, value);
-            },
-        };
+        this.entities.clear();
+        this.tickers.clear();
     }
 }
 

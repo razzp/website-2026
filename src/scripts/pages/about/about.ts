@@ -1,13 +1,16 @@
-import { assertIsNotNull } from 'bossy-boots';
 import { gsap } from 'gsap';
 import { findAll, findOrThrow } from 'spank-my-dom';
 import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import type { Font } from 'three/addons/loaders/FontLoader.js';
 import { PageEntitiesHelper } from '../../components/PageEntitiesHelper';
-import { Particles } from '../../components/particles';
 import type { State } from '../../layouts/DefaultLayout';
-import { expoInWithInitialVelocity, getWorldUnitsPerPixel } from '../../utils';
+import {
+    expoInWithInitialVelocity,
+    getCameraOffsetY,
+    getPageMeta,
+    pixelsToWorldUnits,
+} from '../../utils';
 import { Path } from './components/Path';
 import { getActiveTimelineLabel } from './utils';
 
@@ -21,9 +24,8 @@ interface SegmentWithPath extends Segment {
 
 interface PageState {
     boring: {
-        mainTimeline?: gsap.core.Timeline;
-        threeTextMesh?: THREE.Mesh;
-        threeTimeline?: gsap.core.Timeline;
+        mainTimelineRef?: symbol;
+        threeTimelineRef?: symbol;
     };
 }
 
@@ -99,8 +101,8 @@ function initDayOneSection(): void {
             0,
         );
 
-    pageEntities.gsapAnimations.add(maskTimeline);
-    pageEntities.gsapAnimations.add(splatterTimeline);
+    pageEntities.addGsapAnimation(maskTimeline);
+    pageEntities.addGsapAnimation(splatterTimeline);
 }
 
 function initDayThumbs(): void {
@@ -133,10 +135,11 @@ function initDayThumbs(): void {
             },
         );
 
-    pageEntities.gsapAnimations.add(timeline);
+    pageEntities.addGsapAnimation(timeline);
 }
 
 function initBoringSection(font: Font): void {
+    const pageMeta = getPageMeta(document);
     const container = findOrThrow('.js-boring-container');
     const dot = findOrThrow('.js-boring-dot');
     const flash = findOrThrow('.js-boring-flash');
@@ -150,37 +153,43 @@ function initBoringSection(font: Font): void {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, undefined, 0.1, 1000);
+    const textDepth = 20;
 
-    camera.position.set(0, 0, 10);
+    camera.position.set(0, 0, 100);
 
     const renderer = new THREE.WebGLRenderer({
         antialias: true,
         alpha: true,
     });
 
-    /*const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1));
+    pageEntities.addThreeRenderer(renderer);
 
-    scene.add(ambientLight);*/
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
-
-    directionalLight.position.set(2, 5, 5);
-    scene.add(directionalLight);
-
-    const text = new THREE.Mesh(
-        undefined,
-        new THREE.MeshStandardMaterial({
-            color: 0x00f9ff,
-        }),
+    const light = new THREE.HemisphereLight(
+        0xffffff,
+        pageMeta.theme.primary,
+        20,
     );
 
-    scene.add(text);
+    scene.add(light);
 
+    const textMesh = new THREE.Mesh(undefined, [
+        new THREE.MeshBasicMaterial({
+            color: pageMeta.theme.primary,
+        }),
+        new THREE.MeshStandardMaterial({
+            color: pageMeta.theme.primaryContrast,
+        }),
+    ]);
+
+    const threeTextMeshRef = pageEntities.add(textMesh, {
+        onReset: (ref) => {
+            ref.geometry?.dispose();
+        },
+    });
+
+    scene.add(textMesh);
     threeContainer.appendChild(renderer.domElement);
-
-    pageEntities.renderers.add(renderer);
-
-    pageState.boring.threeTextMesh = text;
 
     // Set up all the 2D stuff.
 
@@ -218,71 +227,69 @@ function initBoringSection(font: Font): void {
         )
         .pause();
 
-    pageEntities.gsapAnimations.add(raysRevealTimeline);
-    pageEntities.animations.add(raysAnimation);
+    const raysAnimationRef = pageEntities.addAnimation(raysAnimation);
+
+    const raysRevealTimelineRef =
+        pageEntities.addGsapAnimation(raysRevealTimeline);
 
     // Create a resize observer for all the dynamic stuff...
 
     const resizeObserver = new ResizeObserver(() => {
         // Initial clean up from previous state.
-        resetBoringSection();
+
+        const { threeTimelineRef, mainTimelineRef } = pageState.boring;
+
+        threeTimelineRef && pageEntities.kill(threeTimelineRef);
+        mainTimelineRef && pageEntities.kill(mainTimelineRef);
+
+        pageEntities.reset(
+            threeTextMeshRef,
+            raysAnimationRef,
+            raysRevealTimelineRef,
+        );
+
+        awesomeSvg.style.transform = '';
+        awesomeSvg.removeAttribute('data-segment');
 
         // THREE stuff.
 
         const containerRect = container.getBoundingClientRect();
-        const svgGroupRect = awesomeSvgGroup.getBoundingClientRect();
-        const threeRect = threeContainer.getBoundingClientRect();
+        const svgRect = awesomeSvg.getBoundingClientRect();
 
-        const threeOffsetY =
-            svgGroupRect.top -
-            (containerRect.top +
-                containerRect.height / 2 -
-                svgGroupRect.height / 2);
+        const strokeWidth =
+            parseFloat(getComputedStyle(awesomeSvgGroup).strokeWidth) || 0;
 
-        camera.aspect = threeRect.width / threeRect.height;
+        camera.aspect = containerRect.width / containerRect.height;
 
-        renderer.setSize(threeRect.width, threeRect.height, false);
-
-        const geometry = new TextGeometry('awesome', {
-            font: font,
-            size: 100,
-            depth: 100,
-        });
-
-        geometry.center();
-        geometry.computeBoundingBox();
-
-        // Push the scene down without changing perspective.
         camera.setViewOffset(
-            threeRect.width,
-            threeRect.height,
+            containerRect.width,
+            containerRect.height,
             0,
-            0 - threeOffsetY,
-            threeRect.width,
-            threeRect.height,
+            getCameraOffsetY(containerRect, svgRect),
+            containerRect.width,
+            containerRect.height,
         );
 
         camera.updateProjectionMatrix();
 
-        const box = geometry.boundingBox;
+        renderer.setSize(containerRect.width, containerRect.height, false);
 
-        assertIsNotNull(box);
+        const geometry = new TextGeometry('awesome', {
+            depth: textDepth,
+            font,
+            size: pixelsToWorldUnits(
+                svgRect.height + strokeWidth,
+                camera,
+                renderer,
+            ),
+            bevelEnabled: false,
+        });
 
-        // Perform some black magic so that we can scale the text geometry
-        // such that it matches the SVG text perfectly. There are some
-        // minor inconsistencies with kerning, but that can't be helped.
-        const worldUnitsPerPixel = getWorldUnitsPerPixel(camera, renderer);
-        const worldHeight = box.max.y - box.min.y;
-        const desiredWorldHeight = svgGroupRect.height * worldUnitsPerPixel;
-        const scale = desiredWorldHeight / worldHeight;
-        const targetTextDepth = 12 * scale;
+        geometry.center();
+        geometry.translate(0, 0, textDepth / 2);
 
-        geometry.scale(scale, scale, scale);
+        textMesh.geometry = geometry;
 
-        text.geometry = geometry;
-
-        // Create the animation that will reveal the text, by way of
-        // tweening its Z depth, giving a 3D "grow" effect.
         const threeTimeline = gsap
             .timeline({
                 defaults: {
@@ -293,12 +300,12 @@ function initBoringSection(font: Font): void {
                     renderer.render(scene, camera);
                 },
             })
-            .fromTo(text.scale, { z: 0 }, { z: targetTextDepth })
-            // Keep back face at Z = 0
-            .fromTo(text.position, { z: 0 }, { z: targetTextDepth * 2 }, '<')
+            .fromTo(textMesh.scale, { z: 0 }, { z: 1 })
+            .fromTo(textMesh.position, { z: 0 }, { z: 1 }, '<')
             .pause();
 
-        pageState.boring.threeTimeline = threeTimeline;
+        pageState.boring.threeTimelineRef =
+            pageEntities.addGsapAnimation(threeTimeline);
 
         // 2D stuff.
 
@@ -332,6 +339,7 @@ function initBoringSection(font: Font): void {
                 end: '+=5000',
                 pin: true,
                 scrub: true,
+                //snap: "labelsDirectional"
             },
             defaults: {
                 ease: 'none',
@@ -368,7 +376,7 @@ function initBoringSection(font: Font): void {
                     }
                 }
 
-                // The following are only called when the playhead crosses
+                // The following are ONLY called when the playhead crosses
                 // a specific point, either forwards or backwards.
 
                 if (
@@ -515,21 +523,15 @@ function initBoringSection(font: Font): void {
             )
             .to({}, { duration: 10 });
 
-        pageState.boring.mainTimeline = mainTimeline;
+        pageState.boring.mainTimelineRef =
+            pageEntities.addGsapAnimation(mainTimeline);
     });
 
     resizeObserver.observe(container);
-    pageEntities.observers.add(resizeObserver);
-}
-
-function resetBoringSection(): void {
-    pageState.boring.mainTimeline?.kill();
-    pageState.boring.threeTextMesh?.geometry.dispose();
-    pageState.boring.threeTimeline?.kill();
+    pageEntities.addObserver(resizeObserver);
 }
 
 function destroy(): void {
-    resetBoringSection();
     pageEntities.killAll();
 }
 

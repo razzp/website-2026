@@ -57,7 +57,7 @@ function init(): void {
             },
         );
 
-    pageEntities.gsapAnimations.add(tldrTimeline);
+    pageEntities.addGsapAnimation(tldrTimeline);
 
     // Thug life glasses.
 
@@ -85,7 +85,7 @@ function init(): void {
             },
         );
 
-    pageEntities.gsapAnimations.add(thugTimeline);
+    pageEntities.addGsapAnimation(thugTimeline);
 
     // Keywords carousel
 
@@ -126,7 +126,7 @@ function init(): void {
             0,
         );
 
-    pageEntities.gsapAnimations.add(keywordsTimeline);
+    pageEntities.addGsapAnimation(keywordsTimeline);
 
     // Blurb markers.
 
@@ -162,7 +162,7 @@ function init(): void {
                 stagger: 0.05,
             });
 
-        pageEntities.gsapAnimations.add(blurbTimeline);
+        pageEntities.addGsapAnimation(blurbTimeline);
     });
 
     // Seen enough?
@@ -214,8 +214,8 @@ function init(): void {
 
     enoughResizeObserver.observe(connections);
 
-    pageEntities.observers.add(enoughResizeObserver);
-    pageEntities.gsapAnimations.add(enoughTimeline);
+    pageEntities.addObserver(enoughResizeObserver);
+    pageEntities.addGsapAnimation(enoughTimeline);
 }
 
 function drawConnectionsFactory(): () => void {

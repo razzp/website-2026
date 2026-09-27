@@ -53,4 +53,12 @@ const socials = [
     },
 ] satisfies Social[];
 
-export { navigation, type PageMeta, type PageTheme, socials };
+const emailAddress = 'hello@robertwells.dev';
+
+export {
+    emailAddress,
+    navigation,
+    type PageMeta,
+    type PageTheme,
+    socials,
+};

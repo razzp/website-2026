@@ -111,4 +111,8 @@
             transparent calc(100% / sqrt(2))
         );
     }
+
+    .x-boring-three canvas {
+        filter: drop-shadow(0 0 50px var(--color-primary));
+    }
 }

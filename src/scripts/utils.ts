@@ -7,6 +7,10 @@ import type { PageMeta, PageTheme } from '../lib/config';
 import type { HeroBackground, HeroForeground } from './components/heroes';
 import type { State } from './layouts/DefaultLayout';
 
+function degreesToRadians(degrees: number): number {
+    return degrees * (Math.PI / 180);
+}
+
 function expoInWithInitialVelocity(
     velocity: number,
     acceleration: number = 8,
@@ -15,6 +19,16 @@ function expoInWithInitialVelocity(
         velocity * position +
         ((1 - velocity) * (Math.exp(acceleration * position) - 1)) /
             (Math.exp(acceleration) - 1);
+}
+
+function getCameraOffsetY(
+    containerRect: DOMRect,
+    placeholderRect: DOMRect,
+): number {
+    const heightDiff = containerRect.height / 2 - placeholderRect.height / 2;
+    const offsetDiff = placeholderRect.top - containerRect.top;
+
+    return heightDiff - offsetDiff;
 }
 
 function getPageMeta(source: Document): PageMeta {
@@ -49,17 +63,6 @@ function getThemeVarsAsStyles(theme: PageTheme): string[] {
     );
 }
 
-function getWorldUnitsPerPixel(
-    camera: THREE.PerspectiveCamera,
-    renderer: THREE.WebGLRenderer,
-): number {
-    const distance = camera.position.z;
-    const radians = camera.fov * (Math.PI / 180);
-    const visibleWorldHeight = 2 * Math.tan(radians * 0.5) * distance;
-
-    return visibleWorldHeight / renderer.domElement.clientHeight;
-}
-
 function isSpecialClick(event: PointerEvent): boolean {
     return event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
 }
@@ -75,6 +78,31 @@ async function loadThreeJsFont(): Promise<Font> {
     ]);
 
     return new Font(fontData);
+}
+
+function mapNormalisedToRange(value: number, from: number, to: number): number {
+    return from + value * (to - from);
+}
+
+function mouseEventOnly(callback: (event: PointerEvent) => void) {
+    return (event: PointerEvent) => {
+        if (event.pointerType === 'mouse') {
+            callback(event);
+        }
+    };
+}
+
+function pixelsToWorldUnits(
+    value: number,
+    camera: THREE.PerspectiveCamera,
+    renderer: THREE.WebGLRenderer,
+) {
+    const visibleHeight =
+        2 * camera.position.z * Math.tan(degreesToRadians(camera.fov * 0.5));
+
+    const worldUnitsPerPixel = visibleHeight / renderer.domElement.height;
+
+    return value * worldUnitsPerPixel;
 }
 
 function preloadModulesWhenIdle(routes: typeof pageRoutes): void {
@@ -189,13 +217,17 @@ async function swapPage(options: {
 }
 
 export {
+    degreesToRadians,
     expoInWithInitialVelocity,
+    getCameraOffsetY,
     getPageMeta,
     getScrollbarWidth,
     getThemeVarsAsStyles,
-    getWorldUnitsPerPixel,
     isSpecialClick,
     loadThreeJsFont,
+    mapNormalisedToRange,
+    mouseEventOnly,
+    pixelsToWorldUnits,
     preloadModulesWhenIdle,
     restoreScrollPosition,
     swapPage,

@@ -7,7 +7,20 @@ import { getPageMeta } from '../../utils';
 import { Dialog } from './components/Dialog';
 import { Study } from './components/Study';
 import { Tag } from './components/Tag';
-import type { PageState } from './types/PageState';
+
+interface PageState {
+    mouseX: number;
+    mouseY: number;
+    currentScroll: number;
+    scrollImpulse: number;
+    inert: boolean;
+    studies: {
+        intersectionStates: Map<Element, IntersectionObserverEntry>;
+        tagsIntersecting: boolean;
+        tagsWorldRef?: symbol;
+        tagsTickerRef?: symbol;
+    };
+}
 
 const pageState: PageState = {
     mouseX: -10000,
@@ -90,22 +103,44 @@ function initCaseStudiesSection(state: State): void {
     });
 
     tagsIntersectionObserver.observe(tagsContainer);
-    pageEntities.observers.add(tagsIntersectionObserver);
+    pageEntities.addObserver(tagsIntersectionObserver);
 
     const tagsResizeObserver = new ResizeObserver(() => {
         const { studies } = pageState;
 
-        tagsGroup.classList.add('invisible');
-        studies.tagsPhysicsWorld?.free();
+        // Initial clean up from previous state.
 
-        if (studies.physicsFrameRequestId) {
-            pageEntities.cancelAnimationFrame(studies.physicsFrameRequestId);
-        }
+        studies.tagsTickerRef && pageEntities.kill(studies.tagsTickerRef);
+        studies.tagsWorldRef && pageEntities.kill(studies.tagsWorldRef);
+
+        tagsGroup.classList.add('invisible');
+
+        // New state.
 
         const { world, mouseBody } = createPhysicsWorld(tagsContainer);
         const containerRect = tagsContainer.getBoundingClientRect();
 
-        const tick = () => {
+        const tagsWorldRef = pageEntities.add(world, {
+            onKill: (ref) => {
+                ref.free();
+            },
+        });
+
+        studies.tagsWorldRef = tagsWorldRef;
+
+        tags.forEach((tag) => {
+            tag.toggleFlow(true);
+        });
+
+        tags.forEach((tag) => {
+            tag.initPhysics(world, containerRect);
+        });
+
+        tags.forEach((tag) => {
+            tag.toggleFlow(false);
+        });
+
+        const tagsTickerRef = pageEntities.addTicker(() => {
             world.step();
 
             if (studies.tagsIntersecting) {
@@ -138,34 +173,16 @@ function initCaseStudiesSection(state: State): void {
             }
 
             tagsGroup.classList.remove('invisible');
-
-            studies.physicsFrameRequestId =
-                pageEntities.requestAnimationFrame(tick);
-        };
-
-        tags.forEach((tag) => {
-            tag.toggleFlow(true);
         });
 
-        tags.forEach((tag) => {
-            tag.initPhysics(world, containerRect);
-        });
-
-        tags.forEach((tag) => {
-            tag.toggleFlow(false);
-        });
-
-        // Begin ticking.
-
-        studies.physicsFrameRequestId =
-            pageEntities.requestAnimationFrame(tick);
+        studies.tagsTickerRef = tagsTickerRef;
     });
 
     RAPIER.init().then(() => {
         tagsResizeObserver.observe(tagsContainer);
     });
 
-    pageEntities.observers.add(tagsResizeObserver);
+    pageEntities.addObserver(tagsResizeObserver);
 
     // Case studies.
 
@@ -219,8 +236,8 @@ function initCaseStudiesSection(state: State): void {
         caseStudyIntersectionObserver.observe(study.element);
     });
 
-    pageEntities.observers.add(caseStudyIntersectionObserver);
-    pageEntities.observers.add(caseStudyResizeObserver);
+    pageEntities.addObserver(caseStudyIntersectionObserver);
+    pageEntities.addObserver(caseStudyResizeObserver);
 }
 
 function initLogosSection(): void {
@@ -289,11 +306,11 @@ function init(state: State): void {
         { passive: true, signal: mouseCoordsController.signal },
     );
 
-    pageEntities.controllers.add(mouseCoordsController);
+    pageEntities.addController(mouseCoordsController);
 
     // This trick seems to prevent the history API's scroll
     // restoration mechanic from triggering a huge impulse.
-    pageEntities.requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
         pageState.currentScroll = lenis.scroll;
 
         const unsubscribe = lenis.on('scroll', ({ scroll }) => {
@@ -303,7 +320,11 @@ function init(state: State): void {
             pageState.scrollImpulse += delta;
         });
 
-        pageEntities.funcs.add(unsubscribe);
+        pageEntities.add(unsubscribe, {
+            onKill: (ref) => {
+                ref();
+            },
+        });
     });
 
     // Initialise sections.
