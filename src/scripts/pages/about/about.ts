@@ -1,6 +1,14 @@
 import { gsap } from 'gsap';
 import { findAll, findOrThrow } from 'spank-my-dom';
-import * as THREE from 'three';
+import {
+    HemisphereLight,
+    Mesh,
+    MeshBasicMaterial,
+    MeshStandardMaterial,
+    PerspectiveCamera,
+    Scene,
+    WebGLRenderer,
+} from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import type { Font } from 'three/addons/loaders/FontLoader.js';
 import { PageEntitiesHelper } from '../../components/PageEntitiesHelper';
@@ -151,13 +159,13 @@ function initBoringSection(font: Font): void {
 
     // Set up the THREE scene.
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, undefined, 0.1, 1000);
+    const scene = new Scene();
+    const camera = new PerspectiveCamera(75, undefined, 0.1, 1000);
     const textDepth = 20;
 
     camera.position.set(0, 0, 100);
 
-    const renderer = new THREE.WebGLRenderer({
+    const renderer = new WebGLRenderer({
         antialias: true,
         alpha: true,
     });
@@ -165,19 +173,15 @@ function initBoringSection(font: Font): void {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1));
     pageEntities.addThreeRenderer(renderer);
 
-    const light = new THREE.HemisphereLight(
-        0xffffff,
-        pageMeta.theme.primary,
-        20,
-    );
+    const light = new HemisphereLight(0xffffff, pageMeta.theme.primary, 20);
 
     scene.add(light);
 
-    const textMesh = new THREE.Mesh(undefined, [
-        new THREE.MeshBasicMaterial({
+    const textMesh = new Mesh(undefined, [
+        new MeshBasicMaterial({
             color: pageMeta.theme.primary,
         }),
-        new THREE.MeshStandardMaterial({
+        new MeshStandardMaterial({
             color: pageMeta.theme.primaryContrast,
         }),
     ]);
