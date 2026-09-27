@@ -3,8 +3,8 @@ import { gsap } from 'gsap';
 import { findOrThrow } from 'spank-my-dom';
 import type { PageMeta } from '../../../../lib/config';
 import type { State } from '../../../layouts/DefaultLayout';
-import type { PageState } from '../types/PageState';
 import { createDecorativeFrame } from '../utils';
+import type { PageState } from '../work';
 import type { Dialog } from './Dialog';
 import type { Tag } from './Tag';
 

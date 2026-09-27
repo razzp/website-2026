@@ -209,7 +209,7 @@ findAll<HTMLAnchorElement>('a[data-link-swap]').forEach((link) => {
 
 // Good to go. Begin the first transition!
 
-await transitionIn({
+transitionIn({
     state,
     heroBackground,
     heroForeground,
@@ -227,7 +227,7 @@ preloadModulesWhenIdle(pageRoutes);
 
 // Save scroll position when the page is unloaded.
 window.addEventListener('beforeunload', () => {
-    sessionStorage.setItem('scrollPosition', String(window.scrollY));
+    sessionStorage.setItem('scrollPosition', `${window.scrollY}`);
 });
 
 function triggerMouseHint(scroll: number): void {

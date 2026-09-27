@@ -1,8 +1,7 @@
-import { assertIsNotNull, assertIsNotUndefined, guarantee } from 'bossy-boots';
+import { assertIsNotNull, assertIsNotUndefined } from 'bossy-boots';
 
 class Path {
     private readonly pathCTM: DOMMatrix;
-    //private readonly parentSVG: SVGSVGElement;
 
     public readonly pathLength: number;
 
@@ -16,17 +15,14 @@ class Path {
     ) {
         const pathCTM = path.getCTM();
         const pathLength = path.dataset.pathLength;
-        //const parentSVG = path.closest('svg');
 
         assertIsNotNull(pathCTM);
         assertIsNotUndefined(pathLength);
-        //assertIsNotNull(parentSVG);
 
         const pathLengthScaled = parseFloat(pathLength) * pathCTM.a;
 
         this.pathCTM = pathCTM;
         this.pathLength = pathLengthScaled;
-        //this.parentSVG = parentSVG;
     }
 
     private render(): void {
@@ -37,16 +33,6 @@ class Path {
     public getPathLengthAtPercent(value: number): number {
         return (this.pathLength / 100) * value;
     }
-
-    /*public getCurrentPoint(): DOMPoint {
-        const screenCTM = this.path.getScreenCTM();
-
-        assertIsNotNull(screenCTM);
-
-        return this.path
-            .getPointAtLength(this.strokePosition / this.pathCTM.a)
-            .matrixTransform(screenCTM);
-    }*/
 
     public getCurrentPoint(): DOMPointReadOnly {
         const screenCTM = this.path.getScreenCTM();

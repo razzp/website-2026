@@ -339,4 +339,4 @@ function destroy(): void {
     pageState.studies.intersectionStates.clear();
 }
 
-export { destroy, init };
+export { destroy, init, type PageState };

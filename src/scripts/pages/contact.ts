@@ -145,8 +145,8 @@ function createTrailsTimeline(container: Element): gsap.core.Timeline {
 
         const pathLength = path.getTotalLength() * scaleFactor;
 
-        mask.style.strokeDasharray = String(pathLength);
-        mask.style.strokeDashoffset = String(pathLength);
+        mask.style.strokeDasharray = `${pathLength}`;
+        mask.style.strokeDashoffset = `${pathLength}`;
 
         timeline
             .set(plane, {

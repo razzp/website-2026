@@ -35,9 +35,7 @@ function init(): void {
             },
             onUpdate: () => {
                 tldrPaths.forEach((path) => {
-                    path.style.strokeDashoffset = String(
-                        pageState.tldr.pathProgress,
-                    );
+                    path.style.strokeDashoffset = `${pageState.tldr.pathProgress}`;
                 });
 
                 if (pageState.tldr.pathProgress <= 0) {
