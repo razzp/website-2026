@@ -52,7 +52,7 @@ abstract class Hero {
     private rotationSpeed = 0.1;
 
     protected meshDistanceFromCamera = 0;
-    protected meshTotalDepth = 0;
+    protected meshDepth = 0;
 
     public readonly scene: Scene;
     public readonly camera: PerspectiveCamera;
@@ -153,13 +153,12 @@ abstract class Hero {
         });
 
         const { depth = 0 } = geometry.parameters.options;
-        const bevelThickness = 0;
 
         geometry.center();
-        geometry.translate(0, 0, -(depth / 2 + bevelThickness));
+        geometry.translate(0, 0, -(depth / 2));
 
         this.mesh.geometry = geometry;
-        this.meshTotalDepth = depth + bevelThickness;
+        this.meshDepth = depth;
         this.text = value;
     }
 
@@ -268,7 +267,7 @@ class HeroBackground extends Hero {
             nearHidden: 0,
             nearVisible: this.meshDistanceFromCamera,
             farHidden: this.meshDistanceFromCamera - 1,
-            farVisible: this.meshDistanceFromCamera + this.meshTotalDepth,
+            farVisible: this.meshDistanceFromCamera + this.meshDepth,
         };
     }
 
