@@ -117,7 +117,7 @@ const heroForeground = new HeroForeground({
     container: findOrThrow('#hero-foreground'),
     placeholder: heroPlaceholder,
     text: pageMeta.heading,
-    colour: pageMeta.theme.meshFace,
+    theme: pageMeta.theme,
 });
 
 const heroBackground = new HeroBackground({
@@ -125,7 +125,7 @@ const heroBackground = new HeroBackground({
     container: findOrThrow('#hero-background'),
     placeholder: heroPlaceholder,
     text: pageMeta.heading,
-    colour: pageMeta.theme.primaryContrast,
+    theme: pageMeta.theme,
 });
 
 // Wait for THREE to compile. Probably unnecessary, but it can't hurt.

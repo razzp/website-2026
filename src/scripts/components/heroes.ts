@@ -1,8 +1,6 @@
 import {
-    type ColorRepresentation,
-    DirectionalLight,
     Fog,
-    MathUtils,
+    HemisphereLight,
     Mesh,
     MeshBasicMaterial,
     MeshStandardMaterial,
@@ -15,14 +13,16 @@ import {
     type TextGeometryParameters,
 } from 'three/addons/geometries/TextGeometry.js';
 import type { Font } from 'three/addons/loaders/FontLoader.js';
+import type { PageTheme } from '../../lib/config';
 import type { State } from '../layouts/DefaultLayout';
+import { pixelsToWorldUnits } from '../utils';
 
 interface Options {
     state: State;
     container: HTMLElement;
     placeholder: HTMLElement;
     text: string;
-    colour: string;
+    theme: PageTheme;
 }
 
 interface ElementProps {
@@ -97,15 +97,7 @@ abstract class Hero {
     }
 
     public pixelsToWorldUnits(value: number): number {
-        const visibleHeight =
-            2 *
-            this.meshDistanceFromCamera *
-            Math.tan(MathUtils.degToRad(this.camera.fov * 0.5));
-
-        const worldUnitsPerPixel =
-            visibleHeight / this.renderer.domElement.height;
-
-        return value * worldUnitsPerPixel;
+        return pixelsToWorldUnits(value, this.camera, this.renderer);
     }
 
     public render(): void {
@@ -157,11 +149,11 @@ abstract class Hero {
             ...this.textGeometryParams,
             font: this.font,
             size: this.pixelsToWorldUnits(placeholderHeight),
-            bevelEnabled: true,
-            bevelSize: 1,
+            bevelEnabled: false,
         });
 
-        const { bevelThickness = 0, depth = 0 } = geometry.parameters.options;
+        const { depth = 0 } = geometry.parameters.options;
+        const bevelThickness = 0;
 
         geometry.center();
         geometry.translate(0, 0, -(depth / 2 + bevelThickness));
@@ -184,40 +176,50 @@ abstract class Hero {
         };
     }
 
-    abstract setColour(colour: ColorRepresentation): void;
+    abstract applyTheme(theme: PageTheme): void;
 }
 
 class HeroForeground extends Hero {
-    private faceMaterial: MeshStandardMaterial;
-    private light: DirectionalLight;
+    private faceMaterial: MeshBasicMaterial;
+    private extrusionMaterial: MeshStandardMaterial;
+    private light: HemisphereLight;
 
     constructor(options: Options) {
         super(options, {
             depth: 20,
         });
 
-        const { colour } = options;
+        const { theme } = options;
 
-        const faceMaterial = new MeshStandardMaterial({ color: colour });
-        const light = new DirectionalLight(colour, 10);
+        const light = new HemisphereLight(
+            theme.primary,
+            theme.primaryContrast,
+            0.2,
+        );
 
-        light.position.set(0, 10, 20);
-        light.target.position.set(0, 0, 0);
+        this.light = light;
+        this.scene.add(light);
 
-        this.scene.add(light, light.target);
+        const faceMaterial = new MeshBasicMaterial({
+            color: theme.primary,
+        });
 
-        this.mesh.material = [
-            faceMaterial,
-            new MeshStandardMaterial({ color: 0x000000 }),
-        ];
+        const extrusionMaterial = new MeshStandardMaterial({
+            color: 0xffffff,
+        });
 
         this.faceMaterial = faceMaterial;
-        this.light = light;
+        this.extrusionMaterial = extrusionMaterial;
+
+        this.mesh.material = [faceMaterial, extrusionMaterial];
     }
 
-    public override setColour(colour: ColorRepresentation): void {
-        this.faceMaterial.color.set(colour);
-        this.light.color.set(colour);
+    public override applyTheme(theme: PageTheme): void {
+        this.faceMaterial.color.set(theme.primary);
+        this.extrusionMaterial.color.set(0xffffff);
+
+        this.light.color.set(theme.primary);
+        this.light.groundColor.set(theme.primaryContrast);
     }
 }
 
@@ -231,10 +233,10 @@ class HeroBackground extends Hero {
             bevelSegments: 2,
         });
 
-        const { colour } = options;
+        const { theme } = options;
 
         const material = new MeshBasicMaterial({
-            color: colour,
+            color: theme.primaryContrast,
             wireframe: true,
             fog: true,
             transparent: true,
@@ -270,8 +272,8 @@ class HeroBackground extends Hero {
         };
     }
 
-    public override setColour(colour: ColorRepresentation): void {
-        this.material.color.set(colour);
+    public override applyTheme(theme: PageTheme): void {
+        this.material.color.set(theme.primaryContrast);
     }
 }
 

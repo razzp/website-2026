@@ -187,8 +187,8 @@ async function swapPage(options: {
     heroBackground.resize();
     heroForeground.resize();
 
-    heroForeground.setColour(pageMeta.theme.meshFace);
-    heroBackground.setColour(pageMeta.theme.primaryContrast);
+    heroForeground.applyTheme(pageMeta.theme);
+    heroBackground.applyTheme(pageMeta.theme);
 
     for (const [key, value] of Object.entries(pageMeta.theme)) {
         // Ignore 'primary' as we'll animate it later...
