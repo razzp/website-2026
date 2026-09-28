@@ -195,6 +195,7 @@ function initCaseStudiesSection(state: State): void {
                 dialog,
                 element,
                 tags,
+                pageEntities,
             }),
     );
 

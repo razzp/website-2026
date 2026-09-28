@@ -13,7 +13,7 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import type { Font } from 'three/addons/loaders/FontLoader.js';
 import { Hover3D } from '../components/Hover3D';
 import { PageEntitiesHelper } from '../components/PageEntitiesHelper';
-import { StickyElements } from '../components/StickyButtons';
+import { StickyElementGroup } from '../components/StickyElements';
 import type { State } from '../layouts/DefaultLayout';
 import {
     degreesToRadians,
@@ -101,9 +101,11 @@ function init(state: State): void {
 
     initFiveSection(state.threeJsFont);
 
-    // Interactive buttons.
+    // Suggestion buttons.
 
-    pageEntities.add(new StickyElements('.js-elastic-button'), {
+    const suggestionButtons = findAll('.js-elastic-button');
+
+    pageEntities.add(new StickyElementGroup(suggestionButtons), {
         onKill: (ref) => {
             ref.kill();
         },

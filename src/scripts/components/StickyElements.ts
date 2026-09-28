@@ -1,17 +1,14 @@
 import { gsap } from 'gsap';
-import { findAll } from 'spank-my-dom';
 import { mouseEventOnly } from '../utils';
 
 const SPEED = 25;
 const DAMPING = 0.4;
 
-class StickyElements {
+class StickyElementGroup {
     private readonly instances: StickyElement[];
 
-    constructor(selectors: string) {
-        this.instances = findAll<HTMLElement>(selectors).map(
-            (element) => new StickyElement(element),
-        );
+    constructor(elements: HTMLElement[]) {
+        this.instances = elements.map((element) => new StickyElement(element));
     }
 
     public kill(): void {
@@ -157,4 +154,4 @@ class StickyElement {
     }
 }
 
-export { StickyElements };
+export { StickyElement, StickyElementGroup };

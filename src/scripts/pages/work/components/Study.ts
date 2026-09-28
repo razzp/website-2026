@@ -2,6 +2,8 @@ import { assertIsNotUndefined } from 'bossy-boots';
 import { gsap } from 'gsap';
 import { findOrThrow } from 'spank-my-dom';
 import type { PageMeta } from '../../../../lib/config';
+import type { PageEntitiesHelper } from '../../../components/PageEntitiesHelper';
+import { StickyElement } from '../../../components/StickyElements';
 import type { State } from '../../../layouts/DefaultLayout';
 import { createDecorativeFrame } from '../utils';
 import type { PageState } from '../work';
@@ -15,6 +17,7 @@ interface Options {
     dialog: Dialog;
     element: HTMLElement;
     tags: Tag[];
+    pageEntities: PageEntitiesHelper;
 }
 
 class Study {
@@ -30,7 +33,15 @@ class Study {
     public readonly tags: Tag[];
 
     constructor(options: Options) {
-        const { state, pageState, pageMeta, dialog, element, tags } = options;
+        const {
+            state,
+            pageState,
+            pageMeta,
+            dialog,
+            element,
+            tags,
+            pageEntities,
+        } = options;
 
         const tagNames = element.dataset.tags?.split('|') ?? [];
         const backgroundColour = element.dataset.backgroundColour;
@@ -81,7 +92,15 @@ class Study {
 
         // Dialog.
 
-        findOrThrow('.js-open', element).addEventListener('click', async () => {
+        const button = findOrThrow('.js-open', element);
+
+        pageEntities.add(new StickyElement(button), {
+            onKill: (ref) => {
+                ref.kill();
+            },
+        });
+
+        button.addEventListener('click', async () => {
             if (this.pageState.inert) return;
 
             const { lenis } = this.state;
