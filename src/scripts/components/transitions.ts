@@ -109,11 +109,11 @@ function transitionIn({
 function transitionOut({
     state,
     heroBackground,
-    onAfterHide,
+    onBeforeHide,
 }: {
     state: State;
     heroBackground: HeroBackground;
-    onAfterHide?: () => void;
+    onBeforeHide?: () => void;
 }): Promise<void> {
     return new Promise((resolve) => {
         const { enableTransitions, lenis } = state;
@@ -130,9 +130,9 @@ function transitionOut({
             onComplete: async () => {
                 const fogProps = heroBackground.getFogProps();
 
-                document.documentElement.classList.remove('-show-content');
+                onBeforeHide?.();
 
-                onAfterHide?.();
+                document.documentElement.classList.remove('-show-content');
 
                 state.interactive = false;
 

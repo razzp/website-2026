@@ -169,9 +169,13 @@ findAll<HTMLAnchorElement>('a[data-link-swap]').forEach((link) => {
         const [html, newPageJs] = await Promise.all([
             fetch(link.href).then((response) => response.text()),
             pageRoute.loadJs(),
-            transitionOut({ state, heroBackground }).then(() =>
-                state.pageJs?.destroy(state),
-            ),
+            transitionOut({
+                state,
+                heroBackground,
+                onBeforeHide: () => {
+                    state.pageJs?.destroy(state);
+                },
+            }),
         ]);
 
         state.pageJs = newPageJs;
