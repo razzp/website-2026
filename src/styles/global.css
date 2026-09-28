@@ -110,6 +110,17 @@
     );
 }
 
+@utility corner-* {
+    corner-shape: --value(
+        'round',
+        'scoop',
+        'bevel',
+        'notch',
+        'square',
+        'squircle'
+    );
+}
+
 @layer components {
     #main-nav {
         @apply fixed z-20 inset-x-0 top-0 flex justify-center pointer-events-none transition-all duration-700 ease-in-out-expo;
