@@ -10,6 +10,7 @@ import { generateFooterPixels } from '../components/footer-pixels';
 import { getRotationVectors } from '../components/heroes';
 import {
     getPageMeta,
+    getScrollbarWidth,
     isSpecialClick,
     loadThreeJsFont,
     preloadModulesWhenIdle,
@@ -105,6 +106,13 @@ window.addEventListener(
         state.mouse.y = event.clientY;
     },
     { passive: true },
+);
+
+// Cache the scrollbar width.
+
+document.documentElement.style.setProperty(
+    '--scrollbar-width',
+    `${getScrollbarWidth()}px`,
 );
 
 // Create the hero components.

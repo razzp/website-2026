@@ -5,6 +5,7 @@ import type { PageMeta } from '../../../../lib/config';
 import type { PageEntitiesHelper } from '../../../components/PageEntitiesHelper';
 import { StickyElement } from '../../../components/StickyElements';
 import type { State } from '../../../layouts/DefaultLayout';
+import { toggleScrollbar } from '../../../utils';
 import { createDecorativeFrame } from '../utils';
 import type { PageState } from '../work';
 import type { Dialog } from './Dialog';
@@ -109,11 +110,12 @@ class Study {
 
             await this.scrollToElement();
             lenis.stop();
-
             this.dialog.setContent(this.dialogTemplate);
+            toggleScrollbar(false);
 
             this.dialog.open({
                 onAfterClosed: () => {
+                    toggleScrollbar(true);
                     lenis.start();
                     this.pageState.inert = false;
                 },

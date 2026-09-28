@@ -216,6 +216,14 @@ async function swapPage(options: {
     }
 }
 
+function toggleScrollbar(enabled: boolean): void {
+    if (enabled) {
+        document.documentElement.classList.remove('-no-scrollbar');
+    } else {
+        document.documentElement.classList.add('-no-scrollbar');
+    }
+}
+
 export {
     degreesToRadians,
     expoInWithInitialVelocity,
@@ -231,4 +239,5 @@ export {
     preloadModulesWhenIdle,
     restoreScrollPosition,
     swapPage,
+    toggleScrollbar,
 };

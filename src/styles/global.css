@@ -26,6 +26,20 @@
     --inset-half: calc(var(--inset) / 2);
 
     --duotone-contrast: 1.2;
+
+    --scrollbar-compensation: 0;
+
+    margin-inline-end: var(--scrollbar-compensation, 0px);
+
+    &.-no-scrollbar {
+        --scrollbar-compensation: var(--scrollbar-width, 0px);
+
+        overflow: hidden;
+    }
+
+    &:not(.-no-scrollbar) {
+        scrollbar-gutter: stable;
+    }
 }
 
 @theme {
@@ -123,8 +137,9 @@
 
 @layer components {
     #main-nav {
-        @apply fixed z-20 inset-x-0 top-0 flex justify-center pointer-events-none transition-all duration-700 ease-in-out-expo;
+        @apply fixed z-20 top-0 flex justify-center pointer-events-none transition-transform duration-700 ease-in-out-expo;
 
+        inset-inline: 0 var(--scrollbar-compensation);
         transform: translate3d(0, -100%, 0);
 
         .-show-nav & {
