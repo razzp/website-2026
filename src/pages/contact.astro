@@ -8,18 +8,7 @@ import cornerTest from '../images/corner-test.png';
 import cornerTestMatte from '../images/corner-test-matte.png';
 import Plane from '../images/plane.svg';
 import DefaultLayout from '../layouts/DefaultLayout.astro';
-import { emailAddress, type PageMeta } from '../lib/config';
-
-const pageMeta: PageMeta = {
-    routeKey: '/contact',
-    title: 'Contact',
-    heading: 'contact',
-    strapline: 'Please get in touch. Especially if you want to hire me!',
-    theme: {
-        primary: '#fdfe02',
-        primaryContrast: '#6a30fe',
-    },
-};
+import { emailAddress, pages } from '../lib/config';
 
 const subjectSuggestions = [
     'OMG your website is amazing!',
@@ -33,7 +22,7 @@ const subjectSuggestions = [
 ];
 ---
 
-<DefaultLayout pageMeta={pageMeta}>
+<DefaultLayout pageMeta={pages.contact}>
     <div class="x-plane-bounds">
         <div class="js-plane x-plane">
             <Plane

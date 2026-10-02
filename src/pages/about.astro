@@ -11,19 +11,7 @@ import bloodSplatterBack from '../images/splatter-back.svg';
 import bloodSplatterFront from '../images/splatter-front.svg';
 import awesomeSvg from '../images/words/awesome.svg?raw';
 import DefaultLayout from '../layouts/DefaultLayout.astro';
-import type { PageMeta } from '../lib/config';
-
-const pageMeta: PageMeta = {
-    routeKey: '/about',
-    title: 'About Me',
-    heading: 'about',
-    strapline:
-        "I was born in 1988, and the world hasn't really been the same since.",
-    theme: {
-        primary: '#00f9ff',
-        primaryContrast: '#0f00dd',
-    },
-};
+import { pages } from '../lib/config';
 
 // Day one section.
 
@@ -38,7 +26,7 @@ const bloodSplatters = [
 ];
 ---
 
-<DefaultLayout pageMeta={pageMeta}>
+<DefaultLayout pageMeta={pages.about}>
     <section class="js-day-one">
         <div class="grid p-10">
             <!-- Background -->

@@ -162,7 +162,7 @@ async function swapPage(options: {
 }): Promise<void> {
     const { state, pageMeta, doc, heroBackground, heroForeground } = options;
 
-    document.title = pageMeta.title;
+    document.title = pageMeta.metaTitle;
 
     findOrThrow('#page-meta').innerHTML = JSON.stringify(pageMeta);
     findOrThrow('#hero-strapline').innerHTML = pageMeta.strapline;

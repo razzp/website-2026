@@ -29,6 +29,6 @@ const pageRoutes: Record<string, PageRoute> = {
     },
 };
 
-type RouteKey = keyof typeof pageRoutes;
+type Route = keyof typeof pageRoutes;
 
-export { type PageModule, pageRoutes, type RouteKey };
+export { type PageModule, pageRoutes, type Route };

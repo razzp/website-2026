@@ -1,11 +1,7 @@
 import type { default as LenisInstance } from 'lenis';
 import { findAll, findOrThrow } from 'spank-my-dom';
 import type { Font } from 'three/addons/loaders/FontLoader.js';
-import {
-    type PageModule,
-    pageRoutes,
-    type RouteKey,
-} from '../../config/runtime';
+import { type PageModule, pageRoutes, type Route } from '../../config/runtime';
 import { generateFooterPixels } from '../components/footer-pixels';
 import { getRotationVectors } from '../components/heroes';
 import {
@@ -33,7 +29,7 @@ interface State {
 }
 
 const pageMeta = getPageMeta(document);
-const pageRoute = pageRoutes[pageMeta.routeKey];
+const pageRoute = pageRoutes[pageMeta.href];
 
 // Load everything we need to begin.
 
@@ -166,7 +162,7 @@ findAll<HTMLAnchorElement>('a[data-link-swap]').forEach((link) => {
     link.addEventListener('click', async (event) => {
         if (isSpecialClick(event)) return;
 
-        const routeKey = new URL(link.href).pathname as RouteKey;
+        const routeKey = new URL(link.href).pathname as Route;
 
         if (!Object.keys(pageRoutes).includes(routeKey)) return;
 

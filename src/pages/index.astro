@@ -4,21 +4,10 @@ import PlusSignDivider from '../components/PlusSignDivider.astro';
 import portrait from '../images/portrait.jpg';
 import thugGlasses from '../images/thug-glasses.svg';
 import DefaultLayout from '../layouts/DefaultLayout.astro';
-import type { PageMeta } from '../lib/config';
-
-const pageMeta: PageMeta = {
-    routeKey: '/',
-    title: 'Home Page',
-    heading: 'hello',
-    strapline: "I'm an experienced Web Developer from Devon, England.",
-    theme: {
-        primary: '#eee',
-        primaryContrast: '#111',
-    },
-};
+import { pages } from '../lib/config';
 ---
 
-<DefaultLayout pageMeta={pageMeta}>
+<DefaultLayout pageMeta={pages.home}>
     <section>
         <div class="flex justify-center p-10 mb-10">
             <h2 class="text-center text-4xl leading-tight text-balance">

@@ -25,19 +25,8 @@ import walsh from '../images/walsh.svg';
 import webselect from '../images/webselect.svg';
 import weirdfish from '../images/weirdfish.svg';
 import DefaultLayout from '../layouts/DefaultLayout.astro';
-import type { PageMeta } from '../lib/config';
+import { pages } from '../lib/config';
 import { Tags } from '../scripts/pages/work/types/CaseStudy';
-
-const pageMeta: PageMeta = {
-    routeKey: '/work',
-    title: 'My Work',
-    heading: 'work',
-    strapline: "I've done quite a bit, and for some cool brands too!",
-    theme: {
-        primary: '#ff008b',
-        primaryContrast: '#003cff',
-    },
-};
 
 interface Client {
     logo: SvgComponent & ImageMetadata;
@@ -96,7 +85,7 @@ const clientLogos = [
 ] satisfies Client[];
 ---
 
-<DefaultLayout pageMeta={pageMeta}>
+<DefaultLayout pageMeta={pages.work}>
     <section class="js-outer p-10 text-lg grid grid-cols-2 gap-10 relative">
         <div
             class="js-tags-container x-tags-container flex items-center justify-center gap-10 p-10 sticky top-10 rounded-3xl clip-rounded-3xl border-2 border-primary/75"
