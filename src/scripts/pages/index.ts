@@ -165,8 +165,7 @@ function init(): void {
 
     // Seen enough?
 
-    const drawConnections = drawConnectionsFactory();
-
+    const drawConnections = createDrawConnectionsFunc();
     const connections = findOrThrow('.js-connections');
     const arrows = gsap.utils.toArray('.js-connection-yep .js-arrow');
     const yepHeading = findOrThrow('.js-connection-yep .js-heading');
@@ -216,7 +215,7 @@ function init(): void {
     pageEntities.addGsapAnimation(enoughTimeline);
 }
 
-function drawConnectionsFactory(): () => void {
+function createDrawConnectionsFunc(): () => void {
     const svg = findOrThrow('.js-connections');
     const circle = findOrThrow('circle', svg);
     const yep = findOrThrow('.js-connection-yep');
