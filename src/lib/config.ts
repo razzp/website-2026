@@ -19,9 +19,6 @@ interface NavItem {
 interface PageTheme {
     primary: string;
     primaryContrast: string;
-    contentBackground: string;
-    contentText: string;
-    meshFace: string;
 }
 
 interface PageMeta {
