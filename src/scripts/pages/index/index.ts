@@ -341,7 +341,11 @@ function initSpinWheel(): void {
                     sticky.enabled = true;
 
                     if (!event.ctrlKey) {
-                        console.log(`REDIRECT TO: ${slice.href}`);
+                        document.dispatchEvent(
+                            new CustomEvent('app:page-request', {
+                                detail: slice.href,
+                            }),
+                        );
                     }
                 },
             })
@@ -431,7 +435,8 @@ function initSpinWheel(): void {
                     ease: 'expo.inOut',
                 },
                 '<',
-            );
+            )
+            .to({}, { duration: 0.5 });
 
         spin.timelineRef = pageEntities.addGsapAnimation(timeline);
     });
