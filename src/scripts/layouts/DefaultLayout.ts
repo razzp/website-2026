@@ -1,7 +1,7 @@
 import type { default as LenisInstance } from 'lenis';
 import { findAll, findOrThrow } from 'spank-my-dom';
 import type { Font } from 'three/addons/loaders/FontLoader.js';
-import { type PageModule, pageRoutes, type Route } from '../../config/runtime';
+import { type PageModule, pageRoutes } from '../../config/runtime';
 import { generateFooterPixels } from '../components/footer-pixels';
 import { getRotationVectors } from '../components/heroes';
 import {
@@ -13,6 +13,12 @@ import {
     restoreScrollPosition,
     swapPage,
 } from '../utils';
+
+declare global {
+    interface DocumentEventMap {
+        'app:page-request': CustomEvent<string>;
+    }
+}
 
 interface State {
     enableTransitions: boolean;
@@ -158,61 +164,67 @@ gsap.ticker.add(() => {
 
 // Set up the nav.
 
+const loadPage = async (href: string): Promise<void> => {
+    const pageRoute = pageRoutes[href];
+
+    if (!pageRoute) {
+        window.location.href = href;
+        return;
+    }
+
+    const [html, newPageJs] = await Promise.all([
+        fetch(href).then((response) => response.text()),
+        pageRoute.loadJs(),
+        transitionOut({
+            state,
+            heroBackground,
+            onBeforeHide: () => {
+                state.pageJs?.destroy(state);
+            },
+        }),
+    ]);
+
+    state.pageJs = newPageJs;
+
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const pageMeta = getPageMeta(doc);
+
+    history.pushState({}, '', href);
+
+    await swapPage({
+        state,
+        pageMeta,
+        doc,
+        heroBackground,
+        heroForeground,
+    });
+
+    await transitionIn({
+        state,
+        heroBackground,
+        heroForeground,
+        onBeforeShow: () => {
+            document.body.dataset.page = pageRoute.cssScope;
+            newPageJs.init(state);
+        },
+        onAfterShow: () => {
+            generateFooterPixels(footerPixels, pageMeta.theme.primaryContrast);
+        },
+    });
+};
+
 findAll<HTMLAnchorElement>('a[data-link-swap]').forEach((link) => {
     link.addEventListener('click', async (event) => {
         if (isSpecialClick(event)) return;
 
-        const routeKey = new URL(link.href).pathname as Route;
-
-        if (!Object.keys(pageRoutes).includes(routeKey)) return;
-
         event.preventDefault();
 
-        const pageRoute = pageRoutes[routeKey];
-
-        const [html, newPageJs] = await Promise.all([
-            fetch(link.href).then((response) => response.text()),
-            pageRoute.loadJs(),
-            transitionOut({
-                state,
-                heroBackground,
-                onBeforeHide: () => {
-                    state.pageJs?.destroy(state);
-                },
-            }),
-        ]);
-
-        state.pageJs = newPageJs;
-
-        const doc = new DOMParser().parseFromString(html, 'text/html');
-        const pageMeta = getPageMeta(doc);
-
-        history.pushState({}, '', link.href);
-
-        await swapPage({
-            state,
-            pageMeta,
-            doc,
-            heroBackground,
-            heroForeground,
-        });
-
-        await transitionIn({
-            state,
-            heroBackground,
-            heroForeground,
-            onBeforeShow: () => {
-                document.body.dataset.page = pageRoute.cssScope;
-                newPageJs.init(state);
-            },
-            onAfterShow: () => {
-                generateFooterPixels(
-                    footerPixels,
-                    pageMeta.theme.primaryContrast,
-                );
-            },
-        });
+        await loadPage(new URL(link.href).pathname);
     });
+});
+
+document.addEventListener('app:page-request', async (event) => {
+    await loadPage(event.detail);
 });
 
 // Good to go. Begin the first transition!
