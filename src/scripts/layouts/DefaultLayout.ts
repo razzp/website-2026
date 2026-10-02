@@ -138,10 +138,6 @@ const heroBackground = new HeroBackground({
     theme: pageMeta.theme,
 });
 
-// Wait for THREE to compile. Probably unnecessary, but it can't hurt.
-
-await Promise.all([heroBackground.compile(), heroForeground.compile()]);
-
 // Resize heroes to fit their allocated placeholders.
 
 heroForeground.resize();
