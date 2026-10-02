@@ -287,5 +287,103 @@ const pageMeta: PageMeta = {
                 </nav>
             </div>
         </div>
+
+        <div class="relative self-stretch">
+            <div class="js-spin x-spin relative">
+                <canvas
+                    class="js-spin-particles x-spin-particles absolute inset-0 w-full h-full z-10"
+                ></canvas>
+
+                <div
+                    class="js-spin-svg-wrapper x-spin-svg-wrapper relative max-w-[1000px] mx-auto z-20"
+                >
+                    <svg viewBox="0 0 500 250" aria-hidden="true">
+                        <defs>
+                            <radialGradient id="spinGradient">
+                                <stop
+                                    offset="0%"
+                                    stop-color="#000"
+                                    stop-opacity="0.8"
+                                />
+                                <stop
+                                    offset="100%"
+                                    stop-color="#000"
+                                    stop-opacity="0"
+                                />
+                            </radialGradient>
+
+                            <path
+                                id="spinPath"
+                                d="M 250,250
+                                m -180,0
+                                a 180,180 0 1,1 360,0
+                                a 180,180 0 1,1 -360,0"
+                            />
+                        </defs>
+
+                        <g
+                            class="js-slices-group origin-center transform-box-fill"
+                        ></g>
+
+                        <foreignObject
+                            class="relative"
+                            x="90"
+                            y="90"
+                            width="320"
+                            height="320"
+                        >
+                            <div
+                                class="js-final-slice x-final-slice absolute inset-0 rounded-full opacity-0"
+                            ></div>
+                            <div
+                                class="text-(--colour-contrast) absolute inset-0 bottom-1/2 grid place-items-center"
+                                ><span class="js-cooper"
+                                    >see you there, slick!</span
+                                ></div
+                            >
+                        </foreignObject>
+
+                        <rect
+                            class="pointer-events-none"
+                            x="150"
+                            y="150"
+                            width="200"
+                            height="200"
+                            fill="url(#spinGradient)"
+                        />
+
+                        <text class="text-3xl fill-primary">
+                            <textPath
+                                class="js-spin-text-path-1"
+                                href="#spinPath"
+                                startOffset="25%"
+                                text-anchor="middle"
+                            >
+                                Let chance decide
+                            </textPath>
+
+                            <textPath
+                                class="js-spin-text-path-2 fill-(--colour)"
+                                href="#spinPath"
+                                startOffset="-75%"
+                                text-anchor="middle"
+                            ></textPath>
+                        </text>
+                    </svg>
+                </div>
+
+                <span class="x-spin-border absolute inset-0 z-30"></span>
+            </div>
+
+            <div
+                class="absolute bottom-0 left-1/2 translate-y-1/2 -translate-x-1/2"
+            >
+                <button
+                    class="js-btn-spin c-glass-button px-10 py-2 rounded-4xl corner-squircle cursor-pointer text-primary-contrast text-3xl leading-normal"
+                    type="button"
+                    >f*ck it</button
+                >
+            </div>
+        </div>
     </section>
 </DefaultLayout>

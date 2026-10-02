@@ -1,16 +1,27 @@
 import { gsap } from 'gsap';
+import { SplitText } from 'gsap/all';
 import { findAll, findOrThrow } from 'spank-my-dom';
 import { PageEntitiesHelper } from '../components/PageEntitiesHelper';
+import { Particles } from '../components/particles';
+import { StickyElement } from '../components/StickyElements';
+import { getPageMeta } from '../utils';
 
 interface PageState {
     tldr: {
         pathProgress: number;
+    };
+    spin: {
+        timelineRef?: symbol;
+        isSpinning: boolean;
     };
 }
 
 const pageState: PageState = {
     tldr: {
         pathProgress: 0,
+    },
+    spin: {
+        isSpinning: false,
     },
 };
 
@@ -213,6 +224,277 @@ function init(): void {
 
     pageEntities.addObserver(enoughResizeObserver);
     pageEntities.addGsapAnimation(enoughTimeline);
+
+    initSpinWheel();
+}
+
+class Slice {
+    public readonly pathElement: SVGPathElement;
+    public readonly colour: string;
+    public readonly colourContrast: string;
+    public readonly name: string;
+    public readonly url: string;
+
+    constructor(options: {
+        pathData: string;
+        name: string;
+        url: string;
+        colour: string;
+        colourContrast: string;
+    }) {
+        const { pathData, colour, colourContrast, name, url } = options;
+
+        const path = document.createElementNS(
+            'http://www.w3.org/2000/svg',
+            'path',
+        );
+
+        path.setAttribute('d', pathData);
+        path.setAttribute('fill', colour);
+
+        this.pathElement = path;
+        this.colour = colour;
+        this.colourContrast = colourContrast;
+        this.name = name;
+        this.url = url;
+    }
+}
+
+function initSpinWheel(): void {
+    const pageMeta = getPageMeta(document);
+
+    const awesomeParticles =
+        findOrThrow<HTMLCanvasElement>('.js-spin-particles');
+
+    const particles = new Particles({
+        canvas: awesomeParticles,
+        colours: [pageMeta.theme.primary],
+        maxParticles: 50,
+    });
+
+    pageEntities.addTicker((time) => {
+        particles.draw(time);
+    });
+
+    const particlesResizeObserver = new ResizeObserver(() => {
+        particles.resize();
+    });
+
+    particlesResizeObserver.observe(awesomeParticles);
+
+    // TODO: Derive dynamically
+
+    const pages = [
+        {
+            name: 'about',
+            url: '/about',
+            colour: '#00f9ff',
+            colourContrast: '#0f00dd',
+        },
+        {
+            name: 'work',
+            url: '/work',
+            colour: '#ff008b',
+            colourContrast: '#003cff',
+        },
+        {
+            name: 'contact',
+            url: '/contact',
+            colour: '#fdfe02',
+            colourContrast: '#6a30fe',
+        },
+    ];
+
+    // Duplicate the array n times so there are lots of slices.
+    const pagesDuplicated = Array(3).fill(pages).flat();
+
+    const slicesGroup = findOrThrow<SVGGElement>('.js-slices-group');
+    const finalSlice = findOrThrow('.js-final-slice');
+
+    const cx = 250;
+    const cy = 250;
+    const r = 160;
+    const step = 360 / pagesDuplicated.length;
+    const rotationOffset = -90 - step / 2;
+
+    // Generate the slices.
+    const slices = pagesDuplicated.map((page, i) => {
+        const a1 = ((i * step + rotationOffset) * Math.PI) / 180;
+        const a2 = (((i + 1) * step + rotationOffset) * Math.PI) / 180;
+
+        const x1 = cx + r * Math.cos(a1);
+        const y1 = cy + r * Math.sin(a1);
+        const x2 = cx + r * Math.cos(a2);
+        const y2 = cy + r * Math.sin(a2);
+
+        const pathData = `M ${cx} ${cy}
+            L ${x1} ${y1}
+            A ${r} ${r} 0 0 1 ${x2} ${y2}
+            Z`;
+
+        return new Slice({ pathData, ...page });
+    });
+
+    // Set some CSS vars now that we have data.
+    setStyleProps(finalSlice, {
+        '--slices': `${slices.length}`,
+        '--step': `${step}deg`,
+    });
+
+    // Append the slices to the DOM.
+    slicesGroup.append(...slices.map((slices) => slices.pathElement));
+
+    const container = findOrThrow('.js-spin');
+    const svgWrapper = findOrThrow('.js-spin-svg-wrapper');
+    const button = findOrThrow('.js-btn-spin');
+    const textPath1 = findOrThrow('.js-spin-text-path-1');
+    const textPath2 = findOrThrow('.js-spin-text-path-2');
+
+    // We're going to animate the `startOffset` attributes on the text path
+    // elements. There's no CSS equivalent unfortunately, but performance
+    // seems to be okay, so I'm rolling with it...
+    const textPathOffsets = {
+        path1: 0,
+        path2: 0,
+    };
+
+    const sticky = new StickyElement(button);
+    const splitText = SplitText.create('.js-cooper', { type: 'chars' });
+
+    gsap.set(splitText.chars, { autoAlpha: 0 });
+
+    button.addEventListener('click', (event) => {
+        const { spin } = pageState;
+
+        // The ctrl key check is mostly just for testing;
+        // it'll allow interruptions and won't redirect.
+        if (spin.isSpinning && !event.ctrlKey) return;
+
+        // Clear up previous instance if needed.
+        spin.timelineRef && pageEntities.kill(spin.timelineRef);
+
+        spin.isSpinning = true;
+        sticky.enabled = false;
+
+        // Pick a random result.
+        const sliceIndex = Math.floor(Math.random() * slices.length);
+        const slice = slices[sliceIndex];
+
+        const targetAngle = sliceIndex * step;
+        const spinMultiplier = 10;
+        const finalRotation = 360 * spinMultiplier - targetAngle;
+        const spinDurationSeconds = 3;
+
+        setStyleProps(container, {
+            '--colour': slice.colour,
+            '--colour-contrast': slice.colourContrast,
+        });
+
+        textPath2.innerHTML = slice.name;
+
+        svgWrapper.classList.remove('-coloured');
+
+        const timeline = gsap
+            .timeline({
+                onComplete: () => {
+                    spin.isSpinning = false;
+                    sticky.enabled = true;
+
+                    if (!event.ctrlKey) {
+                        console.log(`REDIRECT TO: ${slice.url}`);
+                    }
+                },
+            })
+            .set(finalSlice, {
+                opacity: 0,
+            })
+            .set(slicesGroup, {
+                svgOrigin: 'center center',
+            })
+            .fromTo(
+                slicesGroup,
+                {
+                    rotate: 0,
+                },
+                {
+                    rotate: finalRotation,
+                    duration: spinDurationSeconds,
+                    ease: 'expo.inOut',
+                },
+            )
+            .fromTo(
+                textPathOffsets,
+                {
+                    path1: 25,
+                },
+                {
+                    path1: 75,
+                    duration: spinDurationSeconds / 2,
+                    ease: 'expo.in',
+                    onUpdate: () => {
+                        textPath1.setAttribute(
+                            'startOffset',
+                            `${textPathOffsets.path1}%`,
+                        );
+                    },
+                },
+                '<',
+            )
+            .fromTo(
+                textPathOffsets,
+                {
+                    path2: -75,
+                },
+                {
+                    path2: 25,
+                    duration: spinDurationSeconds / 2,
+                    ease: 'expo.out',
+                    onUpdate: () => {
+                        textPath2.setAttribute(
+                            'startOffset',
+                            `${textPathOffsets.path2}%`,
+                        );
+                    },
+                },
+                '>',
+            )
+            .add(() => {
+                svgWrapper.classList.add('-coloured');
+            })
+            .set(finalSlice, {
+                opacity: 1,
+            })
+            .fromTo(
+                finalSlice,
+                {
+                    '--offset': '0deg',
+                },
+                {
+                    '--offset': `${90 - step / 2}deg`,
+                    duration: 1,
+                    ease: 'expo.inOut',
+                },
+            )
+            .fromTo(
+                splitText.chars,
+                {
+                    y: 20,
+                    skewX: 10,
+                    autoAlpha: 0,
+                },
+                {
+                    y: 0,
+                    skewX: 0,
+                    autoAlpha: 1,
+                    duration: 1,
+                    stagger: 0.02,
+                    ease: 'expo.inOut',
+                },
+                '<',
+            );
+
+        spin.timelineRef = pageEntities.addGsapAnimation(timeline);
+    });
 }
 
 function createDrawConnectionsFunc(): () => void {
@@ -243,6 +525,15 @@ function createDrawConnectionsFunc(): () => void {
 
         svg.querySelector('path')?.setAttribute('d', d);
     };
+}
+
+function setStyleProps(
+    element: HTMLElement,
+    entries: Record<string, string>,
+): void {
+    for (const [prop, value] of Object.entries(entries)) {
+        element.style.setProperty(prop, value);
+    }
 }
 
 function destroy(): void {

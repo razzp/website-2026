@@ -1,5 +1,11 @@
 @reference '../global.css';
 
+@property --index-spin-glow {
+    syntax: '<color>';
+    inherits: false;
+    initial-value: transparent;
+}
+
 [data-page='index'] {
     .x-tldr {
         filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 0.5));
@@ -139,5 +145,76 @@
             content: '//';
             padding-inline: calc(var(--spacing) * 4);
         }
+    }
+
+    /* Spin wheel */
+
+    .x-spin {
+        clip-path: shape(
+            from 0% 0%,
+            line to 100% 0%,
+            line to 100% 75%,
+            line to 50% 100%,
+            line to 0% 75%,
+            close
+        );
+    }
+
+    .x-spin-svg-wrapper {
+        --index-spin-glow: var(--theme-primary);
+
+        transition: --index-spin-glow 1s ease;
+
+        background-image: radial-gradient(
+            ellipse at center bottom,
+            rgb(from var(--index-spin-glow) r g b / 0.25) 0%,
+            transparent calc(100% / sqrt(2))
+        );
+
+        &.-coloured {
+            --index-spin-glow: var(--colour, var(--theme-primary));
+        }
+    }
+
+    .x-spin-border {
+        --size: 2px;
+
+        clip-path: shape(
+            from 0% calc(75% - var(--size)),
+            line to 50% calc(100% - var(--size)),
+            line to 100% calc(75% - var(--size)),
+            line to 100% 100%,
+            line to 0% 100%,
+            close
+        );
+
+        background-image: linear-gradient(
+            to right,
+            var(--theme-primary-contrast),
+            var(--theme-primary) 20% 80%,
+            var(--theme-primary-contrast)
+        );
+    }
+
+    .x-final-slice {
+        --slices: 0;
+        --step: 0deg;
+        --offset: 0deg;
+
+        background: conic-gradient(
+            from calc(360deg / var(--slices) * -0.5 - var(--offset)),
+            var(--colour) 0deg,
+            var(--colour) calc(var(--step) + (var(--offset) * 2)),
+            transparent calc(var(--step) + (var(--offset) * 2))
+        );
+    }
+
+    .x-spin-particles {
+        mask-image: radial-gradient(
+            ellipse at center,
+            black,
+            black 50%,
+            transparent calc(100% / sqrt(2))
+        );
     }
 }
