@@ -282,7 +282,7 @@ function initSpinWheel(): void {
 
     particlesResizeObserver.observe(awesomeParticles);
 
-    // TODO: Derive dynamically
+    // TODO: Derive dynamically.
 
     const pages = [
         {
@@ -350,9 +350,10 @@ function initSpinWheel(): void {
     const textPath1 = findOrThrow('.js-spin-text-path-1');
     const textPath2 = findOrThrow('.js-spin-text-path-2');
 
+    // TODO: Find a better solution?
     // We're going to animate the `startOffset` attributes on the text path
     // elements. There's no CSS equivalent unfortunately, but performance
-    // seems to be okay, so I'm rolling with it...
+    // seems to be okay, so I'm rolling with it for now.
     const textPathOffsets = {
         path1: 0,
         path2: 0,
