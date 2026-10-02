@@ -6,7 +6,7 @@
     initial-value: transparent;
 }
 
-@property --shadow-o {
+@property --shadow-opacity {
     syntax: '<number>';
     inherits: false;
     initial-value: 0;
@@ -196,14 +196,14 @@
     }
 
     .x-hover-3d {
-        --shadow-o: 0;
+        --shadow-opacity: 0;
         --shadow-x: 0px;
         --shadow-y: 0px;
 
         @apply relative transform-3d will-change-transform;
         box-shadow: var(--shadow-x) calc(0px + var(--shadow-y)) 50px -10px
-            rgba(0, 0, 0, var(--shadow-o));
-        transition: --shadow-o 0.6s ease;
+            rgba(0, 0, 0, var(--shadow-opacity));
+        transition: --shadow-opacity 0.6s ease;
 
         &::after {
             @apply content-[''] absolute inset-0 mix-blend-overlay opacity-0 bg-no-repeat pointer-events-none;
@@ -219,7 +219,7 @@
         }
 
         &:hover {
-            --shadow-o: 0.5;
+            --shadow-opacity: 0.5;
 
             &::after {
                 @apply opacity-100;
