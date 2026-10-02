@@ -1,10 +1,18 @@
+import { assertIsNotNull } from 'bossy-boots';
 import { gsap } from 'gsap';
 import { SplitText } from 'gsap/all';
-import { findAll, findOrThrow } from 'spank-my-dom';
+import { findAll, findOrThrow, getData, parseJson } from 'spank-my-dom';
 import { PageEntitiesHelper } from '../components/PageEntitiesHelper';
 import { Particles } from '../components/particles';
 import { StickyElement } from '../components/StickyElements';
 import { getPageMeta } from '../utils';
+
+interface SpinWheelData {
+    name: string;
+    href: string;
+    colour: string;
+    colourContrast: string;
+}
 
 interface PageState {
     tldr: {
@@ -233,16 +241,16 @@ class Slice {
     public readonly colour: string;
     public readonly colourContrast: string;
     public readonly name: string;
-    public readonly url: string;
+    public readonly href: string;
 
     constructor(options: {
         pathData: string;
         name: string;
-        url: string;
+        href: string;
         colour: string;
         colourContrast: string;
     }) {
-        const { pathData, colour, colourContrast, name, url } = options;
+        const { pathData, colour, colourContrast, name, href } = options;
 
         const path = document.createElementNS(
             'http://www.w3.org/2000/svg',
@@ -256,57 +264,25 @@ class Slice {
         this.colour = colour;
         this.colourContrast = colourContrast;
         this.name = name;
-        this.url = url;
+        this.href = href;
     }
 }
 
 function initSpinWheel(): void {
     const pageMeta = getPageMeta(document);
 
-    const awesomeParticles =
-        findOrThrow<HTMLCanvasElement>('.js-spin-particles');
+    const container = findOrThrow('.js-spin');
+    const svgWrapper = findOrThrow('.js-spin-svg-wrapper');
+    const button = findOrThrow('.js-btn-spin');
+    const textPath1 = findOrThrow('.js-spin-text-path-1');
+    const textPath2 = findOrThrow('.js-spin-text-path-2');
 
-    const particles = new Particles({
-        canvas: awesomeParticles,
-        colours: [pageMeta.theme.primary],
-        maxParticles: 50,
-    });
+    const pages = getData<SpinWheelData[]>(container, 'pages', parseJson);
 
-    pageEntities.addTicker((time) => {
-        particles.draw(time);
-    });
-
-    const particlesResizeObserver = new ResizeObserver(() => {
-        particles.resize();
-    });
-
-    particlesResizeObserver.observe(awesomeParticles);
-
-    // TODO: Derive dynamically.
-
-    const pages = [
-        {
-            name: 'about',
-            url: '/about',
-            colour: '#00f9ff',
-            colourContrast: '#0f00dd',
-        },
-        {
-            name: 'work',
-            url: '/work',
-            colour: '#ff008b',
-            colourContrast: '#003cff',
-        },
-        {
-            name: 'contact',
-            url: '/contact',
-            colour: '#fdfe02',
-            colourContrast: '#6a30fe',
-        },
-    ];
+    assertIsNotNull(pages);
 
     // Duplicate the array n times so there are lots of slices.
-    const pagesDuplicated = Array(3).fill(pages).flat();
+    const pagesDuplicated: SpinWheelData[] = Array(3).fill(pages).flat();
 
     const slicesGroup = findOrThrow<SVGGElement>('.js-slices-group');
     const finalSlice = findOrThrow('.js-final-slice');
@@ -343,12 +319,6 @@ function initSpinWheel(): void {
 
     // Append the slices to the DOM.
     slicesGroup.append(...slices.map((slices) => slices.pathElement));
-
-    const container = findOrThrow('.js-spin');
-    const svgWrapper = findOrThrow('.js-spin-svg-wrapper');
-    const button = findOrThrow('.js-btn-spin');
-    const textPath1 = findOrThrow('.js-spin-text-path-1');
-    const textPath2 = findOrThrow('.js-spin-text-path-2');
 
     // TODO: Find a better solution?
     // We're going to animate the `startOffset` attributes on the text path
@@ -402,7 +372,7 @@ function initSpinWheel(): void {
                     sticky.enabled = true;
 
                     if (!event.ctrlKey) {
-                        console.log(`REDIRECT TO: ${slice.url}`);
+                        console.log(`REDIRECT TO: ${slice.href}`);
                     }
                 },
             })
@@ -496,6 +466,25 @@ function initSpinWheel(): void {
 
         spin.timelineRef = pageEntities.addGsapAnimation(timeline);
     });
+
+    const awesomeParticles =
+        findOrThrow<HTMLCanvasElement>('.js-spin-particles');
+
+    const particles = new Particles({
+        canvas: awesomeParticles,
+        colours: [pageMeta.theme.primary],
+        maxParticles: 50,
+    });
+
+    pageEntities.addTicker((time) => {
+        particles.draw(time);
+    });
+
+    const particlesResizeObserver = new ResizeObserver(() => {
+        particles.resize();
+    });
+
+    particlesResizeObserver.observe(awesomeParticles);
 }
 
 function createDrawConnectionsFunc(): () => void {
@@ -541,4 +530,4 @@ function destroy(): void {
     pageEntities.killAll();
 }
 
-export { destroy, init };
+export { destroy, init, type SpinWheelData };

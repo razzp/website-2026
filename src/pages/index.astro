@@ -5,6 +5,16 @@ import portrait from '../images/portrait.jpg';
 import thugGlasses from '../images/thug-glasses.svg';
 import DefaultLayout from '../layouts/DefaultLayout.astro';
 import { pages } from '../lib/config';
+import type { SpinWheelData } from '../scripts/pages/index';
+
+const spinWheelPageData = Object.values(pages)
+    .filter((page) => page.href !== pages.home.href)
+    .map<SpinWheelData>((page) => ({
+        name: page.name,
+        href: page.href,
+        colour: page.theme.primary,
+        colourContrast: page.theme.primaryContrast,
+    }));
 ---
 
 <DefaultLayout pageMeta={pages.home}>
@@ -275,7 +285,10 @@ import { pages } from '../lib/config';
         </div>
 
         <div class="relative self-stretch">
-            <div class="js-spin x-spin relative">
+            <div
+                class="js-spin x-spin relative"
+                data-pages={JSON.stringify(spinWheelPageData)}
+            >
                 <canvas
                     class="js-spin-particles x-spin-particles absolute inset-0 w-full h-full z-10"
                 ></canvas>
@@ -349,7 +362,7 @@ import { pages } from '../lib/config';
                             </textPath>
 
                             <textPath
-                                class="js-spin-text-path-2 fill-(--colour)"
+                                class="js-spin-text-path-2 fill-(--colour) lowercase"
                                 href="#spinPath"
                                 startOffset="-75%"
                                 text-anchor="middle"
