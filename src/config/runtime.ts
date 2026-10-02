@@ -12,7 +12,7 @@ interface PageRoute {
 
 const pageRoutes: Record<string, PageRoute> = {
     '/': {
-        loadJs: () => import('../scripts/pages/index'),
+        loadJs: () => import('../scripts/pages/index/index'),
         cssScope: 'index',
     },
     '/about': {
