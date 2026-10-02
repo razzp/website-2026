@@ -27,6 +27,7 @@ class StickyElement {
     private isIntersecting = false;
     private isInteracting = false;
     private isTweening = false;
+    private isEnabled = true;
     private lastTime: number | null = null;
     private currentRequestId: number | null = null;
 
@@ -78,6 +79,8 @@ class StickyElement {
         element.addEventListener(
             'pointerenter',
             mouseEventOnly(() => {
+                if (!this.isEnabled) return;
+
                 this.animationOut?.kill();
                 this.isInteracting = true;
                 this.currentRequestId = requestAnimationFrame(render);
@@ -88,6 +91,8 @@ class StickyElement {
         element.addEventListener(
             'pointermove',
             mouseEventOnly((event) => {
+                if (!this.isEnabled) return;
+
                 const mouseX = event.clientX - this.originX;
                 const mouseY = event.clientY - this.originY;
 
@@ -100,6 +105,8 @@ class StickyElement {
         element.addEventListener(
             'pointerleave',
             mouseEventOnly(() => {
+                if (!this.isEnabled && !this.isInteracting) return;
+
                 this.isInteracting = false;
                 this.animationOut?.kill();
 
@@ -151,6 +158,18 @@ class StickyElement {
         this.controller.abort();
         this.intersectionObserver.disconnect();
         this.resizeObserver.disconnect();
+    }
+
+    public set enabled(value: boolean) {
+        this.isEnabled = value;
+
+        if (!value) {
+            this.element.dispatchEvent(
+                new PointerEvent('pointerleave', {
+                    pointerType: 'mouse',
+                }),
+            );
+        }
     }
 }
 
