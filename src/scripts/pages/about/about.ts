@@ -118,7 +118,7 @@ function initDayThumbs(): void {
     const today = Date.now();
     const daysSince = Math.floor((today - start) / 86_400_000);
 
-    findOrThrow('.js-days-elapsed').innerText = `${daysSince}`;
+    findOrThrow<HTMLElement>('.js-days-elapsed').innerText = `${daysSince}`;
 
     const timeline = gsap
         .timeline({
@@ -148,13 +148,13 @@ function initDayThumbs(): void {
 
 function initBoringSection(font: Font): void {
     const pageMeta = getPageMeta(document);
-    const container = findOrThrow('.js-boring-container');
+    const container = findOrThrow<HTMLElement>('.js-boring-container');
     const dot = findOrThrow('.js-boring-dot');
     const flash = findOrThrow('.js-boring-flash');
     const rays = findOrThrow('.js-boring-rays');
     const awesomeSvg = findOrThrow<SVGSVGElement>('.js-boring-svg');
-    const awesomeSvgGroup = findOrThrow<SVGGElement>('g', awesomeSvg);
-    const paths = findAll<SVGPathElement>('path', awesomeSvg);
+    const awesomeSvgGroup = findOrThrow('g', awesomeSvg);
+    const paths = findAll('path', awesomeSvg);
     const threeContainer = findOrThrow('.js-boring-three');
 
     // Set up the THREE scene.

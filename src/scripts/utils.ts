@@ -35,27 +35,6 @@ function getPageMeta(source: Document): PageMeta {
     return JSON.parse(findOrThrow('#page-meta', source).textContent);
 }
 
-function getScrollbarWidth(): number {
-    const tempElement = document.createElement('div');
-
-    tempElement.style.cssText = `
-        position: absolute;
-        top: -9999px;
-        left: -9999px;
-        width: 100px;
-        height: 100px;
-        overflow: scroll;
-    `;
-
-    document.body.appendChild(tempElement);
-
-    const width = tempElement.offsetWidth - tempElement.clientWidth;
-
-    tempElement.remove();
-
-    return width;
-}
-
 function getThemeVarsAsStyles(theme: PageTheme): string[] {
     return Object.entries(theme).map(
         ([key, value]) =>
@@ -84,12 +63,8 @@ function mapNormalisedToRange(value: number, from: number, to: number): number {
     return from + value * (to - from);
 }
 
-function mouseEventOnly(callback: (event: PointerEvent) => void) {
-    return (event: PointerEvent) => {
-        if (event.pointerType === 'mouse') {
-            callback(event);
-        }
-    };
+function pickRandom(array: string[]): string {
+    return array[Math.floor(Math.random() * array.length)];
 }
 
 function pixelsToWorldUnits(
@@ -172,7 +147,7 @@ async function swapPage(options: {
         pageMeta.theme.primary,
     );
 
-    findAll('[data-swap]').forEach((element) => {
+    findAll<HTMLElement>('[data-swap]').forEach((element) => {
         const id = element.dataset.swap;
         const newElement = doc.querySelector(`[data-swap="${id}"]`);
 
@@ -229,12 +204,11 @@ export {
     expoInWithInitialVelocity,
     getCameraOffsetY,
     getPageMeta,
-    getScrollbarWidth,
     getThemeVarsAsStyles,
     isSpecialClick,
     loadThreeJsFont,
     mapNormalisedToRange,
-    mouseEventOnly,
+    pickRandom,
     pixelsToWorldUnits,
     preloadModulesWhenIdle,
     restoreScrollPosition,

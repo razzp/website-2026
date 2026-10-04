@@ -1,3 +1,6 @@
+const MAX_SQUARE_SIZE = 20;
+const ROWS = 12;
+
 function generateFooterPixels(canvas: HTMLCanvasElement, colour: string): void {
     const ctx = canvas.getContext('2d');
 
@@ -7,18 +10,16 @@ function generateFooterPixels(canvas: HTMLCanvasElement, colour: string): void {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const width = canvas.clientWidth;
-    const maxSquareSize = 20;
-    const rows = 12;
-    const columns = Math.ceil(width / maxSquareSize);
+    const columns = Math.ceil(width / MAX_SQUARE_SIZE);
     const columnSize = Math.round(width / columns);
 
     canvas.width = width;
-    canvas.height = rows * columnSize;
+    canvas.height = ROWS * columnSize;
 
     ctx.fillStyle = colour;
 
-    for (let i = 0; i < rows; i++) {
-        const probability = mapRange(i, 0, rows - 1, 90, 10);
+    for (let i = 0; i < ROWS; i++) {
+        const probability = mapRange(i, 0, ROWS - 1, 90, 10);
 
         let lastX = 0;
 
@@ -37,7 +38,6 @@ function calculateColumnWidths(
     maxColumnWidth: number,
 ): number[] {
     const columns = Math.max(1, Math.floor(containerWidth / maxColumnWidth));
-
     const baseWidth = Math.floor(containerWidth / columns);
     const leftover = containerWidth % columns;
 

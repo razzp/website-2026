@@ -1,12 +1,12 @@
 import { assertIsNotNull } from 'bossy-boots';
 
+const COUNT = 100;
+const EDGE_WIDTH = 20;
+
 function createDecorativeFrame(
     element: HTMLElement,
     colours: string[],
 ): () => void {
-    const count = 100;
-    const edgeWidth = 20;
-
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
 
@@ -25,7 +25,7 @@ function createDecorativeFrame(
         canvas.width = rect.width;
         canvas.height = rect.height;
 
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < COUNT; i++) {
             let x: number;
             let y: number;
 
@@ -35,18 +35,18 @@ function createDecorativeFrame(
             if (edge === 0) {
                 // Top.
                 x = Math.random() * canvas.width;
-                y = Math.random() * edgeWidth;
+                y = Math.random() * EDGE_WIDTH;
             } else if (edge === 1) {
                 // Right.
-                x = canvas.width - Math.random() * edgeWidth;
+                x = canvas.width - Math.random() * EDGE_WIDTH;
                 y = Math.random() * canvas.height;
             } else if (edge === 2) {
                 // Bottom
                 x = Math.random() * canvas.width;
-                y = canvas.height - Math.random() * edgeWidth;
+                y = canvas.height - Math.random() * EDGE_WIDTH;
             } else {
                 // left.
-                x = Math.random() * edgeWidth;
+                x = Math.random() * EDGE_WIDTH;
                 y = Math.random() * canvas.height;
             }
 

@@ -1,5 +1,5 @@
 import { gsap } from 'gsap';
-import { mouseEventOnly } from '../utils';
+import { forPointerEventType } from 'spank-my-dom';
 
 const SPEED = 25;
 const DAMPING = 0.4;
@@ -78,7 +78,7 @@ class StickyElement {
 
         element.addEventListener(
             'pointerenter',
-            mouseEventOnly(() => {
+            forPointerEventType('mouse', () => {
                 if (!this.isEnabled) return;
 
                 this.animationOut?.kill();
@@ -90,7 +90,7 @@ class StickyElement {
 
         element.addEventListener(
             'pointermove',
-            mouseEventOnly((event) => {
+            forPointerEventType('mouse', (event) => {
                 if (!this.isEnabled) return;
 
                 const mouseX = event.clientX - this.originX;
@@ -104,7 +104,7 @@ class StickyElement {
 
         element.addEventListener(
             'pointerleave',
-            mouseEventOnly(() => {
+            forPointerEventType('mouse', () => {
                 if (!this.isEnabled && !this.isInteracting) return;
 
                 this.isInteracting = false;

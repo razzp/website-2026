@@ -1,7 +1,13 @@
 import { assertIsNotNull } from 'bossy-boots';
 import { gsap } from 'gsap';
 import { SplitText } from 'gsap/all';
-import { findAll, findOrThrow, getData, parseJson } from 'spank-my-dom';
+import {
+    findAll,
+    findOrThrow,
+    getData,
+    parseJson,
+    setStyles,
+} from 'spank-my-dom';
 import { PageEntitiesHelper } from '../../components/PageEntitiesHelper';
 import { Particles } from '../../components/particles';
 import { StickyElement } from '../../components/StickyElements';
@@ -149,7 +155,7 @@ function init(): void {
     // Blurb markers.
 
     findAll('.js-blurb').forEach((blurb) => {
-        const marks = findAll('.js-mark', blurb);
+        const marks = findAll<HTMLElement>('.js-mark', blurb);
 
         if (!marks.length) return;
 
@@ -240,9 +246,9 @@ function init(): void {
 function initSpinWheel(): void {
     const pageMeta = getPageMeta(document);
 
-    const container = findOrThrow('.js-spin');
+    const container = findOrThrow<HTMLElement>('.js-spin');
     const svgWrapper = findOrThrow('.js-spin-svg-wrapper');
-    const button = findOrThrow('.js-btn-spin');
+    const button = findOrThrow<HTMLElement>('.js-btn-spin');
     const textPath1 = findOrThrow('.js-spin-text-path-1');
     const textPath2 = findOrThrow('.js-spin-text-path-2');
 
@@ -254,7 +260,7 @@ function initSpinWheel(): void {
     const pagesDuplicated: SpinWheelData[] = Array(3).fill(pages).flat();
 
     const slicesGroup = findOrThrow<SVGGElement>('.js-slices-group');
-    const finalSlice = findOrThrow('.js-final-slice');
+    const finalSlice = findOrThrow<HTMLElement>('.js-final-slice');
 
     const cx = 250;
     const cy = 250;
@@ -281,7 +287,7 @@ function initSpinWheel(): void {
     });
 
     // Set some CSS vars now that we have data.
-    setStyleProps(finalSlice, {
+    setStyles(finalSlice, {
         '--slices': `${slices.length}`,
         '--step': `${step}deg`,
     });
@@ -325,7 +331,7 @@ function initSpinWheel(): void {
         const finalRotation = 360 * spinMultiplier - targetAngle;
         const spinDurationSeconds = 3;
 
-        setStyleProps(container, {
+        setStyles(container, {
             '--colour': slice.colour,
             '--colour-contrast': slice.colourContrast,
         });
@@ -489,15 +495,6 @@ function createDrawConnectionsFunc(): () => void {
 
         svg.querySelector('path')?.setAttribute('d', d);
     };
-}
-
-function setStyleProps(
-    element: HTMLElement,
-    entries: Record<string, string>,
-): void {
-    for (const [prop, value] of Object.entries(entries)) {
-        element.style.setProperty(prop, value);
-    }
 }
 
 function destroy(): void {

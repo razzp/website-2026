@@ -93,7 +93,7 @@ class Study {
 
         // Dialog.
 
-        const button = findOrThrow('.js-open', element);
+        const button = findOrThrow<HTMLElement>('.js-open', element);
 
         pageEntities.add(new StickyElement(button), {
             onKill: (ref) => {

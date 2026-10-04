@@ -1,19 +1,20 @@
 import { assertIsNotNull } from 'bossy-boots';
+import { pickRandom } from '../utils';
 
 const EPSILON = 0.01;
 
 class Particle {
-    private onDeath?: (particle: Particle) => void;
+    private readonly onDeath?: (particle: Particle) => void;
 
-    private vx = (Math.random() - 0.5) * 0.5;
-    private vy = (Math.random() - 0.5) * 0.5;
-    private birth = performance.now();
-    private lifetime = 1000 + Math.random() * 3000;
-    private rotationSpeed = (Math.random() - 0.5) * 0.05;
+    private readonly vx = (Math.random() - 0.5) * 0.5;
+    private readonly vy = (Math.random() - 0.5) * 0.5;
+    private readonly birth = performance.now();
+    private readonly lifetime = 1000 + Math.random() * 3000;
+    private readonly rotationSpeed = (Math.random() - 0.5) * 0.05;
 
     public x: number;
     public y: number;
-    public colour: string;
+    public readonly colour: string;
 
     public alpha = 1;
     public rotation = Math.random() * Math.PI * 2;
@@ -30,7 +31,7 @@ class Particle {
     }) {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.colour = getRandomColour(colours);
+        this.colour = pickRandom(colours);
         this.onDeath = onDeath;
     }
 
@@ -66,12 +67,12 @@ class Particle {
 }
 
 class Particles {
-    private canvas: HTMLCanvasElement;
-    private context: CanvasRenderingContext2D;
-    private colours: string[];
-    private maxParticles: number;
+    private readonly canvas: HTMLCanvasElement;
+    private readonly context: CanvasRenderingContext2D;
+    private readonly colours: string[];
+    private readonly maxParticles: number;
 
-    private particles = new Set<Particle>();
+    private readonly particles = new Set<Particle>();
 
     constructor({
         canvas,
@@ -130,10 +131,6 @@ class Particles {
 
         this.context.globalAlpha = 1;
     }
-}
-
-function getRandomColour(colours: string[]): string {
-    return colours[Math.floor(Math.random() * colours.length)];
 }
 
 export { Particles };

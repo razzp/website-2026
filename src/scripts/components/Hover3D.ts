@@ -1,5 +1,6 @@
 import { gsap } from 'gsap';
-import { mapNormalisedToRange, mouseEventOnly } from '../utils';
+import { forPointerEventType, setStyles } from 'spank-my-dom';
+import { mapNormalisedToRange } from '../utils';
 
 const SPEED = 20;
 
@@ -60,15 +61,16 @@ class Hover3D {
                 this.shadowY += (this.targetShadowY - this.shadowY) * smoothing;
             }
 
-            element.style.transform = `
+            setStyles(element, {
+                '--bg-x': `${this.bgX}px`,
+                '--shadow-x': `${this.shadowX}px`,
+                '--shadow-y': `${this.shadowY}px`,
+                transform: `
                 perspective(1000px)
                 rotateX(${this.rotateX}deg)
                 rotateY(${-this.rotateY}deg)
-            `;
-
-            element.style.setProperty('--bg-x', `${this.bgX}px`);
-            element.style.setProperty('--shadow-x', `${this.shadowX}px`);
-            element.style.setProperty('--shadow-y', `${this.shadowY}px`);
+            `,
+            });
 
             this.lastTime = time;
             this.currentRequestId = requestAnimationFrame(render);
@@ -76,7 +78,7 @@ class Hover3D {
 
         element.addEventListener(
             'pointerenter',
-            mouseEventOnly(() => {
+            forPointerEventType('mouse', () => {
                 this.animationOut?.kill();
                 this.isInteracting = true;
                 this.currentRequestId = requestAnimationFrame(render);
@@ -85,7 +87,7 @@ class Hover3D {
 
         element.addEventListener(
             'pointermove',
-            mouseEventOnly((event) => {
+            forPointerEventType('mouse', (event) => {
                 const x = event.clientX - this.rect.left;
                 const y = event.clientY - this.rect.top;
 
@@ -113,7 +115,7 @@ class Hover3D {
 
         element.addEventListener(
             'pointerleave',
-            mouseEventOnly(() => {
+            forPointerEventType('mouse', () => {
                 this.isInteracting = false;
                 this.animationOut?.kill();
 

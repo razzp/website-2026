@@ -1,12 +1,11 @@
 import type { default as LenisInstance } from 'lenis';
-import { findAll, findOrThrow } from 'spank-my-dom';
+import { findAll, findOrThrow, getScrollbarWidth } from 'spank-my-dom';
 import type { Font } from 'three/addons/loaders/FontLoader.js';
 import { type PageModule, pageRoutes } from '../../config/runtime';
 import { generateFooterPixels } from '../components/footer-pixels';
 import { getRotationVectors } from '../components/heroes';
 import {
     getPageMeta,
-    getScrollbarWidth,
     isSpecialClick,
     loadThreeJsFont,
     preloadModulesWhenIdle,
@@ -119,8 +118,7 @@ document.documentElement.style.setProperty(
 
 // Create the hero components.
 
-const heroPlaceholder = findOrThrow('#hero-placeholder');
-const heroMaxRotation = 0.1;
+const heroPlaceholder = findOrThrow<HTMLElement>('#hero-placeholder');
 
 const heroForeground = new HeroForeground({
     state,
@@ -144,7 +142,7 @@ heroForeground.resize();
 heroBackground.resize();
 
 gsap.ticker.add(() => {
-    const vectors = getRotationVectors(state, heroMaxRotation);
+    const vectors = getRotationVectors(state);
 
     heroBackground.rotate(...vectors);
     heroForeground.rotate(...vectors);

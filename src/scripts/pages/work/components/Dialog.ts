@@ -1,6 +1,6 @@
 import { gsap } from 'gsap';
 import Lenis from 'lenis';
-import { findOrThrow } from 'spank-my-dom';
+import { findOrThrow, setStyles } from 'spank-my-dom';
 
 class Dialog {
     constructor(private readonly element: HTMLDialogElement) {}
@@ -79,7 +79,12 @@ class Dialog {
         textColour: string;
     }): Promise<void> {
         const { onAfterClosed, logo, backgroundColour, textColour } = options;
-        const closeButton = findOrThrow('.js-dialog-close', this.element);
+
+        const closeButton = findOrThrow<HTMLElement>(
+            '.js-dialog-close',
+            this.element,
+        );
+
         const dialogContent = findOrThrow('.js-dialog-content');
 
         this.element.showModal();
@@ -88,15 +93,14 @@ class Dialog {
         const { x, y, width, height } = logoRect;
         const animation = this.createAnimation(closeButton, logo, logoRect);
 
-        // Set theme colours.
+        // Set theme colours and position the radial gradient over the logo.
 
-        this.element.style.setProperty('--bg-colour', backgroundColour);
-        this.element.style.setProperty('--text-colour', textColour);
-
-        // Position the radial gradient over the logo.
-
-        this.element.style.setProperty('--x', `${x + width / 2}px`);
-        this.element.style.setProperty('--y', `${y + height / 2}px`);
+        setStyles(this.element, {
+            '--bg-colour': backgroundColour,
+            '--text-colour': textColour,
+            '--x': `${x + width / 2}px`,
+            '--y': `${y + height / 2}px`,
+        });
 
         // Create a temporary Lenis instance scoped to the dialog.
 

@@ -1,6 +1,6 @@
 import RAPIER from '@dimforge/rapier2d-compat';
 import { gsap } from 'gsap';
-import { findAll, findOrThrow } from 'spank-my-dom';
+import { findAll, findOrThrow, setStyles } from 'spank-my-dom';
 import { PageEntitiesHelper } from '../../components/PageEntitiesHelper';
 import type { State } from '../../layouts/DefaultLayout';
 import { getPageMeta } from '../../utils';
@@ -89,14 +89,17 @@ function createPhysicsWorld(container: HTMLElement): {
 
 function initCaseStudiesSection(state: State): void {
     const pageMeta = getPageMeta(document);
-    const mouseFollower = findOrThrow('.js-mouse-follower');
+    const mouseFollower = findOrThrow<HTMLElement>('.js-mouse-follower');
     const dialog = new Dialog(findOrThrow<HTMLDialogElement>('.js-dialog'));
 
     // Tags.
 
-    const tagsContainer = findOrThrow('.js-tags-container');
+    const tagsContainer = findOrThrow<HTMLElement>('.js-tags-container');
     const tagsGroup = findOrThrow('.js-tags');
-    const tags = findAll('.js-tag').map((element) => new Tag(element));
+
+    const tags = findAll<HTMLElement>('.js-tag').map(
+        (element) => new Tag(element),
+    );
 
     const tagsIntersectionObserver = new IntersectionObserver(([entry]) => {
         pageState.studies.tagsIntersecting = entry.isIntersecting;
@@ -149,8 +152,10 @@ function initCaseStudiesSection(state: State): void {
 
                 // This could arguably be decoupled from the physics loop,
                 // but that would mean managing another loop. Meh...
-                mouseFollower.style.setProperty('--x', `${pageState.mouseX}px`);
-                mouseFollower.style.setProperty('--y', `${pageState.mouseY}px`);
+                setStyles(mouseFollower, {
+                    '--x': `${pageState.mouseX}px`,
+                    '--y': `${pageState.mouseY}px`,
+                });
 
                 if (pageState.scrollImpulse !== 0) {
                     const momentum = -pageState.scrollImpulse * 1000;
@@ -186,7 +191,7 @@ function initCaseStudiesSection(state: State): void {
 
     // Case studies.
 
-    const studies = findAll('.js-study').map(
+    const studies = findAll<HTMLElement>('.js-study').map(
         (element) =>
             new Study({
                 state,

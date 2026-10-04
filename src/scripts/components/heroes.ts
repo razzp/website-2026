@@ -40,6 +40,9 @@ interface FogProps {
     farVisible: number;
 }
 
+const MAX_ROTATION = 0.1;
+const ROTATION_SPEED = 0.1;
+
 abstract class Hero {
     private readonly font: Font;
     private readonly renderer: WebGLRenderer;
@@ -48,8 +51,6 @@ abstract class Hero {
     private text: string;
     private readonly textGeometryParams: Partial<TextGeometryParameters>;
     private elementProps: ElementProps;
-
-    private rotationSpeed = 0.1;
 
     protected meshDistanceFromCamera = 0;
     protected meshDepth = 0;
@@ -136,8 +137,8 @@ abstract class Hero {
     }
 
     public rotate(x: number, y: number): void {
-        this.mesh.rotation.x += (x - this.mesh.rotation.x) * this.rotationSpeed;
-        this.mesh.rotation.y += (y - this.mesh.rotation.y) * this.rotationSpeed;
+        this.mesh.rotation.x += (x - this.mesh.rotation.x) * ROTATION_SPEED;
+        this.mesh.rotation.y += (y - this.mesh.rotation.y) * ROTATION_SPEED;
     }
 
     public setText(value: string): void {
@@ -276,22 +277,19 @@ class HeroBackground extends Hero {
     }
 }
 
-function getRotationVectors(
-    state: State,
-    maxRotation: number,
-): [number, number] {
-    const x = state.interactive
+function getRotationVectors(state: State): [x: number, y: number] {
+    const targetX = state.interactive
         ? (state.mouse.x / window.innerWidth) * 2 - 1
         : 0;
 
-    const y = state.interactive
+    const targetY = state.interactive
         ? -(state.mouse.y / window.innerHeight) * 2 + 1
         : 0;
 
-    const targetX = y * maxRotation;
-    const targetY = x * maxRotation;
+    const x = targetY * MAX_ROTATION;
+    const y = targetX * MAX_ROTATION;
 
-    return [targetX, targetY];
+    return [x, y];
 }
 
 export { getRotationVectors, HeroBackground, HeroForeground };

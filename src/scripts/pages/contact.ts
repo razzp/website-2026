@@ -103,7 +103,7 @@ function init(state: State): void {
 
     // Suggestion buttons.
 
-    const suggestionButtons = findAll('.js-elastic-button');
+    const suggestionButtons = findAll<HTMLElement>('.js-elastic-button');
 
     pageEntities.add(new StickyElementGroup(suggestionButtons), {
         onKill: (ref) => {
@@ -111,7 +111,7 @@ function init(state: State): void {
         },
     });
 
-    findAll('.js-hover-3d').forEach((element) => {
+    findAll<HTMLElement>('.js-hover-3d').forEach((element) => {
         pageEntities.add(new Hover3D(element), {
             onKill: (ref) => {
                 ref.kill();
