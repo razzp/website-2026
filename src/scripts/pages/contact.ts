@@ -303,9 +303,10 @@ function initFiveSection(font: Font): void {
             const newScrollY = window.scrollY;
 
             if (newScrollY !== pageState.scrollY) {
-                const digits = Math.abs(newScrollY).toString().length;
+                const rounded = Math.round(newScrollY);
+                const digits = Math.abs(rounded).toString().length;
 
-                scrollCounterOutput.innerText = `${newScrollY}`;
+                scrollCounterOutput.innerText = `${rounded}`;
                 scrollCounterOutput.style.width = `${digits}ch`;
 
                 pageState.scrollY = newScrollY;
