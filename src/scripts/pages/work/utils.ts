@@ -1,4 +1,5 @@
 import { assertIsNotNull } from 'bossy-boots';
+import { getDevicePixelRatio } from '../../utils';
 
 const COUNT = 100;
 const EDGE_WIDTH = 20;
@@ -17,13 +18,16 @@ function createDecorativeFrame(
     element.appendChild(canvas);
 
     return () => {
+        const dpr = getDevicePixelRatio();
+
         // Clear the canvas in case this is being called again.
         context.clearRect(0, 0, canvas.width, canvas.height);
 
-        const rect = element.getBoundingClientRect();
+        const { width, height } = element.getBoundingClientRect();
 
-        canvas.width = rect.width;
-        canvas.height = rect.height;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        context.setTransform(dpr, 0, 0, dpr, 0, 0);
 
         for (let i = 0; i < COUNT; i++) {
             let x: number;
@@ -38,16 +42,16 @@ function createDecorativeFrame(
                 y = Math.random() * EDGE_WIDTH;
             } else if (edge === 1) {
                 // Right.
-                x = canvas.width - Math.random() * EDGE_WIDTH;
-                y = Math.random() * canvas.height;
+                x = canvas.clientWidth - Math.random() * EDGE_WIDTH;
+                y = Math.random() * canvas.clientHeight;
             } else if (edge === 2) {
                 // Bottom
-                x = Math.random() * canvas.width;
-                y = canvas.height - Math.random() * EDGE_WIDTH;
+                x = Math.random() * canvas.clientWidth;
+                y = canvas.clientHeight - Math.random() * EDGE_WIDTH;
             } else {
                 // left.
                 x = Math.random() * EDGE_WIDTH;
-                y = Math.random() * canvas.height;
+                y = Math.random() * canvas.clientHeight;
             }
 
             const size = 10 + Math.random() * 100;

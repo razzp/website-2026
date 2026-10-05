@@ -1,5 +1,5 @@
 import { assertIsNotNull } from 'bossy-boots';
-import { pickRandom } from '../utils';
+import { getDevicePixelRatio, pickRandom } from '../utils';
 
 const EPSILON = 0.01;
 
@@ -102,11 +102,14 @@ class Particles {
 
     public resize(): void {
         const { width, height } = this.canvas.getBoundingClientRect();
+        const dpr = getDevicePixelRatio();
 
-        this.canvas.width = width;
-        this.canvas.height = height;
         this.clearContext();
         this.particles.clear();
+
+        this.canvas.width = width * dpr;
+        this.canvas.height = height * dpr;
+        this.context.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
     public draw(time: number): void {

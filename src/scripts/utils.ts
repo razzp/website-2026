@@ -31,6 +31,10 @@ function getCameraOffsetY(
     return heightDiff - offsetDiff;
 }
 
+function getDevicePixelRatio(max = 2): number {
+    return Math.min(window.devicePixelRatio ?? 1, max);
+}
+
 function getPageMeta(source: Document): PageMeta {
     return JSON.parse(findOrThrow('#page-meta', source).textContent);
 }
@@ -203,6 +207,7 @@ export {
     degreesToRadians,
     expoInWithInitialVelocity,
     getCameraOffsetY,
+    getDevicePixelRatio,
     getPageMeta,
     getThemeVarsAsStyles,
     isSpecialClick,

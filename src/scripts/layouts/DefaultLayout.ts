@@ -2,7 +2,7 @@ import type { default as LenisInstance } from 'lenis';
 import { findAll, findOrThrow, getScrollbarWidth } from 'spank-my-dom';
 import type { Font } from 'three/addons/loaders/FontLoader.js';
 import { type PageModule, pageRoutes } from '../../config/runtime';
-import { generateFooterPixels } from '../components/footer-pixels';
+import { FooterPixels } from '../components/FooterPixels';
 import { getRotationVectors } from '../components/heroes';
 import {
     getPageMeta,
@@ -58,7 +58,6 @@ const [
 ]);
 
 const header = findOrThrow('#main-header');
-const footerPixels = findOrThrow<HTMLCanvasElement>('#footer-pixels');
 
 // Build a state object that we can pass around.
 
@@ -156,6 +155,12 @@ gsap.ticker.add(() => {
     }
 });
 
+// Create the footer pixels.
+
+const footerPixels = new FooterPixels(
+    findOrThrow<HTMLCanvasElement>('#footer-pixels'),
+);
+
 // Set up the nav.
 
 const loadPage = async (href: string): Promise<void> => {
@@ -202,7 +207,7 @@ const loadPage = async (href: string): Promise<void> => {
             newPageJs.init(state);
         },
         onAfterShow: () => {
-            generateFooterPixels(footerPixels, pageMeta.theme.primaryContrast);
+            footerPixels.setColour(pageMeta.theme.primaryContrast);
         },
     });
 };
@@ -232,7 +237,7 @@ transitionIn({
         pageJs.init(state);
     },
     onAfterShow: () => {
-        generateFooterPixels(footerPixels, pageMeta.theme.primaryContrast);
+        footerPixels.setColour(pageMeta.theme.primaryContrast);
         restoreScrollPosition(state);
     },
 });
