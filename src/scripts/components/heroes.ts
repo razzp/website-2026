@@ -15,7 +15,7 @@ import {
 import type { Font } from 'three/addons/loaders/FontLoader.js';
 import type { PageTheme } from '../../lib/config';
 import type { State } from '../layouts/DefaultLayout';
-import { pixelsToWorldUnits } from '../utils';
+import { getDevicePixelRatio, pixelsToWorldUnits } from '../utils';
 
 interface Options {
     state: State;
@@ -73,9 +73,10 @@ abstract class Hero {
         camera.position.z = 100;
 
         renderer.domElement.className = 'w-full h-auto';
+        renderer.setPixelRatio(getDevicePixelRatio(2));
 
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1));
         scene.add(mesh);
+
         container.appendChild(renderer.domElement);
 
         this.font = state.threeJsFont;

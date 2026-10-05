@@ -79,7 +79,7 @@ function pixelsToWorldUnits(
     const visibleHeight =
         2 * camera.position.z * Math.tan(degreesToRadians(camera.fov * 0.5));
 
-    const worldUnitsPerPixel = visibleHeight / renderer.domElement.height;
+    const worldUnitsPerPixel = visibleHeight / renderer.domElement.clientHeight;
 
     return value * worldUnitsPerPixel;
 }

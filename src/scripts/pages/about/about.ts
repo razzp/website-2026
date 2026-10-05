@@ -16,6 +16,7 @@ import type { State } from '../../layouts/DefaultLayout';
 import {
     expoInWithInitialVelocity,
     getCameraOffsetY,
+    getDevicePixelRatio,
     getPageMeta,
     pixelsToWorldUnits,
 } from '../../utils';
@@ -170,7 +171,9 @@ function initBoringSection(font: Font): void {
         alpha: true,
     });
 
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1));
+    renderer.domElement.className = 'w-full h-auto';
+    renderer.setPixelRatio(getDevicePixelRatio(2));
+
     pageEntities.addThreeRenderer(renderer);
 
     const light = new HemisphereLight(0xffffff, pageMeta.theme.primary, 20);
