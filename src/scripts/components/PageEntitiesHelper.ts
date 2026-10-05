@@ -17,14 +17,20 @@ class PageEntitiesHelper {
     private currentRequestId: number | null = null;
 
     private checkForTickers(): void {
-        if (this.tickers.size > 0) {
-            this.currentRequestId = requestAnimationFrame((time) => {
-                for (const ticker of this.tickers.values()) {
-                    ticker(time);
-                }
+        const tick = (time: number) => {
+            for (const ticker of this.tickers.values()) {
+                ticker(time);
+            }
 
-                this.checkForTickers();
-            });
+            if (this.tickers.size > 0) {
+                this.currentRequestId = requestAnimationFrame(tick);
+            } else {
+                this.currentRequestId = null;
+            }
+        };
+
+        if (!this.currentRequestId) {
+            this.currentRequestId = requestAnimationFrame(tick);
         }
     }
 
