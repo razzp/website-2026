@@ -16,6 +16,7 @@ import { PageEntitiesHelper } from '../components/PageEntitiesHelper';
 import { StickyElementGroup } from '../components/StickyElements';
 import type { State } from '../layouts/DefaultLayout';
 import {
+    assertIsRoute,
     degreesToRadians,
     getCameraOffsetY,
     getDevicePixelRatio,
@@ -97,6 +98,19 @@ function init(state: State): void {
     });
 
     pageEntities.addObserver(reasonHeadingsObserver);
+
+    // About link.
+
+    const btnAbout = findOrThrow<HTMLAnchorElement>('.js-btn-about');
+
+    btnAbout.addEventListener('click', async (event) => {
+        event.preventDefault();
+
+        const { pathname, hash } = new URL(btnAbout.href);
+
+        assertIsRoute(pathname);
+        await state.loadPage(pathname, hash);
+    });
 
     // Five section.
 

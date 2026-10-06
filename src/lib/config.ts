@@ -24,7 +24,7 @@ interface PageTheme {
 interface PageMeta {
     metaTitle: string;
     name: string;
-    href: Route;
+    route: Route;
     heading: string;
     strapline: string;
     theme: PageTheme;
@@ -34,7 +34,7 @@ const pages = {
     home: {
         metaTitle: 'Home Page',
         name: 'Home',
-        href: '/',
+        route: '/',
         heading: 'hello',
         strapline: "I'm an experienced Web Developer from Devon, England.",
         theme: {
@@ -45,7 +45,7 @@ const pages = {
     about: {
         metaTitle: 'About Me',
         name: 'About',
-        href: '/about',
+        route: '/about',
         heading: 'about',
         strapline:
             "I was born in 1988, and the world hasn't really been the same since.",
@@ -57,7 +57,7 @@ const pages = {
     work: {
         metaTitle: 'My Work',
         name: 'Work',
-        href: '/work',
+        route: '/work',
         heading: 'work',
         strapline: "I've done quite a bit, and for some cool brands too!",
         theme: {
@@ -68,7 +68,7 @@ const pages = {
     contact: {
         metaTitle: 'Contact',
         name: 'Contact',
-        href: '/contact',
+        route: '/contact',
         heading: 'contact',
         strapline: 'Please get in touch. Especially if you want to hire me!',
         theme: {
@@ -79,10 +79,10 @@ const pages = {
 } satisfies Record<string, PageMeta>;
 
 const navigation = [
-    { name: 'Home', href: pages.home.href },
-    { name: 'About', href: pages.about.href },
-    { name: 'Work', href: pages.work.href },
-    { name: 'Contact', href: pages.contact.href },
+    { name: 'Home', href: pages.home.route },
+    { name: 'About', href: pages.about.route },
+    { name: 'Work', href: pages.work.route },
+    { name: 'Contact', href: pages.contact.route },
     { name: 'Blog', href: '/blog' },
 ] satisfies NavItem[];
 

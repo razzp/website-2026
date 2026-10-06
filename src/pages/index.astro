@@ -8,10 +8,10 @@ import { pages } from '../lib/config';
 import type { SpinWheelData } from '../scripts/pages/index';
 
 const spinWheelPageData = Object.values(pages)
-    .filter((page) => page.href !== pages.home.href)
+    .filter((page) => page.route !== pages.home.route)
     .map<SpinWheelData>((page) => ({
         name: page.name,
-        href: page.href,
+        route: page.route,
         colour: page.theme.primary,
         colourContrast: page.theme.primaryContrast,
     }));

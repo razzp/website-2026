@@ -1,11 +1,12 @@
 import type { default as LenisInstance } from 'lenis';
-import { findAll, findOrThrow, getScrollbarWidth } from 'spank-my-dom';
+import { find, findAll, findOrThrow, getScrollbarWidth } from 'spank-my-dom';
 import type { Font } from 'three/addons/loaders/FontLoader.js';
-import { type PageModule, pageRoutes } from '../../config/runtime';
+import { type PageModule, pageRoutes, type Route } from '../../config/runtime';
 import { FooterPixels } from '../components/FooterPixels';
 import { getRotationVectors } from '../components/heroes';
 import {
     getPageMeta,
+    getScrollPaddingTop,
     isSpecialClick,
     loadThreeJsFont,
     preloadModulesWhenIdle,
@@ -31,10 +32,11 @@ interface State {
         x: number;
         y: number;
     };
+    loadPage: (route: Route, anchor?: string) => Promise<void>;
 }
 
 const pageMeta = getPageMeta(document);
-const pageRoute = pageRoutes[pageMeta.href];
+const pageRoute = pageRoutes[pageMeta.route];
 
 // Load everything we need to begin.
 
@@ -73,6 +75,7 @@ const state: State = {
         x: window.innerWidth / 2,
         y: window.innerHeight / 2,
     },
+    loadPage: (route: Route, anchor?: string) => loadPage(route, anchor),
 };
 
 // Configure Lenis.
@@ -163,16 +166,13 @@ const footerPixels = new FooterPixels(
 
 // Set up the nav.
 
-const loadPage = async (href: string): Promise<void> => {
-    const pageRoute = pageRoutes[href];
+const loadPage = async (route: Route, anchor?: string): Promise<void> => {
+    console.log(route, anchor);
 
-    if (!pageRoute) {
-        window.location.href = href;
-        return;
-    }
+    const pageRoute = pageRoutes[route];
 
     const [html, newPageJs] = await Promise.all([
-        fetch(href).then((response) => response.text()),
+        fetch(route).then((response) => response.text()),
         pageRoute.loadJs(),
         transitionOut({
             state,
@@ -188,7 +188,7 @@ const loadPage = async (href: string): Promise<void> => {
     const doc = new DOMParser().parseFromString(html, 'text/html');
     const pageMeta = getPageMeta(doc);
 
-    history.pushState({}, '', href);
+    history.pushState({}, '', route);
 
     await swapPage({
         state,
@@ -210,6 +210,27 @@ const loadPage = async (href: string): Promise<void> => {
             footerPixels.setColour(pageMeta.theme.primaryContrast);
         },
     });
+
+    if (anchor) {
+        const { enableTransitions, lenis } = state;
+
+        const anchorElement = find<HTMLElement>(
+            `#${anchor.startsWith('#') ? anchor.slice(1) : anchor}`,
+        );
+
+        if (anchorElement) {
+            // Ensure Lenis is up to date.
+            lenis.resize();
+
+            lenis.scrollTo(anchorElement, {
+                duration: 0.8,
+                immediate: !enableTransitions,
+                lock: true,
+                offset: -getScrollPaddingTop(anchorElement),
+                easing: gsap.parseEase('expo.inOut'),
+            });
+        }
+    }
 };
 
 findAll<HTMLAnchorElement>('a[data-link-swap]').forEach((link) => {
@@ -218,12 +239,8 @@ findAll<HTMLAnchorElement>('a[data-link-swap]').forEach((link) => {
 
         event.preventDefault();
 
-        await loadPage(new URL(link.href).pathname);
+        await loadPage(new URL(link.href).pathname as Route);
     });
-});
-
-document.addEventListener('app:page-request', async (event) => {
-    await loadPage(event.detail);
 });
 
 // Good to go. Begin the first transition!

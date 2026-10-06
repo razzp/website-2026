@@ -10,7 +10,7 @@ interface PageRoute {
     cssScope: string;
 }
 
-const pageRoutes: Record<string, PageRoute> = {
+const pageRoutes = {
     '/': {
         loadJs: () => import('../scripts/pages/index/index'),
         cssScope: 'index',
@@ -27,7 +27,7 @@ const pageRoutes: Record<string, PageRoute> = {
         loadJs: () => import('../scripts/pages/contact'),
         cssScope: 'contact',
     },
-};
+} satisfies { [key: string]: PageRoute };
 
 type Route = keyof typeof pageRoutes;
 

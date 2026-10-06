@@ -8,15 +8,17 @@ import {
     parseJson,
     setStyles,
 } from 'spank-my-dom';
+import type { Route } from '../../../config/runtime';
 import { PageEntitiesHelper } from '../../components/PageEntitiesHelper';
 import { Particles } from '../../components/particles';
 import { StickyElement } from '../../components/StickyElements';
+import type { State } from '../../layouts/DefaultLayout';
 import { getPageMeta } from '../../utils';
 import { Slice } from './components/Slice';
 
 interface SpinWheelData {
     name: string;
-    href: string;
+    route: Route;
     colour: string;
     colourContrast: string;
 }
@@ -42,7 +44,7 @@ const pageState: PageState = {
 
 const pageEntities = new PageEntitiesHelper();
 
-function init(): void {
+function init(state: State): void {
     // TL;DR text.
 
     const tlddr = findOrThrow('.js-tldr');
@@ -240,10 +242,10 @@ function init(): void {
     pageEntities.addObserver(enoughResizeObserver);
     pageEntities.addGsapAnimation(enoughTimeline);
 
-    initSpinWheel();
+    initSpinWheel(state);
 }
 
-function initSpinWheel(): void {
+function initSpinWheel(state: State): void {
     const pageMeta = getPageMeta(document);
 
     const container = findOrThrow<HTMLElement>('.js-spin');
@@ -347,11 +349,7 @@ function initSpinWheel(): void {
                     sticky.enabled = true;
 
                     if (!event.ctrlKey) {
-                        document.dispatchEvent(
-                            new CustomEvent('app:page-request', {
-                                detail: slice.href,
-                            }),
-                        );
+                        state.loadPage(slice.route);
                     }
                 },
             })

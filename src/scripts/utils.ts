@@ -2,10 +2,16 @@ import { gsap } from 'gsap';
 import { findAll, findOrThrow } from 'spank-my-dom';
 import type * as THREE from 'three';
 import type { Font } from 'three/addons/loaders/FontLoader.js';
-import type { pageRoutes } from '../config/runtime';
+import { pageRoutes, type Route } from '../config/runtime';
 import type { PageMeta, PageTheme } from '../lib/config';
 import type { HeroBackground, HeroForeground } from './components/heroes';
 import type { State } from './layouts/DefaultLayout';
+
+function assertIsRoute(input: string): asserts input is Route {
+    if (!Object.keys(pageRoutes).includes(input)) {
+        throw new TypeError(`Input "${input}" is not a valid route.`);
+    }
+}
 
 function degreesToRadians(degrees: number): number {
     return degrees * (Math.PI / 180);
@@ -37,6 +43,10 @@ function getDevicePixelRatio(max = 2): number {
 
 function getPageMeta(source: Document): PageMeta {
     return JSON.parse(findOrThrow('#page-meta', source).textContent);
+}
+
+function getScrollPaddingTop(element: Element): number {
+    return parseFloat(getComputedStyle(element).scrollPaddingTop) || 0;
 }
 
 function getThemeVarsAsStyles(theme: PageTheme): string[] {
@@ -204,11 +214,13 @@ function toggleScrollbar(enabled: boolean): void {
 }
 
 export {
+    assertIsRoute,
     degreesToRadians,
     expoInWithInitialVelocity,
     getCameraOffsetY,
     getDevicePixelRatio,
     getPageMeta,
+    getScrollPaddingTop,
     getThemeVarsAsStyles,
     isSpecialClick,
     loadThreeJsFont,
