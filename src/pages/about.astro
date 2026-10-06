@@ -156,7 +156,8 @@ const bloodSplatters = [
             <PlusSignDivider />
 
             <div
-                class="js-day-thumbs grid grid-cols-3 gap-10 text-center text-4xl"
+                id="day-thumbs"
+                class="js-day-thumbs grid grid-cols-3 gap-10 text-center text-4xl scroll-padding-top-safe"
             >
                 <DayThumb
                     image={portraitBaby}
@@ -182,7 +183,7 @@ const bloodSplatters = [
     </section>
 
     <section
-        class="js-boring p-10 pt-[130px] grid grid-rows-[auto_1fr] gap-10 h-dvh"
+        class="js-boring p-10 pt-(--safe-area-top) grid grid-rows-[auto_1fr] gap-10 h-dvh"
     >
         <h2
             class="max-w-2/3 justify-self-center text-4xl text-pretty text-center"

@@ -150,17 +150,31 @@ function createTrailsTimeline(container: Element): gsap.core.Timeline {
         },
     });
 
-    findAll<SVGSVGElement>('.js-trail', container).forEach((element) => {
-        const path = findOrThrow<SVGPathElement>('path', element);
+    const trailsData = findAll<SVGSVGElement>('.js-trail', container).map(
+        (element) => {
+            const path = findOrThrow('path', element);
+
+            const scaleFactor =
+                element.getBoundingClientRect().width /
+                element.viewBox.baseVal.width;
+
+            return {
+                element,
+                path,
+                pathLength: path.getTotalLength() * scaleFactor,
+            };
+        },
+    );
+
+    const maxTrailPathLength = Math.max(
+        ...trailsData.map(({ pathLength }) => pathLength),
+    );
+
+    trailsData.forEach(({ element, path, pathLength }) => {
         const mask = findOrThrow<SVGUseElement>('mask use', element);
         const direction = element.dataset.direction;
         const ease = element.dataset.ease;
-
-        const scaleFactor =
-            element.getBoundingClientRect().width /
-            element.viewBox.baseVal.width;
-
-        const pathLength = path.getTotalLength() * scaleFactor;
+        const duration = pathLength / maxTrailPathLength;
 
         mask.style.strokeDasharray = `${pathLength}`;
         mask.style.strokeDashoffset = `${pathLength}`;
@@ -177,6 +191,7 @@ function createTrailsTimeline(container: Element): gsap.core.Timeline {
                     autoRotate: true,
                 },
                 ease,
+                duration,
             })
             .fromTo(
                 mask.style,
@@ -186,6 +201,7 @@ function createTrailsTimeline(container: Element): gsap.core.Timeline {
                 {
                     strokeDashoffset: 0,
                     ease,
+                    duration,
                 },
                 '<',
             );

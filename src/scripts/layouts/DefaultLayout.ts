@@ -167,8 +167,6 @@ const footerPixels = new FooterPixels(
 // Set up the nav.
 
 const loadPage = async (route: Route, anchor?: string): Promise<void> => {
-    console.log(route, anchor);
-
     const pageRoute = pageRoutes[route];
 
     const [html, newPageJs] = await Promise.all([

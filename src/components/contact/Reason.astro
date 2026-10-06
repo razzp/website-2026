@@ -1,11 +1,10 @@
 ---
 interface Props {
     heading: string;
-    body: string;
     orientation?: 'left' | 'right';
 }
 
-const { heading, body, orientation = 'left' } = Astro.props;
+const { heading, orientation = 'left' } = Astro.props;
 ---
 
 <div class="grid grid-cols-2">
@@ -18,8 +17,8 @@ const { heading, body, orientation = 'left' } = Astro.props;
             <span data-heading={heading}>{heading}</span>
         </h3>
 
-        <p class="max-w-2/3 text-4xl text-pretty text-center">
-            {body}
+        <p class="max-w-2/3 text-4xl text-pretty text-center leading-tight">
+            <slot name="content" />
         </p>
     </div>
 
