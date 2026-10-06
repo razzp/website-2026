@@ -29,6 +29,8 @@
 
     --scrollbar-compensation: 0;
 
+    --safe-area-top: calc(var(--inset) + var(--spacing) * 10);
+
     margin-inline-end: var(--scrollbar-compensation, 0px);
 
     &.-no-scrollbar {
@@ -137,6 +139,10 @@
 
 @utility transform-box-fill {
     transform-box: fill-box;
+}
+
+@utility scroll-padding-top-safe {
+    scroll-padding-top: var(--safe-area-top);
 }
 
 @layer components {
