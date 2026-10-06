@@ -169,6 +169,7 @@ class Dialog {
         );
 
         animation.eventCallback('onComplete', () => {
+            dialogLenis.resize();
             dialogLenis.start();
             this.element.classList.add('-interactive');
         });
