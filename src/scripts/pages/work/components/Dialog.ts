@@ -40,7 +40,7 @@ class Dialog {
                     duration: 1,
                     ease: 'expo.inOut',
                 },
-                '<+0.4',
+                '<+0.5',
             )
             .from(
                 dialogLogo,
@@ -54,14 +54,23 @@ class Dialog {
                 '<+0.2',
             )
             .from(
-                [dialogBody, closeButton],
+                dialogBody,
                 {
                     opacity: 0,
-                    filter: 'blur(10px)',
+                    y: 100,
                     duration: 1,
-                    ease: 'expo.inOut',
+                    ease: 'expo.out',
                 },
-                '>-0.6',
+                '>-0.2',
+            )
+            .from(
+                closeButton,
+                {
+                    opacity: 0,
+                    duration: 1,
+                    ease: 'expo.out',
+                },
+                '<',
             )
             .pause();
 
