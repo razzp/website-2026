@@ -7,7 +7,9 @@ interface Props {
 const { class: className, size = 3 } = Astro.props;
 
 const hasTextSize = className && /text-\d+/.test(className);
-const hasStrokeColour = className && /text-stroke-[a-z]+/.test(className);
+
+const hasStrokeColour =
+    className && /text-stroke-(?:[a-z]|\(--)+/.test(className);
 
 const defaultClasses = {
     'text-7xl': !hasTextSize,
