@@ -7,10 +7,8 @@ import type { PageMeta, PageTheme } from '../lib/config';
 import type { HeroBackground, HeroForeground } from './components/heroes';
 import type { State } from './layouts/DefaultLayout';
 
-function assertIsRoute(input: string): asserts input is Route {
-    if (!Object.keys(pageRoutes).includes(input)) {
-        throw new TypeError(`Input "${input}" is not a valid route.`);
-    }
+function isRoute(input: string): input is Route {
+    return Object.keys(pageRoutes).includes(input);
 }
 
 function degreesToRadians(degrees: number): number {
@@ -214,7 +212,6 @@ function toggleScrollbar(enabled: boolean): void {
 }
 
 export {
-    assertIsRoute,
     degreesToRadians,
     expoInWithInitialVelocity,
     getCameraOffsetY,
@@ -222,6 +219,7 @@ export {
     getPageMeta,
     getScrollPaddingTop,
     getThemeVarsAsStyles,
+    isRoute,
     isSpecialClick,
     loadThreeJsFont,
     mapNormalisedToRange,

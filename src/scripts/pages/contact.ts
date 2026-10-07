@@ -16,11 +16,11 @@ import { PageEntitiesHelper } from '../components/PageEntitiesHelper';
 import { StickyElementGroup } from '../components/StickyElements';
 import type { State } from '../layouts/DefaultLayout';
 import {
-    assertIsRoute,
     degreesToRadians,
     getCameraOffsetY,
     getDevicePixelRatio,
     getPageMeta,
+    isRoute,
     pixelsToWorldUnits,
 } from '../utils';
 
@@ -108,8 +108,9 @@ function init(state: State): void {
 
         const { pathname, hash } = new URL(btnAbout.href);
 
-        assertIsRoute(pathname);
-        await state.loadPage(pathname, hash);
+        if (isRoute(pathname)) {
+            await state.loadPage(pathname, hash);
+        }
     });
 
     // Five section.

@@ -7,6 +7,7 @@ import { getRotationVectors } from '../components/heroes';
 import {
     getPageMeta,
     getScrollPaddingTop,
+    isRoute,
     isSpecialClick,
     loadThreeJsFont,
     preloadModulesWhenIdle,
@@ -237,7 +238,13 @@ findAll<HTMLAnchorElement>('a[data-link-swap]').forEach((link) => {
 
         event.preventDefault();
 
-        await loadPage(new URL(link.href).pathname as Route);
+        const { pathname } = new URL(link.href);
+
+        if (isRoute(pathname)) {
+            await loadPage(pathname);
+        } else {
+            location.href = link.href;
+        }
     });
 });
 
