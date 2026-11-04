@@ -24,11 +24,8 @@
 :root {
     --inset: 100px;
     --inset-half: calc(var(--inset) / 2);
-
     --duotone-contrast: 1.2;
-
     --scrollbar-compensation: 0;
-
     --safe-area-top: calc(var(--inset) + var(--spacing) * 10);
 
     margin-inline-end: var(--scrollbar-compensation, 0px);
@@ -236,7 +233,7 @@
     .c-elastic-button {
         &:hover {
             z-index: 9999;
-            filter: drop-shadow(0px 0px 20px var(--color-primary-contrast));
+            filter: drop-shadow(0 0 20px var(--color-primary-contrast));
         }
     }
 
