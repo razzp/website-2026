@@ -1,0 +1,14 @@
+<svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="191.20000000000002"
+        height="94.2"
+        viewBox="0 0 191.20000000000002 94.2"
+    >
+        <g>
+            <path vector-effect="non-scaling-stroke" d="M39 560L334 560L334 468L39 468Z" data-path-length="774" transform="translate(1.0999999999999996 80) scale(0.1 -0.1)" />,<path vector-effect="non-scaling-stroke" d="M123 700L231 700L231 152Q231 121 246 106.5Q261 92 290 92L350 92L350 0L289 0Q206 0 164.5 40.5Q123 81 123 152Z" data-path-length="1770.36474609375" transform="translate(1.0999999999999996 80) scale(0.1 -0.1)" />
+<path vector-effect="non-scaling-stroke" d="M66 750L174 750L174 0L66 0Z" data-path-length="1716" transform="translate(41 80) scale(0.1 -0.1)" />
+<path vector-effect="non-scaling-stroke" d="M81 -92L81 -39Q101 -39 108.5 -28.5Q116 -18 116 0L53 0L53 123L177 123L177 0Q177 -46 151 -69Q125 -92 81 -92Z" data-path-length="697.9945068359375" transform="translate(64.7 80) scale(0.1 -0.1)" />,<path vector-effect="non-scaling-stroke" d="M53 437L53 560L174 560L174 437Z" data-path-length="488" transform="translate(64.7 80) scale(0.1 -0.1)" />
+<path vector-effect="non-scaling-stroke" d="M295 -16Q218 -16 161.5 21.5Q105 59 74 126Q43 193 43 279Q43 366 74 433Q105 500 161.5 538Q218 576 295 576Q359 576 404 549Q449 522 475 474L475 85Q450 39 406 11.5Q362 -16 295 -16Z" data-path-length="1698.92919921875" transform="translate(85.5 80) scale(0.1 -0.1)" />,<path vector-effect="non-scaling-stroke" d="M310 82Q365 82 401.5 108Q438 134 456.5 178.5Q475 223 475 279Q475 336 456.5 381Q438 426 401.5 452Q365 478 310 478Q261 478 226 453.5Q191 429 172.5 384Q154 339 154 279Q154 221 172.5 176.5Q191 132 226 107Q261 82 310 82Z" data-path-length="1150.212646484375" transform="translate(85.5 80) scale(0.1 -0.1)" />,<path vector-effect="non-scaling-stroke" d="M475 0L475 750L583 750L583 0Z" data-path-length="1716" transform="translate(85.5 80) scale(0.1 -0.1)" />
+<path vector-effect="non-scaling-stroke" d="M64 560L172 560L172 0L64 0Z" data-path-length="1336" transform="translate(150.3 80) scale(0.1 -0.1)" />,<path vector-effect="non-scaling-stroke" d="M172 294L157 377Q157 403 163.5 437Q170 471 190.5 502.5Q211 534 251.5 555Q292 576 359 576L359 468Q300 468 258 452Q216 436 194 398.5Q172 361 172 294Z" data-path-length="811.9522705078125" transform="translate(150.3 80) scale(0.1 -0.1)" />
+        </g>
+    </svg>

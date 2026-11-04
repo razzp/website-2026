@@ -30,6 +30,12 @@ const words = [
         splitSubPaths: true,
         splitSubPathsIgnoreChars: ['o'],
     },
+    {
+        font: 'stackSans',
+        text: 'tl;dr',
+        filename: 'tldr.svg',
+        splitSubPaths: true,
+    },
 ] satisfies Word[];
 
 // #endregion
