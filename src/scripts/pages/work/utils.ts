@@ -1,5 +1,5 @@
 import { assertIsNotNull } from 'bossy-boots';
-import { getDevicePixelRatio } from '../../utils';
+import { getDevicePixelRatio, pickRandom } from 'spank-my-dom';
 
 const COUNT = 100;
 const EDGE_WIDTH = 20;
@@ -18,7 +18,7 @@ function createDecorativeFrame(
     element.appendChild(canvas);
 
     return () => {
-        const dpr = getDevicePixelRatio();
+        const dpr = getDevicePixelRatio({ max: 2 });
 
         // Clear the canvas in case this is being called again.
         context.clearRect(0, 0, canvas.width, canvas.height);
@@ -56,7 +56,7 @@ function createDecorativeFrame(
 
             const size = 10 + Math.random() * 100;
             const rotation = Math.random() * Math.PI * 2;
-            const colour = colours[Math.floor(Math.random() * colours.length)];
+            const colour = pickRandom(colours);
 
             context.save();
 

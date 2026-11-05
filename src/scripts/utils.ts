@@ -1,15 +1,11 @@
 import { gsap } from 'gsap';
-import { findAll, findOrThrow } from 'spank-my-dom';
+import { findAll, findOrThrow, getDataOrThrow } from 'spank-my-dom';
 import type * as THREE from 'three';
 import type { Font } from 'three/addons/loaders/FontLoader.js';
 import { pageRoutes, type Route } from '../config/runtime';
 import type { PageMeta, PageTheme } from '../lib/config';
 import type { HeroBackground, HeroForeground } from './components/heroes';
 import type { State } from './layouts/DefaultLayout';
-
-function isRoute(input: string): input is Route {
-    return Object.keys(pageRoutes).includes(input);
-}
 
 function degreesToRadians(degrees: number): number {
     return degrees * (Math.PI / 180);
@@ -35,10 +31,6 @@ function getCameraOffsetY(
     return heightDiff - offsetDiff;
 }
 
-function getDevicePixelRatio(max = 2): number {
-    return Math.min(window.devicePixelRatio ?? 1, max);
-}
-
 function getPageMeta(source: Document): PageMeta {
     return JSON.parse(findOrThrow('#page-meta', source).textContent);
 }
@@ -52,6 +44,10 @@ function getThemeVarsAsStyles(theme: PageTheme): string[] {
         ([key, value]) =>
             `--theme-${key.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}:${value}`,
     );
+}
+
+function isRoute(input: string): input is Route {
+    return Object.keys(pageRoutes).includes(input);
 }
 
 function isSpecialClick(event: PointerEvent): boolean {
@@ -73,10 +69,6 @@ async function loadThreeJsFont(): Promise<Font> {
 
 function mapNormalisedToRange(value: number, from: number, to: number): number {
     return from + value * (to - from);
-}
-
-function pickRandom(array: string[]): string {
-    return array[Math.floor(Math.random() * array.length)];
 }
 
 function pixelsToWorldUnits(
@@ -160,7 +152,7 @@ async function swapPage(options: {
     );
 
     findAll<HTMLElement>('[data-swap]').forEach((element) => {
-        const id = element.dataset.swap;
+        const id = getDataOrThrow(element, 'swap');
         const newElement = doc.querySelector(`[data-swap="${id}"]`);
 
         if (newElement) {
@@ -215,7 +207,6 @@ export {
     degreesToRadians,
     expoInWithInitialVelocity,
     getCameraOffsetY,
-    getDevicePixelRatio,
     getPageMeta,
     getScrollPaddingTop,
     getThemeVarsAsStyles,
@@ -223,7 +214,6 @@ export {
     isSpecialClick,
     loadThreeJsFont,
     mapNormalisedToRange,
-    pickRandom,
     pixelsToWorldUnits,
     preloadModulesWhenIdle,
     restoreScrollPosition,

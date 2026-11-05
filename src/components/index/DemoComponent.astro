@@ -1,0 +1,16 @@
+---
+interface Props {
+    class?: string;
+    headingClass?: string;
+}
+
+const { class: containerClass, headingClass } = Astro.props;
+---
+
+<div class:list={["absolute inset-0 grid place-items-center", containerClass]}>
+    <slot />
+
+    <div class:list={["js-demo-heading relative text-9xl", headingClass]}
+        >I ❤ the web</div
+    >
+</div>

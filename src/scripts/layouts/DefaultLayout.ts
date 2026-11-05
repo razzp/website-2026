@@ -1,5 +1,6 @@
+import { isInstanceOf } from 'bossy-boots';
 import type { default as LenisInstance } from 'lenis';
-import { find, findAll, findOrThrow, getScrollbarWidth } from 'spank-my-dom';
+import { delegate, find, findOrThrow, getScrollbarWidth } from 'spank-my-dom';
 import type { Font } from 'three/addons/loaders/FontLoader.js';
 import { type PageModule, pageRoutes, type Route } from '../../config/runtime';
 import { FooterPixels } from '../components/FooterPixels';
@@ -232,21 +233,28 @@ const loadPage = async (route: Route, anchor?: string): Promise<void> => {
     }
 };
 
-findAll<HTMLAnchorElement>('a[data-link-swap]').forEach((link) => {
-    link.addEventListener('click', async (event) => {
-        if (isSpecialClick(event)) return;
+document.addEventListener(
+    'click',
+    delegate(
+        '[data-link-swap]',
+        async ({ originalEvent, delegateTarget: link }) => {
+            if (
+                !isSpecialClick(originalEvent) &&
+                isInstanceOf(link, HTMLAnchorElement)
+            ) {
+                originalEvent.preventDefault();
 
-        event.preventDefault();
+                const { pathname, hash } = new URL(link.href);
 
-        const { pathname } = new URL(link.href);
-
-        if (isRoute(pathname)) {
-            await loadPage(pathname);
-        } else {
-            location.href = link.href;
-        }
-    });
-});
+                if (isRoute(pathname)) {
+                    await loadPage(pathname, hash);
+                } else {
+                    location.href = link.href;
+                }
+            }
+        },
+    ),
+);
 
 // Good to go. Begin the first transition!
 

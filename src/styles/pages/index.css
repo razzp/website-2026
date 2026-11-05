@@ -7,13 +7,24 @@
 }
 
 [data-page='index'] {
-    .x-tldr {
-        filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 0.5));
-        transition: filter 0.4s ease;
+    .x-tldr-svg {
+        filter: drop-shadow(0 0 6px var(--theme-primary));
 
-        &.-bright {
-            filter: drop-shadow(0px 0px 15px rgba(255, 255, 255, 1));
+        g {
+            @apply stroke-2 stroke-primary fill-transparent;
+            stroke-linecap: round;
         }
+    }
+
+    .x-keywords-container {
+        --skew-angle: 8deg;
+        --skew-extra: calc(100cqw * abs(tan(var(--skew-angle))));
+
+        container-type: inline-size;
+        padding-block: calc(var(--skew-extra) / 2);
+        filter: drop-shadow(
+            0 0 20px rgb(from var(--theme-primary) r g b / 0.25)
+        );
     }
 
     .x-keywords {
@@ -46,104 +57,6 @@
                 content: attr(data-text);
                 transform: skew(calc(0deg - var(--angle)), 0deg);
             }
-        }
-    }
-
-    .x-connection-yep {
-        .x-heading {
-            anchor-name: --arrow-anchor;
-
-            &.-highlight {
-                transform: scale(1.5);
-                text-shadow: 0px 0px 50px;
-            }
-        }
-
-        .x-arrow {
-            --scale: 1;
-            --angle: 0deg;
-
-            @apply absolute;
-
-            width: calc(var(--width) * var(--scale));
-            height: calc(var(--height) * var(--scale));
-            background-color: var(--color-primary);
-            mask: var(--url) no-repeat center / contain;
-
-            position-anchor: --arrow-anchor;
-            position-area: center;
-            right: anchor(center);
-            transform: translateX(calc(0px - var(--distance)))
-                rotate(var(--angle));
-            transform-origin: calc(100% + var(--distance)) center;
-
-            &.-arrow-1 {
-                --width: 155px;
-                --height: 63px;
-                --angle: -21deg;
-                --scale: 1;
-                --distance: 76px;
-                --url: url('../../images/arrow-1.svg');
-            }
-
-            &.-arrow-2 {
-                --width: 152px;
-                --height: 62px;
-                --angle: 20deg;
-                --scale: 0.5;
-                --distance: 72px;
-                --url: url('../../images/arrow-2.svg');
-                animation-delay: 100ms;
-            }
-
-            &.-arrow-3 {
-                --width: 171px;
-                --height: 78px;
-                --angle: 60deg;
-                --scale: 1.5;
-                --distance: 70px;
-                --url: url('../../images/arrow-3.svg');
-                animation-delay: 200ms;
-            }
-
-            &.-arrow-4 {
-                --width: 152px;
-                --height: 60px;
-                --angle: 130deg;
-                --scale: 0.4;
-                --distance: 50px;
-                --url: url('../../images/arrow-4.svg');
-                animation-delay: 300ms;
-            }
-
-            &.-arrow-5 {
-                --width: 152px;
-                --height: 35px;
-                --angle: 167deg;
-                --scale: 1.5;
-                --distance: 70px;
-                --url: url('../../images/arrow-5.svg');
-                animation-delay: 400ms;
-            }
-
-            &.-arrow-6 {
-                --width: 158px;
-                --height: 64px;
-                --angle: 210deg;
-                --scale: 0.5;
-                --distance: 70px;
-                --url: url('../../images/arrow-6.svg');
-                animation-delay: 500ms;
-            }
-        }
-    }
-
-    .x-option-box {
-        nav ol li:not(:last-child)::after {
-            @apply opacity-25;
-
-            content: '//';
-            padding-inline: calc(var(--spacing) * 4);
         }
     }
 
@@ -216,5 +129,51 @@
             black 50%,
             transparent calc(100% / sqrt(2))
         );
+    }
+
+    .x-circle-svg {
+        filter: drop-shadow(0 0 5px #000);
+
+        g {
+            @apply stroke-2 stroke-[hotpink] fill-transparent;
+            stroke-linecap: round;
+        }
+    }
+
+    .x-scribble-svg {
+        filter: drop-shadow(0 0 5px #000);
+
+        g {
+            @apply stroke-2 stroke-primary fill-transparent;
+            stroke-linecap: round;
+        }
+    }
+
+    .x-demo-silhouette {
+        background-image:
+            repeating-linear-gradient(
+                -0deg,
+                transparent 0px 10px,
+                rgba(255, 255, 255, 0.1) 10px 11px,
+                transparent 11px 21px
+            ),
+            repeating-linear-gradient(
+                -90deg,
+                transparent 0px 10px,
+                rgba(255, 255, 255, 0.1) 10px 11px,
+                transparent 11px 21px
+            );
+
+        mask-image: radial-gradient(
+            ellipse at center,
+            black,
+            black 50%,
+            transparent calc(100% / sqrt(2))
+        );
+    }
+
+    .x-demo-energy-heading {
+        filter: url('#fuzz-filter')
+            drop-shadow(0 0 60px rgb(from #82c3ff r g b / var(--glow, 0)));
     }
 }

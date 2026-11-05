@@ -1,5 +1,5 @@
 import { gsap } from 'gsap';
-import { findAll, findOrThrow } from 'spank-my-dom';
+import { findAll, findOrThrow, getDevicePixelRatio } from 'spank-my-dom';
 import {
     HemisphereLight,
     Mesh,
@@ -12,15 +12,14 @@ import {
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import type { Font } from 'three/addons/loaders/FontLoader.js';
 import { PageEntitiesHelper } from '../../components/PageEntitiesHelper';
+import { Path } from '../../components/Path';
 import type { State } from '../../layouts/DefaultLayout';
 import {
     expoInWithInitialVelocity,
     getCameraOffsetY,
-    getDevicePixelRatio,
     getPageMeta,
     pixelsToWorldUnits,
 } from '../../utils';
-import { Path } from './components/Path';
 import { getActiveTimelineLabel } from './utils';
 
 interface Segment {
@@ -172,7 +171,7 @@ function initBoringSection(font: Font): void {
     });
 
     renderer.domElement.className = 'w-full h-auto';
-    renderer.setPixelRatio(getDevicePixelRatio(2));
+    renderer.setPixelRatio(getDevicePixelRatio({ max: 2 }));
 
     pageEntities.addThreeRenderer(renderer);
 
@@ -321,7 +320,7 @@ function initBoringSection(font: Font): void {
 
         container.style.setProperty('--svg-mask-offset', `${dotOffset}px`);
 
-        const pathInstances = paths.map((path) => new Path(path, awesomeSvg));
+        const pathInstances = paths.map((path) => new Path(path));
 
         const segment1: SegmentWithPath = {
             label: 'segment-1',

@@ -1,3 +1,4 @@
+import { getDevicePixelRatio } from 'spank-my-dom';
 import {
     Fog,
     HemisphereLight,
@@ -15,7 +16,7 @@ import {
 import type { Font } from 'three/addons/loaders/FontLoader.js';
 import type { PageTheme } from '../../lib/config';
 import type { State } from '../layouts/DefaultLayout';
-import { getDevicePixelRatio, pixelsToWorldUnits } from '../utils';
+import { pixelsToWorldUnits } from '../utils';
 
 interface Options {
     state: State;
@@ -73,7 +74,7 @@ abstract class Hero {
         camera.position.z = 100;
 
         renderer.domElement.className = 'w-full h-auto';
-        renderer.setPixelRatio(getDevicePixelRatio(2));
+        renderer.setPixelRatio(getDevicePixelRatio({ max: 2 }));
 
         scene.add(mesh);
 

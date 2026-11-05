@@ -1,5 +1,5 @@
 import { assertIsNotNull } from 'bossy-boots';
-import { getDevicePixelRatio } from '../utils';
+import { getDevicePixelRatio } from 'spank-my-dom';
 
 const MAX_SQUARE_SIZE = 20;
 const ROWS = 12;
@@ -23,7 +23,7 @@ class FooterPixels {
 
     public resize(): void {
         const { width } = this.canvas.getBoundingClientRect();
-        const dpr = Math.ceil(getDevicePixelRatio());
+        const dpr = getDevicePixelRatio({ round: 'up' });
 
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 

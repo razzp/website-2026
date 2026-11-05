@@ -80,9 +80,9 @@ function createPhysicsWorld(container: HTMLElement): {
         .setCcdEnabled(true);
 
     const mouseBody = world.createRigidBody(mouseBodyDesc);
-    const colliderDesc = RAPIER.ColliderDesc.ball(10);
+    const mouseColliderDesc = RAPIER.ColliderDesc.ball(10);
 
-    world.createCollider(colliderDesc, mouseBody);
+    world.createCollider(mouseColliderDesc, mouseBody);
 
     return { world, mouseBody };
 }
@@ -123,13 +123,7 @@ function initCaseStudiesSection(state: State): void {
         const { world, mouseBody } = createPhysicsWorld(tagsContainer);
         const containerRect = tagsContainer.getBoundingClientRect();
 
-        const tagsWorldRef = pageEntities.add(world, {
-            onKill: (ref) => {
-                ref.free();
-            },
-        });
-
-        studies.tagsWorldRef = tagsWorldRef;
+        studies.tagsWorldRef = pageEntities.addRapierWorld(world);
 
         tags.forEach((tag) => {
             tag.toggleFlow(true);

@@ -1,5 +1,6 @@
 import RAPIER from '@dimforge/rapier2d-compat';
-import { assertIsNotUndefined, guarantee } from 'bossy-boots';
+import { assertIsNotUndefined } from 'bossy-boots';
+import { getDataOrThrow } from 'spank-my-dom';
 
 interface PhysicsProps {
     body?: RAPIER.RigidBody;
@@ -16,7 +17,7 @@ class Tag {
     public readonly name: string;
 
     constructor(public readonly element: HTMLElement) {
-        this.name = guarantee(element.dataset.tag);
+        this.name = getDataOrThrow(element, 'tag');
     }
 
     public toggle(show: boolean): void {

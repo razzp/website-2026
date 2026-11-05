@@ -1,6 +1,5 @@
-import { assertIsNotUndefined } from 'bossy-boots';
 import { gsap } from 'gsap';
-import { findOrThrow } from 'spank-my-dom';
+import { findOrThrow, getDataOrThrow } from 'spank-my-dom';
 import type { PageMeta } from '../../../../lib/config';
 import type { PageEntitiesHelper } from '../../../components/PageEntitiesHelper';
 import { StickyElement } from '../../../components/StickyElements';
@@ -44,12 +43,9 @@ class Study {
             pageEntities,
         } = options;
 
-        const tagNames = element.dataset.tags?.split('|') ?? [];
-        const backgroundColour = element.dataset.backgroundColour;
-        const textColour = element.dataset.textColour;
-
-        assertIsNotUndefined(backgroundColour);
-        assertIsNotUndefined(textColour);
+        const tagNames = getDataOrThrow(element, 'tags').split('|');
+        const backgroundColour = getDataOrThrow(element, 'backgroundColour');
+        const textColour = getDataOrThrow(element, 'textColour');
 
         this.tags = tagNames
             .map((tag) => tags.find(({ name }) => name.trim() === tag.trim()))

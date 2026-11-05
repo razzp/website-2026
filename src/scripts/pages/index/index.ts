@@ -2,6 +2,7 @@ import { assertIsNotNull } from 'bossy-boots';
 import { gsap } from 'gsap';
 import { SplitText } from 'gsap/all';
 import {
+    arrayOf,
     findAll,
     findOrThrow,
     getData,
@@ -9,11 +10,18 @@ import {
     setStyles,
 } from 'spank-my-dom';
 import type { Route } from '../../../config/runtime';
+import { IntervalTimer } from '../../components/IntervalTimer';
 import { PageEntitiesHelper } from '../../components/PageEntitiesHelper';
+import { Path } from '../../components/Path';
 import { Particles } from '../../components/particles';
 import { StickyElement } from '../../components/StickyElements';
 import type { State } from '../../layouts/DefaultLayout';
 import { getPageMeta } from '../../utils';
+import type { Demo } from './components/demos/Demo';
+import { DemoEnergy } from './components/demos/DemoEnergy';
+import { DemoHearts } from './components/demos/DemoHearts';
+import { DemoPaint } from './components/demos/DemoPaint';
+import { DemoTypographic } from './components/demos/DemoTypographic';
 import { Slice } from './components/Slice';
 
 interface SpinWheelData {
@@ -25,7 +33,14 @@ interface SpinWheelData {
 
 interface PageState {
     tldr: {
-        pathProgress: number;
+        timelineRef?: symbol;
+    };
+    keywords: {
+        timelineRef?: symbol;
+    };
+    enough: {
+        circleTimelineRef?: symbol;
+        scribbleTimelineRed?: symbol;
     };
     spin: {
         timelineRef?: symbol;
@@ -34,9 +49,9 @@ interface PageState {
 }
 
 const pageState: PageState = {
-    tldr: {
-        pathProgress: 0,
-    },
+    tldr: {},
+    keywords: {},
+    enough: {},
     spin: {
         isSpinning: false,
     },
@@ -45,115 +60,6 @@ const pageState: PageState = {
 const pageEntities = new PageEntitiesHelper();
 
 function init(state: State): void {
-    // TL;DR text.
-
-    const tlddr = findOrThrow('.js-tldr');
-    const tldrPaths = findAll('path', tlddr);
-
-    const tldrTimeline = gsap
-        .timeline({
-            scrollTrigger: {
-                trigger: tlddr,
-                scrub: true,
-                start: 'center bottom',
-                end: 'center center',
-            },
-            defaults: {
-                ease: 'none',
-            },
-            onUpdate: () => {
-                tldrPaths.forEach((path) => {
-                    path.style.strokeDashoffset = `${pageState.tldr.pathProgress}`;
-                });
-
-                if (pageState.tldr.pathProgress <= 0) {
-                    tlddr.classList.add('-bright');
-                } else {
-                    tlddr.classList.remove('-bright');
-                }
-            },
-        })
-        .fromTo(
-            pageState.tldr,
-            {
-                pathProgress: 1,
-            },
-            {
-                pathProgress: 0,
-            },
-        );
-
-    pageEntities.addGsapAnimation(tldrTimeline);
-
-    // Thug life glasses.
-
-    const thugTimeline = gsap
-        .timeline({
-            scrollTrigger: {
-                trigger: tlddr,
-                start: 'center center',
-                toggleActions: 'play none none reverse',
-            },
-            defaults: {
-                ease: 'expo.out',
-                duration: 0.6,
-            },
-        })
-        .fromTo(
-            '.thug',
-            {
-                y: '-100%',
-                opacity: 0,
-            },
-            {
-                y: '0%',
-                opacity: 1,
-            },
-        );
-
-    pageEntities.addGsapAnimation(thugTimeline);
-
-    // Keywords carousel
-
-    const keywordsLines = gsap.utils.toArray('.js-keywords .js-keywords-line');
-    const evenLines = keywordsLines.filter((_, i) => i % 2 === 0);
-    const oddLines = keywordsLines.filter((_, i) => i % 2 === 1);
-
-    const keywordsTimeline = gsap
-        .timeline({
-            scrollTrigger: {
-                trigger: '.js-keywords',
-                start: 'top bottom',
-                end: 'bottom top',
-                scrub: true,
-            },
-            defaults: {
-                ease: 'none',
-            },
-        })
-        .fromTo(
-            evenLines,
-            {
-                x: -500,
-            },
-            {
-                x: 500,
-            },
-            0,
-        )
-        .fromTo(
-            oddLines,
-            {
-                x: 500,
-            },
-            {
-                x: -500,
-            },
-            0,
-        );
-
-    pageEntities.addGsapAnimation(keywordsTimeline);
-
     // Blurb markers.
 
     findAll('.js-blurb').forEach((blurb) => {
@@ -191,58 +97,291 @@ function init(state: State): void {
         pageEntities.addGsapAnimation(blurbTimeline);
     });
 
-    // Seen enough?
+    initTLDRSection();
+    initKeywords();
+    initDemosSection();
+    initSeenEnoughSection();
+    initSpinWheel(state);
+}
+
+async function initDemosSection(): Promise<void> {
+    const container = findOrThrow('.js-demos');
+    const demoHearts = new DemoHearts(pageEntities);
+
+    await demoHearts.ready;
+
+    const demos = [
+        new DemoPaint(pageEntities),
+        new DemoTypographic(pageEntities),
+        new DemoEnergy(pageEntities),
+        demoHearts,
+    ] satisfies Demo[];
+
+    let activeIndex = 3;
+
+    const timer = new IntervalTimer({
+        delay: 5000,
+        onInterval: async () => {
+            const demo = demos[activeIndex];
+
+            activeIndex = activeIndex + 1 >= demos.length ? 0 : ++activeIndex;
+
+            const nextDemo = demos[activeIndex];
+
+            await demo.transitionOut();
+            demo.stop();
+
+            nextDemo.start();
+            await nextDemo.transitionIn();
+        },
+    });
+
+    pageEntities.add(timer, {
+        onKill: (ref) => {
+            ref.pause();
+        },
+    });
+
+    const intersectionObserver = new IntersectionObserver(async ([entry]) => {
+        if (entry.isIntersecting) {
+            const demo = demos[activeIndex];
+
+            //timer.start();
+            demo.start();
+            demo.transitionIn(true);
+        } else {
+            timer.pause();
+
+            demos.forEach(async (demo) => {
+                demo.transitionOut(true);
+                demo.stop();
+            });
+        }
+    });
+
+    intersectionObserver.observe(container);
+    pageEntities.addObserver(intersectionObserver);
+
+    const resizeObserver = new ResizeObserver(() => {
+        timer.reset();
+
+        demos.forEach((demo) => {
+            demo.stop();
+            demo.resize();
+        });
+
+        demos[activeIndex].start();
+    });
+
+    resizeObserver.observe(container);
+    pageEntities.addObserver(resizeObserver);
+}
+
+function initKeywords(): void {
+    const keywords = findOrThrow('.js-keywords');
+    const lines = findAll('.js-keywords-line', keywords);
+
+    const resizeObserver = new ResizeObserver(() => {
+        // Initial clean up from previous state.
+
+        const { timelineRef } = pageState.keywords;
+
+        timelineRef && pageEntities.kill(timelineRef);
+
+        // Create new state.
+
+        const keywordsWidth = keywords.getBoundingClientRect().width;
+
+        const keywordsTimeline = gsap.timeline({
+            scrollTrigger: {
+                trigger: keywords,
+                start: 'top bottom',
+                end: 'bottom top',
+                scrub: 0.5,
+            },
+            defaults: {
+                ease: 'none',
+            },
+        });
+
+        lines.forEach((line, i) => {
+            const wordsBefore = findOrThrow('span:first-child', line);
+            const wordsAfter = findOrThrow('span:last-child', line);
+            const isEven = i % 2 === 0;
+
+            const lineWidth = line.getBoundingClientRect().width;
+            const beforeWidth = wordsBefore.getBoundingClientRect().width;
+            const afterWidth = wordsAfter.getBoundingClientRect().width;
+
+            const compensation = keywordsWidth / 2 - lineWidth / 2;
+            const offset = Math.min(beforeWidth, afterWidth) - compensation;
+
+            keywordsTimeline.fromTo(
+                line,
+                {
+                    x: isEven ? offset : -offset,
+                },
+                {
+                    x: isEven ? -offset : offset,
+                },
+                0,
+            );
+        });
+
+        pageState.keywords.timelineRef =
+            pageEntities.addGsapAnimation(keywordsTimeline);
+    });
+
+    resizeObserver.observe(keywords);
+    pageEntities.addObserver(resizeObserver);
+}
+
+function initTLDRSection(): void {
+    const tldrSvg = findOrThrow<SVGSVGElement>('.js-tldr-svg');
+    const tldrPaths = findAll('path', tldrSvg);
+
+    const resizeObserver = new ResizeObserver(() => {
+        // Initial clean up from previous state.
+
+        const { timelineRef } = pageState.tldr;
+
+        timelineRef && pageEntities.kill(timelineRef);
+
+        // Initialise section.
+
+        const pathInstances = tldrPaths.map((path) => new Path(path));
+
+        const tldrTimeline = gsap.timeline({
+            scrollTrigger: {
+                trigger: tldrSvg,
+                scrub: true,
+                start: 'top bottom',
+                end: 'center center',
+            },
+            defaults: {
+                ease: 'none',
+            },
+        });
+
+        pathInstances.forEach((path) => {
+            tldrTimeline.fromTo(
+                path,
+                {
+                    strokePosition: path.getPathLengthAtPercent(0),
+                },
+                {
+                    strokePosition: path.getPathLengthAtPercent(100),
+                },
+                '<',
+            );
+        });
+
+        pageState.tldr.timelineRef =
+            pageEntities.addGsapAnimation(tldrTimeline);
+    });
+
+    resizeObserver.observe(tldrSvg);
+    pageEntities.addObserver(resizeObserver);
+}
+
+function initSeenEnoughSection(): void {
+    // SVG connections.
 
     const drawConnections = createDrawConnectionsFunc();
     const connections = findOrThrow('.js-connections');
-    const arrows = gsap.utils.toArray('.js-connection-yep .js-arrow');
-    const yepHeading = findOrThrow('.js-connection-yep .js-heading');
-
-    const enoughTimeline = gsap
-        .timeline({
-            paused: true,
-            scrollTrigger: {
-                trigger: '.js-option-box',
-                start: 'bottom bottom',
-                toggleActions: 'play none none reverse',
-                onEnter: () => {
-                    yepHeading.classList.add('-highlight');
-                },
-                onLeaveBack: () => {
-                    yepHeading.classList.remove('-highlight');
-                },
-            },
-            defaults: {
-                ease: 'expo.in',
-            },
-        })
-        .fromTo(
-            arrows,
-            {
-                '--distance': '200px',
-                opacity: 0,
-            },
-            {
-                '--distance': '75px',
-                opacity: 1,
-                stagger: {
-                    each: 0.05,
-                    from: 'random',
-                },
-                duration: 0.5,
-            },
-        );
 
     const enoughResizeObserver = new ResizeObserver(() => {
         drawConnections();
     });
 
     enoughResizeObserver.observe(connections);
-
     pageEntities.addObserver(enoughResizeObserver);
-    pageEntities.addGsapAnimation(enoughTimeline);
 
-    initSpinWheel(state);
+    // Freehand SVG illustrations.
+
+    const circleSvg = findOrThrow<SVGSVGElement>('.js-circle-svg');
+    const circleSvgPath = findOrThrow('path', circleSvg);
+
+    const circleObserver = new ResizeObserver(() => {
+        // Initial clean up from previous state.
+
+        const { circleTimelineRef } = pageState.enough;
+
+        circleTimelineRef && pageEntities.kill(circleTimelineRef);
+
+        // Create new state.
+
+        const path = new Path(circleSvgPath);
+
+        const timeline = gsap
+            .timeline({
+                scrollTrigger: {
+                    trigger: '.js-routes',
+                    start: 'bottom bottom',
+                    toggleActions: 'play none none reverse',
+                },
+                defaults: {
+                    duration: 1,
+                    ease: 'steps(20)',
+                },
+            })
+            .fromTo(
+                path,
+                {
+                    strokePosition: path.getPathLengthAtPercent(0),
+                },
+                {
+                    strokePosition: path.getPathLengthAtPercent(100),
+                },
+            );
+
+        pageState.enough.circleTimelineRef =
+            pageEntities.addGsapAnimation(timeline);
+    });
+
+    circleObserver.observe(circleSvg);
+
+    const scribbleSvg = findOrThrow<SVGSVGElement>('.js-scribble-svg');
+    const scribbleSvgPath = findOrThrow('path', scribbleSvg);
+
+    const scribbleObserver = new ResizeObserver(() => {
+        // Initial clean up from previous state.
+
+        const { scribbleTimelineRed } = pageState.enough;
+
+        scribbleTimelineRed && pageEntities.kill(scribbleTimelineRed);
+
+        // Create new state.
+
+        const path = new Path(scribbleSvgPath);
+
+        const timeline = gsap
+            .timeline({
+                scrollTrigger: {
+                    trigger: '.js-routes',
+                    start: 'bottom bottom',
+                    toggleActions: 'play none none reverse',
+                },
+                defaults: {
+                    duration: 1,
+                    ease: 'steps(20)',
+                },
+            })
+            .fromTo(
+                path,
+                {
+                    strokePosition: path.getPathLengthAtPercent(0),
+                },
+                {
+                    strokePosition: path.getPathLengthAtPercent(100),
+                },
+            );
+
+        pageState.enough.scribbleTimelineRed =
+            pageEntities.addGsapAnimation(timeline);
+    });
+
+    scribbleObserver.observe(scribbleSvg);
 }
 
 function initSpinWheel(state: State): void {
@@ -259,7 +398,7 @@ function initSpinWheel(state: State): void {
     assertIsNotNull(pages);
 
     // Duplicate the array n times so there are lots of slices.
-    const pagesDuplicated: SpinWheelData[] = Array(3).fill(pages).flat();
+    const pagesDuplicated = arrayOf(3, pages).flat();
 
     const slicesGroup = findOrThrow<SVGGElement>('.js-slices-group');
     const finalSlice = findOrThrow<HTMLElement>('.js-final-slice');
@@ -297,7 +436,6 @@ function initSpinWheel(state: State): void {
     // Append the slices to the DOM.
     slicesGroup.append(...slices.map((slices) => slices.pathElement));
 
-    // TODO: Find a better solution?
     // We're going to animate the `startOffset` attributes on the text path
     // elements. There's no CSS equivalent unfortunately, but performance
     // seems to be okay, so I'm rolling with it for now.

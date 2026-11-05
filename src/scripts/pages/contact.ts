@@ -1,5 +1,10 @@
 import { gsap } from 'gsap';
-import { findAll, findOrThrow } from 'spank-my-dom';
+import {
+    findAll,
+    findOrThrow,
+    getDataOrThrow,
+    getDevicePixelRatio,
+} from 'spank-my-dom';
 import {
     HemisphereLight,
     Mesh,
@@ -18,9 +23,7 @@ import type { State } from '../layouts/DefaultLayout';
 import {
     degreesToRadians,
     getCameraOffsetY,
-    getDevicePixelRatio,
     getPageMeta,
-    isRoute,
     pixelsToWorldUnits,
 } from '../utils';
 
@@ -99,20 +102,6 @@ function init(state: State): void {
 
     pageEntities.addObserver(reasonHeadingsObserver);
 
-    // About link.
-
-    const btnAbout = findOrThrow<HTMLAnchorElement>('.js-btn-about');
-
-    btnAbout.addEventListener('click', async (event) => {
-        event.preventDefault();
-
-        const { pathname, hash } = new URL(btnAbout.href);
-
-        if (isRoute(pathname)) {
-            await state.loadPage(pathname, hash);
-        }
-    });
-
     // Five section.
 
     initFiveSection(state.threeJsFont);
@@ -173,8 +162,8 @@ function createTrailsTimeline(container: Element): gsap.core.Timeline {
 
     trailsData.forEach(({ element, path, pathLength }) => {
         const mask = findOrThrow<SVGUseElement>('mask use', element);
-        const direction = element.dataset.direction;
-        const ease = element.dataset.ease;
+        const direction = getDataOrThrow(element, 'direction');
+        const ease = getDataOrThrow(element, 'ease');
         const duration = pathLength / maxTrailPathLength;
 
         mask.style.strokeDasharray = `${pathLength}`;
@@ -227,7 +216,7 @@ function initFiveSection(font: Font): void {
     const renderer = new WebGLRenderer({ antialias: true, alpha: true });
 
     renderer.domElement.className = 'w-full h-auto';
-    renderer.setPixelRatio(getDevicePixelRatio(2));
+    renderer.setPixelRatio(getDevicePixelRatio({ max: 2 }));
 
     pageEntities.addThreeRenderer(renderer);
 

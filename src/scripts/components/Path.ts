@@ -1,7 +1,9 @@
-import { assertIsNotNull, assertIsNotUndefined } from 'bossy-boots';
+import { assertIsNotNull } from 'bossy-boots';
+import { findClosestOrThrow, getData } from 'spank-my-dom';
 
 class Path {
     private readonly pathCTM: DOMMatrix;
+    private readonly svg: SVGSVGElement;
 
     public readonly pathLength: number;
 
@@ -9,18 +11,20 @@ class Path {
         strokePosition: 0,
     };
 
-    constructor(
-        public readonly path: SVGPathElement,
-        private readonly svg: SVGSVGElement,
-    ) {
+    constructor(public readonly path: SVGPathElement) {
+        const svg = findClosestOrThrow(path, 'svg');
         const pathCTM = path.getCTM();
-        const pathLength = path.dataset.pathLength;
+        const pathLengthData = getData(path, 'pathLength');
+
+        const pathLength = pathLengthData
+            ? parseFloat(pathLengthData)
+            : path.getTotalLength();
 
         assertIsNotNull(pathCTM);
-        assertIsNotUndefined(pathLength);
 
-        const pathLengthScaled = parseFloat(pathLength) * pathCTM.a;
+        const pathLengthScaled = pathLength * pathCTM.a;
 
+        this.svg = svg;
         this.pathCTM = pathCTM;
         this.pathLength = pathLengthScaled;
     }

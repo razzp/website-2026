@@ -1,5 +1,5 @@
 import { assertIsNotNull } from 'bossy-boots';
-import { getDevicePixelRatio, pickRandom } from '../utils';
+import { getDevicePixelRatio, pickRandom } from 'spank-my-dom';
 
 const EPSILON = 0.01;
 
@@ -102,7 +102,7 @@ class Particles {
 
     public resize(): void {
         const { width, height } = this.canvas.getBoundingClientRect();
-        const dpr = getDevicePixelRatio();
+        const dpr = getDevicePixelRatio({ max: 2 });
 
         this.clearContext();
         this.particles.clear();

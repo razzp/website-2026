@@ -1,3 +1,4 @@
+import type RAPIER from '@dimforge/rapier2d-compat';
 import { gsap } from 'gsap';
 import type * as THREE from 'three';
 
@@ -139,6 +140,14 @@ class PageEntitiesHelper {
         return this.add(callback, {
             onKill: (ref) => {
                 gsap.ticker.remove(ref);
+            },
+        });
+    }
+
+    public addRapierWorld(value: RAPIER.World): symbol {
+        return this.add(value, {
+            onKill: (ref) => {
+                ref.free();
             },
         });
     }

@@ -1,8 +1,12 @@
 ---
-import { Image, Picture } from 'astro:assets';
+import { Picture } from 'astro:assets';
+import InlineSvg from '../components/InlineSvg.astro';
+import DemoComponent from '../components/index/DemoComponent.astro';
 import PlusSignDivider from '../components/PlusSignDivider.astro';
+import freehandCircleSvg from '../images/freehand-circle.svg?raw';
+import freehandScribbleSvg from '../images/freehand-scribble.svg?raw';
 import portrait from '../images/portrait.jpg';
-import thugGlasses from '../images/thug-glasses.svg';
+import tldrSvg from '../images/words/tldr.svg?raw';
 import DefaultLayout from '../layouts/DefaultLayout.astro';
 import { pages } from '../lib/config';
 import type { SpinWheelData } from '../scripts/pages/index';
@@ -19,151 +23,116 @@ const spinWheelPageData = Object.values(pages)
 
 <DefaultLayout pageMeta={pages.home}>
     <section>
-        <div class="flex justify-center p-10 mb-10">
+        <!--<div class="flex justify-center p-10 mb-10">
             <h2 class="text-center text-4xl leading-tight text-balance">
-                Welcome to my corner of the web!<br>There's plenty here to bore
+                Welcome to my corner of the web!<br>
+                This website is designed as a showcase my
+                <br>There's plenty here to bore
                 you, but if you're in a rush...
             </h2>
-        </div>
+        </div> -->
 
         <div class="p-10">
             <div
-                class="rounded-3xl clip-rounded-3xl border-2 border-primary/25 p-10"
+                class="js-tldr flex flex-col items-center gap-20 rounded-3xl clip-rounded-3xl border-2 border-primary/25 py-20"
             >
                 <div
                     class="fixed -z-10 inset-0 mask-plus mask-plus-small bg-primary/10 pointer-events-none"
                 ></div>
 
-                <div
-                    class="js-tldr x-tldr p-10 flex items-center justify-center"
-                >
-                    <svg
-                        width="144.3"
-                        height="67.125"
-                        viewBox="0 0 144.3 67.125"
-                        xmlns="http://www.w3.org/2000/svg"
-                        aria-hidden="true"
-                        class="w-full max-w-1/3 h-auto"
-                    >
-                        <g class="path-outline" fill-rule="nonzero">
-                            <path
-                                pathLength="1"
-                                d="M 5.025 39 L 5.025 24 L 0 24 L 0 15.825 L 5.7 15.375 L 6.975 3.975 L 16.125 3.975 L 16.125 15.375 L 25.05 15.375 L 25.05 24 L 16.125 24 L 16.125 38.85 Q 16.125 42 17.438 43.387 Q 18.75 44.775 20.925 44.775 Q 21.825 44.775 22.725 44.625 Q 23.625 44.475 24.45 44.175 L 26.25 51.9 Q 24.825 52.5 22.688 52.95 Q 20.55 53.4 17.925 53.4 A 13.768 13.768 0 0 1 10.281 51.503 A 8.823 8.823 0 0 1 8.025 49.388 A 16.675 16.675 0 0 1 5.028 39.396 A 26.629 26.629 0 0 1 5.025 39 Z"
-                            />
-                            <path
-                                pathLength="1"
-                                d="M 32.325 40.95 L 32.325 0.075 L 43.35 0.075 L 43.35 41.4 Q 43.35 43.2 43.988 43.838 Q 44.625 44.475 45.375 44.475 Q 45.675 44.475 45.938 44.438 Q 46.2 44.4 46.65 44.325 L 48 52.5 Q 47.1 52.875 45.713 53.137 Q 44.325 53.4 42.45 53.4 Q 38.7 53.4 36.488 51.863 Q 34.275 50.325 33.3 47.512 Q 32.325 44.7 32.325 40.95 Z"
-                            />
-                            <path
-                                pathLength="1"
-                                d="M 54.6 67.125 L 52.35 61.275 Q 56.55 59.775 58.725 57.3 A 7.655 7.655 0 0 0 60.828 52.165 A 7.206 7.206 0 0 0 60.825 51.975 L 60.6 44.625 L 64.2 50.775 Q 63.375 51.45 62.363 51.787 Q 61.35 52.125 60.225 52.125 Q 57.6 52.125 55.575 50.512 Q 53.55 48.9 53.55 45.9 Q 53.55 43.05 55.575 41.325 Q 57.6 39.6 60.45 39.6 Q 64.2 39.6 66.15 42.338 A 12.342 12.342 0 0 1 68.083 49.116 A 23.596 23.596 0 0 1 68.1 50.025 Q 68.1 56.175 64.65 60.675 Q 61.2 65.175 54.6 67.125 Z M 60.15 29.175 Q 57.3 29.175 55.387 27.15 Q 53.475 25.125 53.475 22.275 Q 53.475 19.275 55.387 17.287 Q 57.3 15.3 60.15 15.3 Q 63.075 15.3 64.95 17.287 Q 66.825 19.275 66.825 22.275 Q 66.825 25.125 64.95 27.15 Q 63.075 29.175 60.15 29.175 Z"
-                            />
-                            <path
-                                pathLength="1"
-                                d="M 98.925 18.375 L 98.475 12.675 L 98.475 0 L 109.5 0 L 109.5 52.575 L 100.5 52.575 L 99.75 48.9 L 99.45 48.9 Q 97.5 50.85 94.875 52.162 Q 92.25 53.475 89.55 53.475 Q 82.65 53.475 78.487 48.262 A 19.967 19.967 0 0 1 74.524 37.76 A 34.448 34.448 0 0 1 74.325 33.975 Q 74.325 27.9 76.538 23.55 Q 78.75 19.2 82.312 16.838 Q 85.875 14.475 89.775 14.475 Q 92.85 14.475 94.95 15.525 Q 97.05 16.575 98.925 18.375 Z M 98.475 41.1 L 98.475 25.875 Q 97.05 24.525 95.475 24 Q 93.9 23.475 92.325 23.475 Q 90.525 23.475 89.025 24.6 Q 87.525 25.725 86.587 28.012 Q 85.65 30.3 85.65 33.825 A 18.308 18.308 0 0 0 86.57 40.177 A 7.807 7.807 0 0 0 87.45 41.887 Q 89.25 44.475 92.4 44.475 Q 94.2 44.475 95.7 43.725 Q 97.2 42.975 98.475 41.1 Z"
-                            />
-                            <path
-                                pathLength="1"
-                                d="M 130.275 52.575 L 119.25 52.575 L 119.25 15.375 L 128.25 15.375 L 129 21.9 L 129.3 21.9 Q 131.325 18.15 134.138 16.313 Q 136.95 14.475 139.875 14.475 Q 141.45 14.475 142.5 14.662 Q 143.55 14.85 144.3 15.225 L 142.2 24.6 Q 141.3 24.375 140.475 24.262 Q 139.65 24.15 138.45 24.15 Q 136.35 24.15 134.063 25.65 A 10.636 10.636 0 0 0 130.37 30.738 A 20.887 20.887 0 0 0 130.275 30.975 L 130.275 52.575 Z"
-                            />
-                        </g>
-                    </svg>
-                </div>
+                <InlineSvg
+                    svg={tldrSvg}
+                    class="js-tldr-svg x-tldr-svg w-full max-w-1/3 h-auto"
+                    aria-hidden="true"
+                />
 
-                <figure class="flex flex-col gap-10 items-center">
+                <figure class="flex flex-col gap-20 items-center">
+                    <figcaption
+                        class="text-5xl text-balance text-center leading-tight text-primary px-10"
+                    >
+                        My name is Rob, and I've been doing this sort of stuff
+                        for over 20 years. TypeScript is my forte, and I
+                        specialise in anything front-end.
+                    </figcaption>
+
                     <div class="grid grid-cols-[1fr_auto_1fr] self-stretch">
                         <div
                             class="mask-circle bg-primary/25 mask-contain mask-repeat-x mask-top-right"
                         ></div>
 
-                        <div>
-                            <div class="relative clip-rounded-50">
-                                <Picture
-                                    class="filter-duotone aspect-square object-cover w-[400px]"
-                                    src={portrait}
-                                    formats={['avif', 'webp']}
-                                    alt="A portrait of me"
-                                />
-
-                                <Image
-                                    class="thug drop-shadow-2xl/25 drop-shadow-white absolute top-[21%] left-[26%] w-[48%]"
-                                    src={thugGlasses}
-                                    alt="Thug life"
-                                    aria-hidden="true"
-                                />
-                            </div>
-                        </div>
+                        <Picture
+                            class="filter-duotone aspect-square object-cover clip-rounded-50 w-[400px]"
+                            src={portrait}
+                            formats={['avif', 'webp']}
+                            alt="A portrait of me"
+                        />
 
                         <div
                             class="mask-circle bg-primary/25 mask-contain mask-repeat-x mask-top-left"
                         ></div>
                     </div>
-
-                    <figcaption
-                        class="text-7xl text-balance text-center leading-tight text-white"
-                    >
-                        My name is Rob, and I've been doing this sort of stuff
-                        for over 20 years.
-                    </figcaption>
                 </figure>
             </div>
         </div>
 
-        <div
-            class="js-keywords x-keywords flex flex-col items-center p-10 gap-5 text-7xl lowercase whitespace-nowrap text-stroke-primary/50"
-        >
-            <div class="js-keywords-line relative">
-                <span
-                    class="absolute text-transparent text-stroke-1 right-full select-none"
-                    >Focus Spacing Perceivable Operable Understandable VoiceOver
-                    W3C JAWS NVDA</span
-                >
-                &nbsp;accessibility&nbsp;
-                <span
-                    class="absolute text-transparent text-stroke-1 left-full select-none"
-                    >WCAG AAA ARIA Dark Mode High Contrast Keyboard Navigation
-                    Captions Consistency</span
-                >
-            </div>
+        <div class="x-keywords-container -my-14">
+            <div
+                class="js-keywords x-keywords skew-y-(--skew-angle) flex flex-col items-center py-10 gap-6 text-7xl lowercase whitespace-nowrap text-stroke-primary/50"
+            >
+                <div class="js-keywords-line relative">
+                    <span
+                        class="absolute text-transparent text-stroke-1 right-full select-none"
+                        >Focus Spacing Perceivable Operable Understandable
+                        VoiceOver W3C JAWS NVDA</span
+                    >
+                    &nbsp;accessibility&nbsp;
+                    <span
+                        class="absolute text-transparent text-stroke-1 left-full select-none"
+                        >WCAG AAA ARIA Dark Mode High Contrast Keyboard
+                        Navigation Captions Consistency</span
+                    >
+                </div>
 
-            <div class="js-keywords-line relative">
-                <span
-                    class="absolute text-transparent text-stroke-1 right-full select-none"
-                    >Syntax Structure Relationships Context Headings Roles</span
-                >
-                &nbsp;semantics&nbsp;
-                <span
-                    class="absolute text-transparent text-stroke-1 left-full select-none"
-                    >Metadata Architecture Elements Sections Hierarchy Articles</span
-                >
-            </div>
+                <div class="js-keywords-line relative">
+                    <span
+                        class="absolute text-transparent text-stroke-1 right-full select-none"
+                        >Syntax Structure Relationships Context Headings Roles</span
+                    >
+                    &nbsp;semantics&nbsp;
+                    <span
+                        class="absolute text-transparent text-stroke-1 left-full select-none"
+                        >Metadata Architecture Elements Sections Hierarchy
+                        Articles</span
+                    >
+                </div>
 
-            <div class="js-keywords-line relative">
-                <span
-                    class="absolute text-transparent text-stroke-1 right-full select-none"
-                    >Wireframes Animation Composition Creativity Photoshop
-                    Aesthetics Figma UX</span
-                >
-                &nbsp;design&nbsp;
-                <span
-                    class="absolute text-transparent text-stroke-1 left-full select-none"
-                    >Branding XD Illustrator Proportion Typography Balance
-                    Colour UI Legibility</span
-                >
-            </div>
+                <div class="js-keywords-line relative">
+                    <span
+                        class="absolute text-transparent text-stroke-1 right-full select-none"
+                        >Wireframes Animation Composition Creativity Photoshop
+                        Aesthetics Figma UX</span
+                    >
+                    &nbsp;design&nbsp;
+                    <span
+                        class="absolute text-transparent text-stroke-1 left-full select-none"
+                        >Branding XD Illustrator Proportion Typography Balance
+                        Colour UI Legibility</span
+                    >
+                </div>
 
-            <div class="js-keywords-line relative">
-                <span
-                    class="absolute text-transparent text-stroke-1 right-full select-none"
-                    >Astro Automation Logic Integration GitHub Frameworks CSS3
-                    TypeScript Vue</span
-                >
-                &nbsp;development&nbsp;
-                <span
-                    class="absolute text-transparent text-stroke-1 left-full select-none"
-                    >HTML5 Tailwind PWA Libraries Code APIs C# Debugging State
-                    Bootstrap</span
-                >
+                <div class="js-keywords-line relative">
+                    <span
+                        class="absolute text-transparent text-stroke-1 right-full select-none"
+                        >Astro Automation Logic Integration GitHub Frameworks
+                        CSS3 TypeScript Vue</span
+                    >
+                    &nbsp;development&nbsp;
+                    <span
+                        class="absolute text-transparent text-stroke-1 left-full select-none"
+                        >HTML5 Tailwind PWA Libraries Code APIs C# Debugging
+                        State Bootstrap</span
+                    >
+                </div>
             </div>
         </div>
 
@@ -196,37 +165,162 @@ const spinWheelPageData = Object.values(pages)
         </div>
     </section>
 
+    <section>
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="svg-filters"
+            aria-hidden="true"
+            style="display: none"
+        >
+            <filter id="grain">
+                <feTurbulence
+                    type="fractalNoise"
+                    baseFrequency="0.8"
+                    numOctaves="2"
+                    stitchTiles="stitch"
+                    result="noise"
+                />
+                <feColorMatrix
+                    in="noise"
+                    type="saturate"
+                    values="0"
+                    result="monoNoise"
+                />
+                <feComponentTransfer in="monoNoise" result="faintNoise">
+                    <feFuncA type="linear" slope="0.25" />
+                </feComponentTransfer>
+                <feBlend
+                    in="SourceGraphic"
+                    in2="faintNoise"
+                    mode="soft-light"
+                />
+            </filter>
+        </svg>
+
+        <div
+            class="min-h-dvh p-10 pt-(--safe-area-top) grid grid-rows-[auto] gap-10"
+            style="grid-auto-rows: 685px;"
+        >
+            <h2
+                class="max-w-2/3 justify-self-center text-4xl text-pretty text-center"
+                >In a nutshell...</h2
+            >
+
+            <div class="js-demos relative h-full rounded-3xl overflow-clip">
+                <div class="x-demo-silhouette absolute inset-0">
+                    <div
+                        class="absolute inset-0 grid place-items-center text-9xl text-primary-contrast"
+                        >I ❤ the web</div
+                    >
+                </div>
+
+                <!-- Paint swirls -->
+                <DemoComponent
+                    class="js-demo-paint text-white"
+                    headingClass="mix-blend-difference"
+                >
+                    <video
+                        playsinline
+                        loop
+                        muted
+                        class="absolute inset-0 w-full h-full object-cover"
+                    >
+                        <source
+                            src="./src/videos/paint-swirls.mp4"
+                            type="video/mp4"
+                        >
+                    </video>
+                </DemoComponent>
+
+                <!-- Typographic -->
+                <DemoComponent
+                    class="js-demo-typographic bg-primary text-primary-contrast filter-[url(#grain)]"
+                >
+                    <template>
+                        <span
+                            class="absolute whitespace-nowrap px-[inherit] text-transparent text-stroke-2 text-stroke-primary-contrast origin-[bottom_center]"
+                        />
+                    </template>
+                </DemoComponent>
+
+                <!-- Energy -->
+                <DemoComponent
+                    class="js-demo-energy bg-black text-primary filter-[url(#grain)]"
+                    headingClass="x-demo-energy-heading"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="hidden"
+                        aria-hidden="true"
+                    >
+                        <filter id="fuzz-filter">
+                            <feTurbulence
+                                in="SourceGraphic"
+                                result="turbulence"
+                                baseFrequency="0"
+                                numOctaves="2"
+                                seed="1"
+                            />
+                            <feDisplacementMap
+                                in="SourceGraphic"
+                                in2="turbulence"
+                                scale="0"
+                            />
+                        </filter>
+                    </svg>
+
+                    <canvas class="absolute inset-0 w-full h-full"></canvas>
+                </DemoComponent>
+
+                <!-- Hearts -->
+                <DemoComponent
+                    class="js-demo-hearts bg-[#ffe1f0] text-[#ff0044] filter-[url(#grain)]"
+                    headingClass="text-box-trim"
+                >
+                    <canvas
+                        class="absolute inset-0 w-full h-full"
+                        style="filter: drop-shadow(10px 10px 20px rgba(0,0,0,0.25)"
+                    ></canvas>
+                </DemoComponent>
+            </div>
+        </div>
+    </section>
+
     <section class="flex flex-col items-center gap-10 p-10 mb-32">
         <h2 class="text-7xl text-balance text-center leading-tight text-white">
             Seen enough?
         </h2>
 
-        <div class="inline-grid grid-cols-2 gap-x-10 text-center">
+        <div
+            class="js-routes grid grid-cols-2 gap-x-20 text-center w-full max-w-5xl"
+        >
             <div class="col-span-2 flex flex-col items-center">
                 <svg class="js-connections w-full h-[200px]" aria-hidden="true">
-                    <circle cx="10" cy="10" r="10" fill="white" />
+                    <circle cx="6" cy="6" r="6" fill="white" />
                     <path
                         stroke="white"
-                        stroke-width="3"
+                        stroke-width="2"
                         fill="none"
                         stroke-linecap="round"
                     />
                 </svg>
             </div>
 
-            <div class="js-connection-yep x-connection-yep py-4">
-                <div
-                    class="js-heading x-heading text-4xl text-shadow-primary transition-all duration-500 ease-in-out-expo"
-                >
-                    yep
-                </div>
-
-                {[1,2,3,4,5,6].map((i) => (
-                    <div class={`js-arrow x-arrow -arrow-${i}`}></div>
-                ))}
+            <div class="js-connection-yep relative py-4">
+                <InlineSvg
+                    svg={freehandCircleSvg}
+                    class="js-circle-svg x-circle-svg h-[100px] absolute top-1/2 left-1/2 -translate-1/2"
+                    aria-hidden="true"
+                />
+                <div class="text-4xl">yep</div>
             </div>
 
-            <div class="js-connection-nope py-4">
+            <div class="js-connection-nope relative py-4">
+                <InlineSvg
+                    svg={freehandScribbleSvg}
+                    class="js-scribble-svg x-scribble-svg h-[110px] absolute top-1/2 left-1/2 -translate-1/2"
+                    aria-hidden="true"
+                />
                 <div class="text-4xl">nope</div>
             </div>
 
@@ -239,7 +333,7 @@ const spinWheelPageData = Object.values(pages)
                     <path
                         d="M 5 3 L 5 63"
                         stroke="white"
-                        stroke-width="3"
+                        stroke-width="2"
                         fill="none"
                         stroke-linecap="round"
                     />
@@ -255,7 +349,7 @@ const spinWheelPageData = Object.values(pages)
                     <path
                         d="M 5 3 L 5 63"
                         stroke="white"
-                        stroke-width="3"
+                        stroke-width="2"
                         fill="none"
                         stroke-linecap="round"
                     />
@@ -263,24 +357,31 @@ const spinWheelPageData = Object.values(pages)
             </div>
 
             <div
-                class="js-option-box x-option-box text-4xl rounded-2xl border-2 border-primary p-10 flex flex-col gap-5"
+                class="text-4xl rounded-2xl border-2 border-primary p-10 flex flex-col gap-5"
                 style="box-shadow: 10px 10px; background-image: linear-gradient(45deg, #000000, #00000000);"
             >
                 ❤️
-                <a href="/">hello@email.address</a>
+                <a
+                    href="/contact"
+                    class="underline decoration-wavy decoration-from-font underline-offset-4 decoration-primary/25 hover:decoration-primary"
+                    data-astro-prefetch
+                    data-link-swap
+                    >get in touch</a
+                >
             </div>
 
             <div
-                class="js-option-box x-option-box text-4xl rounded-2xl border-2 border-primary p-10 flex flex-col gap-5"
+                class="text-4xl rounded-2xl border-2 border-primary p-10 flex flex-col gap-5"
                 style="box-shadow: 10px 10px; background-image: linear-gradient(45deg, #000000, #00000000);"
             >
                 🖕🏻
-                <nav>
-                    <ol class="flex justify-center">
-                        <li><a href="/">about</a></li>
-                        <li><a href="/">work</a></li>
-                    </ol>
-                </nav>
+                <a
+                    href="/about"
+                    class="underline decoration-wavy decoration-from-font underline-offset-4 decoration-primary/25 hover:decoration-primary"
+                    data-astro-prefetch
+                    data-link-swap
+                    >get to know</a
+                >
             </div>
         </div>
 
@@ -358,7 +459,7 @@ const spinWheelPageData = Object.values(pages)
                                 startOffset="25%"
                                 text-anchor="middle"
                             >
-                                Let chance decide
+                                let chance decide
                             </textPath>
 
                             <textPath
