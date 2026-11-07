@@ -137,7 +137,6 @@ class DemoEnergy extends Demo {
                     const { angle, distance } = getAngleAndDistance(
                         headingRect,
                         canvasRect,
-                        canvas,
                         offsetX,
                         offsetY,
                     );
@@ -234,18 +233,12 @@ class DemoEnergy extends Demo {
 function getAngleAndDistance(
     headingRect: DOMRect,
     canvasRect: DOMRect,
-    canvas: HTMLCanvasElement,
     x: number,
     y: number,
 ): { angle: number; distance: number } {
-    // Centre of the DOM element in canvas coordinates
-    const targetX =
-        (headingRect.left + headingRect.width / 2 - canvasRect.left) *
-        (canvas.width / canvasRect.width);
+    const targetX = headingRect.left + headingRect.width / 2 - canvasRect.left;
 
-    const targetY =
-        (headingRect.top + headingRect.height / 2 - canvasRect.top) *
-        (canvas.height / canvasRect.height);
+    const targetY = headingRect.top + headingRect.height / 2 - canvasRect.top;
 
     const dx = targetX - x;
     const dy = targetY - y;

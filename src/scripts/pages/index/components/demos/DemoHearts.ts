@@ -1,6 +1,11 @@
 import RAPIER from '@dimforge/rapier2d-compat';
 import { assertIsNotNull } from 'bossy-boots';
-import { arrayOf, findOrThrow, pickRandom } from 'spank-my-dom';
+import {
+    arrayOf,
+    findOrThrow,
+    getDevicePixelRatio,
+    pickRandom,
+} from 'spank-my-dom';
 import heartSVGRaw from '../../../../../images/heart.svg?raw';
 import type { PageEntitiesHelper } from '../../../../components/PageEntitiesHelper';
 import { Demo } from './Demo';
@@ -281,11 +286,13 @@ class DemoHearts extends Demo {
 
         // Initialise.
 
+        const dpr = getDevicePixelRatio({ max: 2 });
         const canvasRect = this.canvas.getBoundingClientRect();
         const world = createPhysicsWorld(this.canvas);
 
-        this.canvas.width = canvasRect.width;
-        this.canvas.height = canvasRect.height;
+        this.canvas.width = canvasRect.width * dpr;
+        this.canvas.height = canvasRect.height * dpr;
+        this.context.setTransform(dpr, 0, 0, dpr, 0, 0);
 
         componentState.worldRef = this.pageEntities.addRapierWorld(world);
 
