@@ -7,6 +7,7 @@ import {
     findOrThrow,
     getData,
     parseJson,
+    randomInt,
     setStyles,
 } from 'spank-my-dom';
 import type { Route } from '../../../config/runtime';
@@ -117,7 +118,7 @@ async function initDemosSection(): Promise<void> {
         demoHearts,
     ] satisfies Demo[];
 
-    let activeIndex = 3;
+    let activeIndex = randomInt(0, demos.length);
 
     const timer = new IntervalTimer({
         delay: 5000,
@@ -146,7 +147,7 @@ async function initDemosSection(): Promise<void> {
         if (entry.isIntersecting) {
             const demo = demos[activeIndex];
 
-            //timer.start();
+            timer.start();
             demo.start();
             demo.transitionIn(true);
         } else {
