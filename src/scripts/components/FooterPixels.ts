@@ -1,19 +1,27 @@
 import { assertIsNotNull } from 'bossy-boots';
-import { getDevicePixelRatio } from 'spank-my-dom';
+import { findOrThrow, getDevicePixelRatio } from 'spank-my-dom';
+import { defineBreakpoints } from '../utils';
 
-const MAX_SQUARE_SIZE = 20;
 const ROWS = 12;
 
+const getMaxSquareSize = defineBreakpoints({
+    base: 10,
+    lg: 20,
+});
+
 class FooterPixels {
+    private readonly canvas: HTMLCanvasElement;
     private readonly context: CanvasRenderingContext2D;
 
     private colour = '#fff';
 
-    constructor(private readonly canvas: HTMLCanvasElement) {
+    constructor() {
+        const canvas = findOrThrow<HTMLCanvasElement>('.js-footer-pixels');
         const context = canvas.getContext('2d');
 
         assertIsNotNull(context);
 
+        this.canvas = canvas;
         this.context = context;
 
         new ResizeObserver(() => {
@@ -24,10 +32,11 @@ class FooterPixels {
     public resize(): void {
         const { width } = this.canvas.getBoundingClientRect();
         const dpr = getDevicePixelRatio({ round: 'up' });
+        const maxSquareSize = getMaxSquareSize();
 
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        const columns = Math.ceil(width / MAX_SQUARE_SIZE);
+        const columns = Math.ceil(width / maxSquareSize);
         const columnSize = Math.round(width / columns);
 
         this.canvas.width = width * dpr;
@@ -41,7 +50,7 @@ class FooterPixels {
 
             let lastX = 0;
 
-            calculateColumnWidths(width, 20).forEach((x) => {
+            calculateColumnWidths(width, maxSquareSize).forEach((x) => {
                 if (chance(probability)) {
                     this.context.fillRect(lastX, columnSize * i, x, columnSize);
                 }

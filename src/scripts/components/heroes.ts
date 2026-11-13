@@ -7,6 +7,7 @@ import {
     MeshStandardMaterial,
     PerspectiveCamera,
     Scene,
+    type Vector3,
     WebGLRenderer,
 } from 'three';
 import {
@@ -52,6 +53,7 @@ abstract class Hero {
     private text: string;
     private readonly textGeometryParams: Partial<TextGeometryParameters>;
     private elementProps: ElementProps;
+    private meshSavedPosition?: Vector3;
 
     protected meshDistanceFromCamera = 0;
     protected meshDepth = 0;
@@ -93,14 +95,20 @@ abstract class Hero {
         this.placeholder = placeholder;
         this.elementProps = this.getElementProps();
         this.meshDistanceFromCamera = camera.position.distanceTo(mesh.position);
+
+        // Manually ensure internal matrices are synchronised.
+        // This fixes issues when using `project()` and `unproject()`.
+        this.camera.updateMatrixWorld(true);
+
+        new ResizeObserver(() => {
+            this.resize();
+        }).observe(placeholder);
+
+        this.resize();
     }
 
     public async compile(): Promise<void> {
         await this.renderer.compileAsync(this.scene, this.camera);
-    }
-
-    public pixelsToWorldUnits(value: number): number {
-        return pixelsToWorldUnits(value, this.camera, this.renderer);
     }
 
     public render(): void {
@@ -151,7 +159,11 @@ abstract class Hero {
         const geometry = new TextGeometry(value, {
             ...this.textGeometryParams,
             font: this.font,
-            size: this.pixelsToWorldUnits(placeholderHeight),
+            size: pixelsToWorldUnits(
+                placeholderHeight,
+                this.camera,
+                this.renderer,
+            ),
             bevelEnabled: false,
         });
 
@@ -163,6 +175,19 @@ abstract class Hero {
         this.mesh.geometry = geometry;
         this.meshDepth = depth;
         this.text = value;
+    }
+
+    public setYOffsetInScreenPixels(value: number): void {
+        this.meshSavedPosition ??= this.mesh.position.clone();
+
+        const position = this.meshSavedPosition.clone();
+
+        position.project(this.camera);
+
+        position.y += (value / this.renderer.domElement.clientHeight) * 2;
+
+        position.unproject(this.camera);
+        this.mesh.position.copy(position);
     }
 
     private getElementProps(): ElementProps {
@@ -279,17 +304,25 @@ class HeroBackground extends Hero {
     }
 }
 
-function getRotationVectors(state: State): [x: number, y: number] {
-    const targetX = state.interactive
-        ? (state.mouse.x / window.innerWidth) * 2 - 1
-        : 0;
+function getRotationVectors(
+    state: State,
+    elapsed: number,
+): [x: number, y: number] {
+    let x = 0;
+    let y = 0;
 
-    const targetY = state.interactive
-        ? -(state.mouse.y / window.innerHeight) * 2 + 1
-        : 0;
+    if (state.interactive) {
+        if (state.isProbablyMouse) {
+            const targetX = (state.mouse.x / window.innerWidth) * 2 - 1;
+            const targetY = -(state.mouse.y / window.innerHeight) * 2 + 1;
 
-    const x = targetY * MAX_ROTATION;
-    const y = targetX * MAX_ROTATION;
+            x = targetY * MAX_ROTATION;
+            y = targetX * MAX_ROTATION;
+        } else {
+            x = Math.sin(elapsed * 0.7) * 0.15;
+            y = Math.sin(elapsed * 0.5) * 0.3;
+        }
+    }
 
     return [x, y];
 }

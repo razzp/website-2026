@@ -16,7 +16,23 @@
     "linter": {
         "enabled": true,
         "rules": {
-            "preset": "recommended"
+            "preset": "recommended",
+            "correctness": {
+                "noUnknownFunction": {
+                    "level": "error",
+                    "options": {
+                        "ignore": ["theme"]
+                    }
+                }
+            },
+            "suspicious": {
+                "noUnknownAtRules": {
+                    "level": "warn",
+                    "options": {
+                        "ignore": ["apply"]
+                    }
+                }
+            }
         }
     },
     "javascript": {

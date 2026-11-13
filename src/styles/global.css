@@ -22,13 +22,34 @@
 }
 
 :root {
-    --inset: 100px;
-    --inset-half: calc(var(--inset) / 2);
+    --inset-x: 15px;
+    --inset-y: 70px;
+    --inset-y-half: calc(var(--inset-y) / 2);
     --duotone-contrast: 1.2;
     --scrollbar-compensation: 0;
-    --safe-area-top: calc(var(--inset) + var(--spacing) * 10);
+    --safe-area-top: calc(var(--inset-y) + var(--spacing) * 10);
+
+    /*
+        This has to be here:
+        See: https://gomakethings.com/articles/the-dialog-modal-backdrop-css-variables-and-safari
+    */
+    --mob-nav-bg-opacity: 0;
 
     margin-inline-end: var(--scrollbar-compensation, 0px);
+
+    @media (width >= theme(--breakpoint-md)) {
+        --inset-x: 40px;
+        --inset-y: 80px;
+    }
+
+    @media (width >= theme(--breakpoint-lg)) {
+        --inset-x: 80px;
+        --inset-y: 100px;
+    }
+
+    @media (width >= theme(--breakpoint-xl)) {
+        --inset-x: 100px;
+    }
 
     &.-no-scrollbar {
         --scrollbar-compensation: var(--scrollbar-width, 0px);
@@ -38,6 +59,14 @@
 
     &:not(.-no-scrollbar) {
         scrollbar-gutter: stable;
+    }
+}
+
+@custom-variant mouse-hover {
+    &:hover {
+        @media (hover: hover) and (pointer: fine) {
+            @slot;
+        }
     }
 }
 
@@ -65,7 +94,7 @@
 
 @layer utilities {
     .filter-duotone {
-        @apply filter-[url(#duotone-filter)_contrast(var(--duotone-contrast))];
+        @apply filter-[url(#svg-filter-duotone)_contrast(var(--duotone-contrast))];
     }
 
     .path-outline {
@@ -109,6 +138,10 @@
     .text-box-trim {
         text-box: trim-both cap alphabetic;
     }
+
+    .rfs-3xl-7xl {
+        font-size: clamp(1.875rem, calc(0rem + 4.688vw), 4.5rem);
+    }
 }
 
 @utility clip-rounded-* {
@@ -147,22 +180,22 @@
 }
 
 @layer components {
-    #main-nav {
+    .c-main-nav {
         @apply fixed z-20 top-0 flex justify-center pointer-events-none transition-transform duration-700 ease-in-out-expo;
 
         inset-inline: 0 var(--scrollbar-compensation);
         transform: translate3d(0, -100%, 0);
 
         .-show-nav & {
-            transform: translate3d(0, calc(var(--inset-half) - 50%), 0);
+            transform: translate3d(0, calc(var(--inset-y-half) - 50%), 0);
         }
 
         ol {
-            @apply flex items-center gap-8 px-8 p-4 bg-primary/50 hover:bg-primary backdrop-blur-xl rounded-full lowercase text-3xl in-[.-show-nav]:pointer-events-auto;
+            @apply flex items-center gap-4 lg:gap-8 lg:px-8 lg:py-4 bg-primary/50 mouse-hover:bg-primary backdrop-blur-xl rounded-full lowercase text-2xl lg:text-3xl in-[.-show-nav]:pointer-events-auto transition-colors ease-in-out duration-300;
         }
 
         .text-link {
-            @apply text-primary-contrast hover:underline decoration-wavy underline-offset-4 decoration-from-font;
+            @apply text-primary-contrast mouse-hover:underline decoration-wavy underline-offset-4 decoration-from-font;
         }
 
         .icon-link {
@@ -170,21 +203,36 @@
         }
     }
 
-    #main-content {
+    .c-mob-nav-dialog {
+        @apply text-primary-contrast backdrop-blur-xl max-w-none max-h-none w-auto h-fit overflow-clip;
+
+        background-color: rgb(
+            from var(--theme-primary) r g b /
+            var(--mob-nav-bg-opacity)
+        );
+
+        &::backdrop {
+            @apply bg-transparent;
+
+            backdrop-filter: blur(var(--bd-blur));
+        }
+    }
+
+    .c-main-content {
         --inset-top: 100%;
         --stretch: 0px;
         --top: calc(var(--inset-top) - var(--stretch));
-        --right: calc(100% - var(--inset));
+        --right: calc(100% - var(--inset-x));
 
         clip-path: shape(
-            from var(--inset) var(--top),
+            from var(--inset-x) var(--top),
             curve to var(--right) var(--top) with 50%
                 calc(var(--inset-top) - (var(--stretch) * 2)),
             curve to var(--right) 100% with
-                calc(100% - var(--inset) - var(--stretch)),
-            line to var(--inset) 100%,
-            curve to var(--inset) var(--top) with
-                calc(var(--inset) + var(--stretch)),
+                calc(100% - var(--inset-x) - var(--stretch)),
+            line to var(--inset-x) 100%,
+            curve to var(--inset-x) var(--top) with
+                calc(var(--inset-x) + var(--stretch)),
             close
         );
     }
@@ -208,12 +256,14 @@
         --shadow-y: 0px;
 
         @apply relative transform-3d will-change-transform;
+
         box-shadow: var(--shadow-x) calc(0px + var(--shadow-y)) 50px -10px
             rgba(0, 0, 0, var(--shadow-opacity));
         transition: --shadow-opacity 0.6s ease;
 
         &::after {
             @apply content-[''] absolute inset-0 mix-blend-overlay opacity-0 bg-no-repeat pointer-events-none;
+
             background-image: linear-gradient(
                 to right,
                 transparent,

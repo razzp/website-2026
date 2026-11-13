@@ -25,8 +25,10 @@ declare global {
 interface State {
     enableTransitions: boolean;
     interactive: boolean;
+    interactiveTimestamp: number;
     headerVisible: boolean;
     heroBackgroundVisible: boolean;
+    isProbablyMouse: boolean;
     lenis: LenisInstance;
     threeJsFont: Font;
     pageJs?: PageModule;
@@ -48,6 +50,7 @@ const [
     { default: Lenis },
     { HeroBackground, HeroForeground },
     { transitionIn, transitionOut },
+    { MobileNav },
     threeJsFont,
     pageJs,
 ] = await Promise.all([
@@ -56,20 +59,25 @@ const [
     import('lenis'),
     import('../components/heroes'),
     import('../components/transitions'),
+    import('../components/MobileNav'),
     loadThreeJsFont(),
     pageRoute.loadJs(),
     document.fonts.ready,
 ]);
 
-const header = findOrThrow('#main-header');
+const header = findOrThrow('.js-main-header');
 
 // Build a state object that we can pass around.
 
+const mouseQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
+
 const state: State = {
-    enableTransitions: false,
+    enableTransitions: true,
     interactive: false,
+    interactiveTimestamp: 0,
     headerVisible: false,
     heroBackgroundVisible: false,
+    isProbablyMouse: mouseQuery.matches,
     lenis: new Lenis(),
     threeJsFont,
     pageJs,
@@ -105,13 +113,19 @@ new IntersectionObserver(([entry]) => {
 }).observe(header);
 
 window.addEventListener(
-    'mousemove',
+    'pointermove',
     (event) => {
+        if (event.pointerType !== 'mouse') return;
+
         state.mouse.x = event.clientX;
         state.mouse.y = event.clientY;
     },
     { passive: true },
 );
+
+mouseQuery.addEventListener('change', () => {
+    state.isProbablyMouse = mouseQuery.matches;
+});
 
 // Cache the scrollbar width.
 
@@ -122,11 +136,11 @@ document.documentElement.style.setProperty(
 
 // Create the hero components.
 
-const heroPlaceholder = findOrThrow<HTMLElement>('#hero-placeholder');
+const heroPlaceholder = findOrThrow<HTMLElement>('.js-hero-placeholder');
 
 const heroForeground = new HeroForeground({
     state,
-    container: findOrThrow('#hero-foreground'),
+    container: findOrThrow('.js-hero-foreground'),
     placeholder: heroPlaceholder,
     text: pageMeta.heading,
     theme: pageMeta.theme,
@@ -134,7 +148,7 @@ const heroForeground = new HeroForeground({
 
 const heroBackground = new HeroBackground({
     state,
-    container: findOrThrow('#hero-background'),
+    container: findOrThrow('.js-hero-background'),
     placeholder: heroPlaceholder,
     text: pageMeta.heading,
     theme: pageMeta.theme,
@@ -142,11 +156,11 @@ const heroBackground = new HeroBackground({
 
 // Resize heroes to fit their allocated placeholders.
 
-heroForeground.resize();
-heroBackground.resize();
-
-gsap.ticker.add(() => {
-    const vectors = getRotationVectors(state);
+gsap.ticker.add((time) => {
+    const vectors = getRotationVectors(
+        state,
+        time - state.interactiveTimestamp,
+    );
 
     heroBackground.rotate(...vectors);
     heroForeground.rotate(...vectors);
@@ -162,11 +176,9 @@ gsap.ticker.add(() => {
 
 // Create the footer pixels.
 
-const footerPixels = new FooterPixels(
-    findOrThrow<HTMLCanvasElement>('#footer-pixels'),
-);
+const footerPixels = new FooterPixels();
 
-// Set up the nav.
+// Set up the main nav.
 
 const loadPage = async (route: Route, anchor?: string): Promise<void> => {
     const pageRoute = pageRoutes[route];
@@ -233,6 +245,12 @@ const loadPage = async (route: Route, anchor?: string): Promise<void> => {
     }
 };
 
+// Set up the mobile nav.
+
+const mobileNav = new MobileNav();
+
+// Handle navigation.
+
 document.addEventListener(
     'click',
     delegate(
@@ -247,7 +265,11 @@ document.addEventListener(
                 const { pathname, hash } = new URL(link.href);
 
                 if (isRoute(pathname)) {
-                    await loadPage(pathname, hash);
+                    if (mobileNav.isOpen) {
+                        await mobileNav.close(true);
+                    }
+
+                    loadPage(pathname, hash);
                 } else {
                     location.href = link.href;
                 }
@@ -264,7 +286,7 @@ transitionIn({
     heroForeground,
     onBeforeShow: async () => {
         document.body.dataset.page = pageRoute.cssScope;
-        pageJs.init(state);
+        //pageJs.init(state);
     },
     onAfterShow: () => {
         footerPixels.setColour(pageMeta.theme.primaryContrast);

@@ -7,6 +7,27 @@ import type { PageMeta, PageTheme } from '../lib/config';
 import type { HeroBackground, HeroForeground } from './components/heroes';
 import type { State } from './layouts/DefaultLayout';
 
+type Breakpoint = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+
+function defineBreakpoints<T extends { base: unknown }>(
+    breakpoints: T & { [K in Breakpoint]?: unknown },
+): () => T[keyof T] {
+    const { base, '2xl': xxl, xl, lg, md, sm } = breakpoints;
+
+    const gte = (width: number) =>
+        window.matchMedia(`(width >= ${width}rem)`).matches;
+
+    return (() => {
+        if (xxl !== undefined && gte(96)) return xxl;
+        if (xl !== undefined && gte(80)) return xl;
+        if (lg !== undefined && gte(64)) return lg;
+        if (md !== undefined && gte(48)) return md;
+        if (sm !== undefined && gte(40)) return sm;
+
+        return base;
+    }) as () => T[keyof T];
+}
+
 function degreesToRadians(degrees: number): number {
     return degrees * (Math.PI / 180);
 }
@@ -144,7 +165,8 @@ async function swapPage(options: {
     document.title = pageMeta.metaTitle;
 
     findOrThrow('#page-meta').innerHTML = JSON.stringify(pageMeta);
-    findOrThrow('#hero-strapline').innerHTML = pageMeta.strapline;
+    findOrThrow('.js-hero-heading').innerHTML = pageMeta.heading;
+    findOrThrow('.js-hero-strapline').innerHTML = pageMeta.strapline;
 
     findOrThrow('meta[name="theme-color"]').setAttribute(
         'content',
@@ -204,6 +226,7 @@ function toggleScrollbar(enabled: boolean): void {
 }
 
 export {
+    defineBreakpoints,
     degreesToRadians,
     expoInWithInitialVelocity,
     getCameraOffsetY,

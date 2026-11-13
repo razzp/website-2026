@@ -172,7 +172,7 @@ const spinWheelPageData = Object.values(pages)
             aria-hidden="true"
             style="display: none"
         >
-            <filter id="grain">
+            <filter id="svg-filter-grain">
                 <feTurbulence
                     type="fractalNoise"
                     baseFrequency="0.8"
@@ -234,7 +234,8 @@ const spinWheelPageData = Object.values(pages)
 
                 <!-- Typographic -->
                 <DemoComponent
-                    class="js-demo-typographic bg-primary text-primary-contrast filter-[url(#grain)]"
+                    class="js-demo-typographic bg-primary text-primary-contrast filter-[url(#svg-filter-grain)]"
+                    headingClass="px-4"
                 >
                     <template>
                         <span
@@ -245,7 +246,7 @@ const spinWheelPageData = Object.values(pages)
 
                 <!-- Energy -->
                 <DemoComponent
-                    class="js-demo-energy bg-black text-primary filter-[url(#grain)]"
+                    class="js-demo-energy bg-black text-primary filter-[url(#svg-filter-grain)]"
                     headingClass="x-demo-energy-heading"
                 >
                     <svg
@@ -253,7 +254,7 @@ const spinWheelPageData = Object.values(pages)
                         class="hidden"
                         aria-hidden="true"
                     >
-                        <filter id="fuzz-filter">
+                        <filter id="svg-filter-turbulence">
                             <feTurbulence
                                 in="SourceGraphic"
                                 result="turbulence"
@@ -274,7 +275,7 @@ const spinWheelPageData = Object.values(pages)
 
                 <!-- Hearts -->
                 <DemoComponent
-                    class="js-demo-hearts bg-[#ffe1f0] text-[#ff0044] filter-[url(#grain)]"
+                    class="js-demo-hearts bg-[#ffe1f0] text-[#ff0044] filter-[url(#svg-filter-grain)]"
                     headingClass="text-box-trim"
                 >
                     <canvas

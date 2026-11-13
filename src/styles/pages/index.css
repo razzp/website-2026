@@ -173,7 +173,7 @@
     }
 
     .x-demo-energy-heading {
-        filter: url('#fuzz-filter')
+        filter: url('#svg-filter-turbulence')
             drop-shadow(0 0 60px rgb(from #82c3ff r g b / var(--glow, 0)));
     }
 }
