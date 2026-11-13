@@ -118,7 +118,7 @@ async function initDemosSection(): Promise<void> {
         demoHearts,
     ] satisfies Demo[];
 
-    let activeIndex = randomInt(0, demos.length);
+    let activeIndex = randomInt(0, demos.length - 1);
 
     const timer = new IntervalTimer({
         delay: 5000,
