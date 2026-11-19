@@ -1,24 +1,21 @@
-import { isInstanceOf } from 'bossy-boots';
 import type { default as LenisInstance } from 'lenis';
-import { delegate, find, findOrThrow, getScrollbarWidth } from 'spank-my-dom';
+import { delegate, findOrThrow, getScrollbarWidth } from 'spank-my-dom';
 import type { Font } from 'three/addons/loaders/FontLoader.js';
-import { type PageModule, pageRoutes, type Route } from '../../config/runtime';
+import { pageRoutes } from '../../config/runtime';
 import { FooterPixels } from '../components/FooterPixels';
 import { getRotationVectors } from '../components/heroes';
+import { PageManager } from '../components/PageManager';
 import {
     getPageMeta,
-    getScrollPaddingTop,
-    isRoute,
     isSpecialClick,
     loadThreeJsFont,
     preloadModulesWhenIdle,
     restoreScrollPosition,
-    swapPage,
 } from '../utils';
 
 declare global {
     interface DocumentEventMap {
-        'app:page-request': CustomEvent<string>;
+        'app:page-request-relative': CustomEvent<string>;
     }
 }
 
@@ -31,12 +28,10 @@ interface State {
     isProbablyMouse: boolean;
     lenis: LenisInstance;
     threeJsFont: Font;
-    pageJs?: PageModule;
     mouse: {
         x: number;
         y: number;
     };
-    loadPage: (route: Route, anchor?: string) => Promise<void>;
 }
 
 const pageMeta = getPageMeta(document);
@@ -49,10 +44,10 @@ const [
     { ScrollTrigger, SplitText, MotionPathPlugin },
     { default: Lenis },
     { HeroBackground, HeroForeground },
-    { transitionIn, transitionOut },
+    { transitionIn },
     { MobileNav },
     threeJsFont,
-    pageJs,
+    pageModule,
 ] = await Promise.all([
     import('gsap'),
     import('gsap/all'),
@@ -61,7 +56,7 @@ const [
     import('../components/transitions'),
     import('../components/MobileNav'),
     loadThreeJsFont(),
-    pageRoute.loadJs(),
+    pageRoute.loadModule(),
     document.fonts.ready,
 ]);
 
@@ -80,12 +75,10 @@ const state: State = {
     isProbablyMouse: mouseQuery.matches,
     lenis: new Lenis(),
     threeJsFont,
-    pageJs,
     mouse: {
         x: window.innerWidth / 2,
         y: window.innerHeight / 2,
     },
-    loadPage: (route: Route, anchor?: string) => loadPage(route, anchor),
 };
 
 // Configure Lenis.
@@ -106,7 +99,7 @@ gsap.ticker.add((time) => {
     state.lenis.raf(time * 1000);
 });
 
-// Listen for some stuff...
+// Listen for some state stuff...
 
 new IntersectionObserver(([entry]) => {
     state.headerVisible = entry.isIntersecting;
@@ -178,105 +171,46 @@ gsap.ticker.add((time) => {
 
 const footerPixels = new FooterPixels();
 
-// Set up the main nav.
-
-const loadPage = async (route: Route, anchor?: string): Promise<void> => {
-    const pageRoute = pageRoutes[route];
-
-    const [html, newPageJs] = await Promise.all([
-        fetch(route).then((response) => response.text()),
-        pageRoute.loadJs(),
-        transitionOut({
-            state,
-            heroBackground,
-            onBeforeHide: () => {
-                state.pageJs?.destroy(state);
-            },
-        }),
-    ]);
-
-    state.pageJs = newPageJs;
-
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    const pageMeta = getPageMeta(doc);
-
-    history.pushState({}, '', route);
-
-    await swapPage({
-        state,
-        pageMeta,
-        doc,
-        heroBackground,
-        heroForeground,
-    });
-
-    await transitionIn({
-        state,
-        heroBackground,
-        heroForeground,
-        onBeforeShow: () => {
-            document.body.dataset.page = pageRoute.cssScope;
-            newPageJs.init(state);
-        },
-        onAfterShow: () => {
-            footerPixels.setColour(pageMeta.theme.primaryContrast);
-        },
-    });
-
-    if (anchor) {
-        const { enableTransitions, lenis } = state;
-
-        const anchorElement = find<HTMLElement>(
-            `#${anchor.startsWith('#') ? anchor.slice(1) : anchor}`,
-        );
-
-        if (anchorElement) {
-            // Ensure Lenis is up to date.
-            lenis.resize();
-
-            lenis.scrollTo(anchorElement, {
-                duration: 0.8,
-                immediate: !enableTransitions,
-                lock: true,
-                offset: -getScrollPaddingTop(anchorElement),
-                easing: gsap.parseEase('expo.inOut'),
-            });
-        }
-    }
-};
-
-// Set up the mobile nav.
+// Set up page navigation.
 
 const mobileNav = new MobileNav();
 
-// Handle navigation.
+const pageManager = new PageManager({
+    state,
+    activeModule: pageModule,
+    mobileNav,
+    heroBackground,
+    heroForeground,
+    footerPixels,
+});
+
+window.addEventListener('popstate', async (event) => {
+    const url = event.state?.url;
+
+    if (!url) return;
+
+    await pageManager.loadOrRedirect({ url: new URL(url), push: false });
+});
 
 document.addEventListener(
     'click',
-    delegate(
+    delegate<HTMLAnchorElement, PointerEvent>(
         '[data-link-swap]',
         async ({ originalEvent, delegateTarget: link }) => {
-            if (
-                !isSpecialClick(originalEvent) &&
-                isInstanceOf(link, HTMLAnchorElement)
-            ) {
-                originalEvent.preventDefault();
+            if (isSpecialClick(originalEvent)) return;
 
-                const { pathname, hash } = new URL(link.href);
+            originalEvent.preventDefault();
 
-                if (isRoute(pathname)) {
-                    if (mobileNav.isOpen) {
-                        await mobileNav.close(true);
-                    }
-
-                    loadPage(pathname, hash);
-                } else {
-                    location.href = link.href;
-                }
-            }
+            await pageManager.loadOrRedirect({ url: new URL(link.href) });
         },
     ),
 );
+
+document.addEventListener('app:page-request-relative', async (event) => {
+    await pageManager.loadOrRedirect({
+        url: new URL(event.detail, location.host),
+    });
+});
 
 // Good to go. Begin the first transition!
 
@@ -286,7 +220,7 @@ transitionIn({
     heroForeground,
     onBeforeShow: async () => {
         document.body.dataset.page = pageRoute.cssScope;
-        //pageJs.init(state);
+        pageModule.init(state);
     },
     onAfterShow: () => {
         footerPixels.setColour(pageMeta.theme.primaryContrast);

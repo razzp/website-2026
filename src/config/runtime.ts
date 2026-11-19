@@ -6,29 +6,29 @@ interface PageModule {
 }
 
 interface PageRoute {
-    loadJs: () => Promise<PageModule>;
+    loadModule: () => Promise<PageModule>;
     cssScope: string;
 }
 
 const pageRoutes = {
     '/': {
-        loadJs: () => import('../scripts/pages/index/index'),
+        loadModule: () => import('../scripts/pages/index/index'),
         cssScope: 'index',
     },
     '/about': {
-        loadJs: () => import('../scripts/pages/about/about'),
+        loadModule: () => import('../scripts/pages/about/about'),
         cssScope: 'about',
     },
     '/work': {
-        loadJs: () => import('../scripts/pages/work/work'),
+        loadModule: () => import('../scripts/pages/work/work'),
         cssScope: 'work',
     },
     '/contact': {
-        loadJs: () => import('../scripts/pages/contact'),
+        loadModule: () => import('../scripts/pages/contact'),
         cssScope: 'contact',
     },
 } satisfies { [key: string]: PageRoute };
 
 type Route = keyof typeof pageRoutes;
 
-export { type PageModule, pageRoutes, type Route };
+export { type PageModule, type PageRoute, pageRoutes, type Route };

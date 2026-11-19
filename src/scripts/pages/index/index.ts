@@ -16,8 +16,7 @@ import { PageEntitiesHelper } from '../../components/PageEntitiesHelper';
 import { Path } from '../../components/Path';
 import { Particles } from '../../components/particles';
 import { StickyElement } from '../../components/StickyElements';
-import type { State } from '../../layouts/DefaultLayout';
-import { getPageMeta } from '../../utils';
+import { dispatchPageRequestRelative, getPageMeta } from '../../utils';
 import type { Demo } from './components/demos/Demo';
 import { DemoEnergy } from './components/demos/DemoEnergy';
 import { DemoHearts } from './components/demos/DemoHearts';
@@ -60,7 +59,7 @@ const pageState: PageState = {
 
 const pageEntities = new PageEntitiesHelper();
 
-function init(state: State): void {
+function init(): void {
     // Blurb markers.
 
     findAll('.js-blurb').forEach((blurb) => {
@@ -102,7 +101,7 @@ function init(state: State): void {
     initKeywords();
     initDemosSection();
     initSeenEnoughSection();
-    initSpinWheel(state);
+    initSpinWheel();
 }
 
 async function initDemosSection(): Promise<void> {
@@ -385,7 +384,7 @@ function initSeenEnoughSection(): void {
     scribbleObserver.observe(scribbleSvg);
 }
 
-function initSpinWheel(state: State): void {
+function initSpinWheel(): void {
     const pageMeta = getPageMeta(document);
 
     const container = findOrThrow<HTMLElement>('.js-spin');
@@ -487,9 +486,7 @@ function initSpinWheel(state: State): void {
                     spin.isSpinning = false;
                     sticky.enabled = true;
 
-                    if (!event.ctrlKey) {
-                        state.loadPage(slice.route);
-                    }
+                    dispatchPageRequestRelative(slice.route);
                 },
             })
             .set(finalSlice, {

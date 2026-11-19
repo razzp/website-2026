@@ -1,10 +1,9 @@
 import { gsap } from 'gsap';
-import { findAll, findOrThrow, getDataOrThrow } from 'spank-my-dom';
+import { findOrThrow } from 'spank-my-dom';
 import type * as THREE from 'three';
 import type { Font } from 'three/addons/loaders/FontLoader.js';
 import { pageRoutes, type Route } from '../config/runtime';
 import type { PageMeta, PageTheme } from '../lib/config';
-import type { HeroBackground, HeroForeground } from './components/heroes';
 import type { State } from './layouts/DefaultLayout';
 
 type Breakpoint = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
@@ -30,6 +29,14 @@ function defineBreakpoints<T extends { base: unknown }>(
 
 function degreesToRadians(degrees: number): number {
     return degrees * (Math.PI / 180);
+}
+
+function dispatchPageRequestRelative(path: string): void {
+    document.dispatchEvent(
+        new CustomEvent('app:page-request-relative', {
+            detail: path,
+        }),
+    );
 }
 
 function expoInWithInitialVelocity(
@@ -118,8 +125,8 @@ function preloadModulesWhenIdle(routes: typeof pageRoutes): void {
     }
 
     const preload = () => {
-        for (const { loadJs } of Object.values(routes)) {
-            void loadJs().catch(() => {});
+        for (const { loadModule } of Object.values(routes)) {
+            void loadModule().catch(() => {});
         }
     };
 
@@ -145,75 +152,11 @@ function restoreScrollPosition(state: State): void {
             lenis.resize();
 
             lenis.scrollTo(parseFloat(savedScrollY), {
-                duration: 0.6,
+                duration: 0.8,
                 immediate: !enableTransitions,
                 easing: gsap.parseEase('expo.inOut'),
             });
         }
-    }
-}
-
-async function swapPage(options: {
-    state: State;
-    pageMeta: PageMeta;
-    doc: Document;
-    heroBackground: HeroBackground;
-    heroForeground: HeroForeground;
-}): Promise<void> {
-    const { state, pageMeta, doc, heroBackground, heroForeground } = options;
-
-    document.title = pageMeta.metaTitle;
-
-    findOrThrow('#page-meta').innerHTML = JSON.stringify(pageMeta);
-    findOrThrow('.js-hero-heading').innerHTML = pageMeta.heading;
-    findOrThrow('.js-hero-strapline').innerHTML = pageMeta.strapline;
-
-    findOrThrow('meta[name="theme-color"]').setAttribute(
-        'content',
-        pageMeta.theme.primary,
-    );
-
-    findAll<HTMLElement>('[data-swap]').forEach((element) => {
-        const id = getDataOrThrow(element, 'swap');
-        const newElement = doc.querySelector(`[data-swap="${id}"]`);
-
-        if (newElement) {
-            element.replaceWith(newElement);
-        }
-    });
-
-    heroBackground.setText(pageMeta.heading);
-    heroForeground.setText(pageMeta.heading);
-
-    heroBackground.resize();
-    heroForeground.resize();
-
-    heroForeground.applyTheme(pageMeta.theme);
-    heroBackground.applyTheme(pageMeta.theme);
-
-    for (const [key, value] of Object.entries(pageMeta.theme)) {
-        // Ignore 'primary' as we'll animate it later...
-        if (state.enableTransitions && key === 'primary') continue;
-
-        document.documentElement.style.setProperty(
-            `--theme-${key.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}`,
-            value,
-        );
-    }
-
-    if (state.enableTransitions) {
-        const colourTween = document.documentElement.animate(
-            {
-                '--theme-primary': pageMeta.theme.primary,
-            },
-            {
-                duration: 600,
-                fill: 'forwards',
-                easing: 'ease',
-            },
-        );
-
-        await colourTween.finished;
     }
 }
 
@@ -228,6 +171,7 @@ function toggleScrollbar(enabled: boolean): void {
 export {
     defineBreakpoints,
     degreesToRadians,
+    dispatchPageRequestRelative,
     expoInWithInitialVelocity,
     getCameraOffsetY,
     getPageMeta,
@@ -240,6 +184,5 @@ export {
     pixelsToWorldUnits,
     preloadModulesWhenIdle,
     restoreScrollPosition,
-    swapPage,
     toggleScrollbar,
 };
