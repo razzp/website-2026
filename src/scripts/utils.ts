@@ -1,5 +1,5 @@
 import { gsap } from 'gsap';
-import { findOrThrow } from 'spank-my-dom';
+import { find, findOrThrow } from 'spank-my-dom';
 import type * as THREE from 'three';
 import type { Font } from 'three/addons/loaders/FontLoader.js';
 import { pageRoutes, type Route } from '../config/runtime';
@@ -138,22 +138,42 @@ function preloadModulesWhenIdle(routes: typeof pageRoutes): void {
 }
 
 function restoreScrollPosition(state: State): void {
+    const { enableTransitions, lenis } = state;
+
+    // Ensure Lenis is up to date, as this is likely being
+    // called very early on in the page's lifecycle.
+    lenis.resize();
+
     const navigation = performance.getEntriesByType('navigation')[0] as
         | PerformanceNavigationTiming
         | undefined;
 
     if (navigation?.type === 'reload') {
-        const { enableTransitions, lenis } = state;
-        const savedScrollY = sessionStorage.getItem('scrollPosition');
+        const savedScrollY = parseFloat(
+            sessionStorage.getItem('scrollPosition') ?? '',
+        );
 
-        if (savedScrollY !== null) {
-            // Ensure Lenis is up to date, as this is likely being called
-            // very early on in the page's lifecycle.
-            lenis.resize();
-
-            lenis.scrollTo(parseFloat(savedScrollY), {
+        if (!Number.isNaN(savedScrollY) && savedScrollY > 0) {
+            lenis.scrollTo(savedScrollY, {
                 duration: 0.8,
                 immediate: !enableTransitions,
+                easing: gsap.parseEase('expo.inOut'),
+            });
+
+            return;
+        }
+    }
+
+    const hash = window.location.hash;
+
+    if (hash) {
+        const anchorElement = find<HTMLElement>(hash);
+
+        if (anchorElement) {
+            lenis.scrollTo(anchorElement, {
+                duration: 0.8,
+                immediate: !enableTransitions,
+                offset: -getScrollPaddingTop(anchorElement),
                 easing: gsap.parseEase('expo.inOut'),
             });
         }

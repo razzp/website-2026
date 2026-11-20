@@ -1,9 +1,8 @@
-import { gsap } from 'gsap';
-import { find, findAll, findOrThrow, getDataOrThrow } from 'spank-my-dom';
+import { findAll, findOrThrow, getDataOrThrow } from 'spank-my-dom';
 import { type PageModule, pageRoutes } from '../../config/runtime';
 import type { PageMeta } from '../../lib/config';
 import type { State } from '../layouts/DefaultLayout';
-import { getPageMeta, getScrollPaddingTop, isRoute } from '../utils';
+import { getPageMeta, isRoute, restoreScrollPosition } from '../utils';
 import type { FooterPixels } from './FooterPixels';
 import type { HeroBackground, HeroForeground } from './heroes';
 import type { MobileNav } from './MobileNav';
@@ -77,7 +76,7 @@ class PageManager {
 
     private async load(options: LoadOptions): Promise<void> {
         const { url, push = true } = options;
-        const { pathname: route, hash } = url;
+        const { pathname: route } = url;
 
         if (this.isLocked) {
             throw new Error('Page request already in progress');
@@ -130,28 +129,11 @@ class PageManager {
             },
             onAfterShow: () => {
                 this.footerPixels.setColour(pageMeta.theme.primaryContrast);
+                restoreScrollPosition(this.state);
             },
         });
 
         this.isLocked = false;
-
-        if (hash) {
-            const { enableTransitions, lenis } = this.state;
-            const anchorElement = find<HTMLElement>(hash);
-
-            if (anchorElement) {
-                // Ensure Lenis is up to date.
-                lenis.resize();
-
-                lenis.scrollTo(anchorElement, {
-                    duration: 0.8,
-                    immediate: !enableTransitions,
-                    lock: true,
-                    offset: -getScrollPaddingTop(anchorElement),
-                    easing: gsap.parseEase('expo.inOut'),
-                });
-            }
-        }
     }
 
     private async swapPage(options: SwapPageOptions): Promise<void> {
