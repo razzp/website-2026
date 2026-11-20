@@ -286,7 +286,7 @@
 
     .c-elastic-button {
         &:hover {
-            z-index: 9999;
+            @apply z-50;
             filter: drop-shadow(0 0 20px var(--color-primary-contrast));
         }
     }
