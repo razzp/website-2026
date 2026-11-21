@@ -5,6 +5,21 @@ import type { State } from '../layouts/DefaultLayout';
 import { defineBreakpoints } from '../utils';
 import type { HeroBackground, HeroForeground } from './heroes';
 
+interface TransitionInOptions {
+    state: State;
+    heroBackground: HeroBackground;
+    heroForeground: HeroForeground;
+    slowFog?: boolean;
+    onBeforeShow?: () => void;
+    onAfterShow?: () => void;
+}
+
+interface TransitionOutOptions {
+    state: State;
+    heroBackground: HeroBackground;
+    onBeforeHide?: () => void;
+}
+
 const strapline = findOrThrow('.js-hero-strapline');
 const wrapper = findOrThrow('main');
 
@@ -26,20 +41,17 @@ function getComputed(
     return (value: string) => styles.getPropertyValue(value).trim();
 }
 
-function transitionIn({
-    state,
-    heroBackground,
-    heroForeground,
-    onBeforeShow,
-    onAfterShow,
-}: {
-    state: State;
-    heroBackground: HeroBackground;
-    heroForeground: HeroForeground;
-    onBeforeShow?: () => void;
-    onAfterShow?: () => void;
-}): Promise<void> {
+function transitionIn(options: TransitionInOptions): Promise<void> {
     return new Promise((resolve) => {
+        const {
+            state,
+            heroBackground,
+            heroForeground,
+            slowFog = false,
+            onBeforeShow,
+            onAfterShow,
+        } = options;
+
         const { enableTransitions } = state;
 
         (async () => {
@@ -60,7 +72,7 @@ function transitionIn({
                     },
                 })
                 .to(heroBackground.scene.fog, {
-                    duration: 1,
+                    duration: slowFog ? 2 : 1,
                     ease: 'expo.out',
                     far: fogProps.farVisible,
                     near: fogProps.nearVisible,
@@ -139,16 +151,9 @@ function transitionIn({
     });
 }
 
-function transitionOut({
-    state,
-    heroBackground,
-    onBeforeHide,
-}: {
-    state: State;
-    heroBackground: HeroBackground;
-    onBeforeHide?: () => void;
-}): Promise<void> {
+function transitionOut(options: TransitionOutOptions): Promise<void> {
     return new Promise((resolve) => {
+        const { state, heroBackground, onBeforeHide } = options;
         const { enableTransitions, lenis } = state;
 
         document.documentElement.classList.remove('-show-nav');

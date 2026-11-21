@@ -44,10 +44,19 @@ const rootStyles = [
             is:inline
         />
 
-        <script src="../scripts/layouts/DefaultLayout.ts"></script>
+        <script src="../scripts/layouts/DefaultLayoutPreloader.ts"></script>
     </head>
 
     <body class="bg-primary">
+        <div
+            class="not-in-[.-show-preloader]:hidden z-9999 absolute inset-0 grid place-items-center bg-primary text-primary-contrast"
+            ><span
+                class="js-preloader text-6xl py-10"
+                style="font-family: system-ui, sans-serif;"
+                >loading</span
+            ></div
+        >
+
         <dialog class="js-mob-nav-dialog c-mob-nav-dialog" closedby="any">
             <div class="js-dialog-inner flex flex-col pb-10 gap-10">
                 <p

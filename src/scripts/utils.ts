@@ -1,7 +1,6 @@
 import { gsap } from 'gsap';
 import { find, findOrThrow } from 'spank-my-dom';
 import type * as THREE from 'three';
-import type { Font } from 'three/addons/loaders/FontLoader.js';
 import { pageRoutes, type Route } from '../config/runtime';
 import type { PageMeta, PageTheme } from '../lib/config';
 import type { State } from './layouts/DefaultLayout';
@@ -80,19 +79,6 @@ function isRoute(input: string): input is Route {
 
 function isSpecialClick(event: PointerEvent): boolean {
     return event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
-}
-
-async function loadThreeJsFont(): Promise<Font> {
-    const path = './fonts/StackSansText-Regular-subset.ttf';
-
-    const [{ Font }, fontData] = await Promise.all([
-        import('three/addons/loaders/FontLoader.js'),
-        import('three/addons/loaders/TTFLoader.js').then(({ TTFLoader }) =>
-            new TTFLoader().loadAsync(path),
-        ),
-    ]);
-
-    return new Font(fontData);
 }
 
 function mapNormalisedToRange(value: number, from: number, to: number): number {
@@ -199,7 +185,6 @@ export {
     getThemeVarsAsStyles,
     isRoute,
     isSpecialClick,
-    loadThreeJsFont,
     mapNormalisedToRange,
     pixelsToWorldUnits,
     preloadModulesWhenIdle,
