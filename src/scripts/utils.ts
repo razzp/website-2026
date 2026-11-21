@@ -134,13 +134,15 @@ function restoreScrollPosition(state: State): void {
         | PerformanceNavigationTiming
         | undefined;
 
-    if (navigation?.type === 'reload') {
-        const savedScrollY = parseFloat(
-            sessionStorage.getItem('scrollPosition') ?? '',
-        );
+    const savedScrollY = sessionStorage.getItem('scrollPosition');
 
-        if (!Number.isNaN(savedScrollY) && savedScrollY > 0) {
-            lenis.scrollTo(savedScrollY, {
+    sessionStorage.removeItem('scrollPosition');
+
+    if (navigation?.type === 'reload' && savedScrollY) {
+        const scrollY = parseFloat(savedScrollY);
+
+        if (!Number.isNaN(scrollY) && scrollY > 0) {
+            lenis.scrollTo(scrollY, {
                 duration: 0.8,
                 immediate: !enableTransitions,
                 easing: gsap.parseEase('expo.inOut'),
