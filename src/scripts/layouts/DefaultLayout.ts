@@ -211,7 +211,7 @@ function init(options: InitOptions): void {
 
     document.addEventListener('app:page-request-relative', async (event) => {
         await pageManager.loadOrRedirect({
-            url: new URL(event.detail, location.host),
+            url: new URL(event.detail, location.origin),
         });
     });
 
