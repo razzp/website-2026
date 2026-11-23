@@ -56,7 +56,6 @@ interface InitOptions {
 const header = findOrThrow('.js-main-header');
 
 // Cache the scrollbar width.
-
 document.documentElement.style.setProperty(
     '--scrollbar-width',
     `${getScrollbarWidth()}px`,
@@ -69,7 +68,7 @@ window.addEventListener('beforeunload', () => {
 
 preloadModulesWhenIdle(pageRoutes);
 
-function init(options: InitOptions): void {
+async function init(options: InitOptions): Promise<void> {
     const { threeJsFont, pageMeta, pageModule, pageRoute } = options;
 
     // Build a state object that we can pass around.
@@ -150,12 +149,14 @@ function init(options: InitOptions): void {
         theme: pageMeta.theme,
     });
 
+    await Promise.all([heroForeground.compile(), heroBackground.compile()]);
+
     // Resize heroes to fit their allocated placeholders.
 
-    gsap.ticker.add((time) => {
+    const renderHeroes = (elapsed: number) => {
         const vectors = getRotationVectors(
             state,
-            time - state.interactiveTimestamp,
+            elapsed - state.interactiveTimestamp,
         );
 
         heroBackground.rotate(...vectors);
@@ -168,7 +169,10 @@ function init(options: InitOptions): void {
                 heroBackground.render();
             }
         }
-    });
+    };
+
+    renderHeroes(0);
+    gsap.ticker.add(renderHeroes);
 
     // Create the footer pixels.
 

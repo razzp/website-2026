@@ -78,7 +78,7 @@ if (!probablyCached) {
     document.documentElement.classList.remove('-show-preloader');
 }
 
-init({ threeJsFont, pageMeta, pageModule, pageRoute });
+await init({ threeJsFont, pageMeta, pageModule, pageRoute });
 
 sessionStorage.setItem(STORAGE_KEY, 'true');
 
