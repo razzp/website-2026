@@ -19,7 +19,11 @@ const promises = Promise.all([
     document.fonts.ready,
 ]);
 
-const preloader = findOrThrow('.js-preloader');
+const preloader = findOrThrow<HTMLElement>('.js-preloader');
+
+// Set preloader text dynamically so that
+// it's announced by screen readers.
+preloader.innerText = 'loading';
 
 let preloaderAnimation: Animation | undefined;
 
